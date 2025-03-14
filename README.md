@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Fintrack - Personal Finance Tracker (MVP)
 
-## Getting Started
+Fintrack is a **simple and intuitive financial tracking application** designed to help users **record and analyze** their income and expenses efficiently. This is a **Minimum Viable Product (MVP)** and is not intended as a final application.
 
-First, run the development server:
+Unlike advanced financial software, Fintrack does not manage bank accounts, digital wallets, or complex financial reports. Instead, it focuses on **providing a historical record of transactions and offering basic financial insights** to help users understand their spending habits.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Register Transactions**: Users can log **income and expenses** with key details like amount, date, description, and category. Expenses can be classified as **essential** or **optional**.
+- **Transaction History**: View a **structured list of transactions**, filter by type (income/expense), date, and category, and sort them for better analysis.
+- **Edit and Delete Records**: Modify or remove transactions with **validation to ensure consistency** and avoid accidental deletions.
+- **Monthly Savings Goal**: Set a **monthly savings target** and track progress based on income vs. expenses.
+- **Monthly Budget**: Define a **spending limit** and receive alerts when approaching or exceeding the budget.
+- **Financial Reports**: Generate **visual summaries and trends** of financial activity with charts and percentages.
+- **Export Transactions**: Download records in **CSV format** for external analysis.
+- **AI-Based Suggestions**: Receive **personalized financial insights** based on transaction history, highlighting spending patterns and offering optimization tips.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🚀 Development Status
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project is currently **in development**, with features being tested and improved iteratively.
 
-## Learn More
+## 👥 Team Members
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **John Freddy Belalcazar Rojas** - 2182464
+- **Juan David Loaiza Santiago** - 2177570
+- **Juan Sebastián Muñoz Rojas** - 2177436
+- **Julián David Rendón Cardona** - 2177387
+- **Nicolás Herrera Marulanda** - 2182551
+- **Samuel Esteiman Galindo Cuevas** - 2177491
