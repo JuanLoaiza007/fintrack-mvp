@@ -1,4 +1,5 @@
 import "./globals.css";
+import { TransactionProvider } from "@/context/TransactionContext";
 
 export const metadata = {
   title: "FinTrack",
@@ -8,7 +9,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="es">
-      <body className="flex w-full h-full">{children}</body>
+      <TransactionProvider>
+        <body className="flex w-full h-full">{children}</body>
+      </TransactionProvider>
     </html>
   );
 }
