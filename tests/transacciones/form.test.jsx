@@ -1,23 +1,32 @@
-// tests/transaction-form.test.jsx
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import TransactionForm from "@/components/ui/features/transacciones/form";
 import { addTransaction } from "@/db/db";
+import { useTransactionContext } from "@/context/TransactionContext";
 
 // Hacemos mock de addTransaction para espiar su llamada
 jest.mock("@/db/db", () => ({
   addTransaction: jest.fn(),
 }));
 
+// Mock de useTransactionContext para evitar el error de TransactionProvider
+jest.mock("@/context/TransactionContext", () => ({
+  useTransactionContext: jest.fn(() => ({
+    notifyTransactionUpdate: jest.fn(),
+  })),
+}));
+
 describe("TransactionForm Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useTransactionContext.mockReturnValue({
+      notifyTransactionUpdate: jest.fn(),
+    });
   });
 
   it("renders all form fields", () => {
     render(<TransactionForm />);
-
     expect(screen.getByLabelText("Description")).toBeInTheDocument();
     expect(screen.getByLabelText("Amount")).toBeInTheDocument();
     expect(screen.getByLabelText("Tipo")).toBeInTheDocument();
@@ -27,58 +36,46 @@ describe("TransactionForm Component", () => {
 
   it("renders BooleanInput (Esencial) when type is expense", async () => {
     render(<TransactionForm />);
-
-    // Suponiendo que el valor por defecto de "Tipo" es "income" (Ingreso),
-    // simulamos la selección de la opción "expense" (Gasto) en el select "Tipo".
-
-    // Obtenemos el botón del select por su label
     const tipoButton = screen.getByLabelText("Tipo");
     fireEvent.click(tipoButton);
-
-    // Buscamos la opción "Gasto" de forma precisa usando su rol "option"
-    const expenseOption = await screen.findByRole("option", { name: "Gasto" });
-    fireEvent.click(expenseOption);
-
-    // Ahora se debería renderizar el campo BooleanInput con label "Esencial"
+    const expenseOptions = await screen.findAllByRole("option", {
+      name: /Gastos/i,
+    });
+    fireEvent.click(expenseOptions[0]);
     await waitFor(() => {
       expect(screen.getByText("Esencial")).toBeInTheDocument();
     });
   });
 
   it("submits the form and calls addTransaction with correct payload", async () => {
-    render(<TransactionForm />);
-
-    // Rellenamos los campos de texto/number
-    const descriptionInput = screen.getByLabelText("Description");
-    fireEvent.change(descriptionInput, {
+    const mockNotifyTransactionUpdate = jest.fn();
+    useTransactionContext.mockReturnValue({
+      notifyTransactionUpdate: mockNotifyTransactionUpdate,
+    });
+    render(<TransactionForm setIsCreateOpen={(some) => {}} />);
+    fireEvent.change(screen.getByLabelText("Description"), {
       target: { value: "Test transaction" },
     });
-
-    const amountInput = screen.getByLabelText("Amount");
-    fireEvent.change(amountInput, { target: { value: "100" } });
-
-    // Para el campo "Tipo", seleccionamos "Ingreso" para evitar que aparezca el campo "essential"
+    fireEvent.change(screen.getByLabelText("Amount"), {
+      target: { value: "100" },
+    });
     const tipoButton = screen.getByLabelText("Tipo");
     fireEvent.click(tipoButton);
-    const incomeOption = await screen.findByRole("option", { name: "Ingreso" });
-    fireEvent.click(incomeOption);
-
-    // Para el campo "Category", seleccionamos "Otros"
+    const incomeOptions = await screen.findAllByRole("option", {
+      name: /Ingresos/i,
+    });
+    fireEvent.click(incomeOptions[0]);
     const categoryButton = screen.getByLabelText("Category");
     fireEvent.click(categoryButton);
-    const categoryOption = await screen.findByRole("option", { name: "Otros" });
-    fireEvent.click(categoryOption);
-
-    // Enviamos el formulario
-    const submitButton = screen.getByRole("button", { name: /guardar/i });
-    fireEvent.click(submitButton);
-
-    console.log(addTransaction.mock.calls);
-
+    const categoryOptions = await screen.findAllByRole("option", {
+      name: /Otros/i,
+    });
+    fireEvent.click(categoryOptions[0]);
+    fireEvent.click(screen.getByRole("button", { name: /guardar/i }));
     await waitFor(() => {
       expect(addTransaction).toHaveBeenCalled();
+      expect(mockNotifyTransactionUpdate).toHaveBeenCalled();
     });
-
     const payload = addTransaction.mock.calls[0][0];
     expect(payload.description).toBe("Test transaction");
     expect(payload.amount).toBe(100);
