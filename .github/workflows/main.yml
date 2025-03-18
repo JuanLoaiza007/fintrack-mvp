@@ -22,8 +22,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # - name: Run unit tests
-      #   run: node --run test
+      - name: Run unit tests
+        run: node --run test
 
       - name: Build Next.js app
         run: node --run build

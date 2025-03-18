@@ -42,6 +42,18 @@ const items = [
   },
 ];
 
+/**
+ * Renders the application sidebar component.
+ *
+ * The sidebar includes a header with the application logo and title,
+ * a content section with navigation links grouped under "Finanzas",
+ * and a footer section. The active link is highlighted based on the
+ * current path.
+ *
+ * @component
+ *
+ * @returns {JSX.Element} The rendered sidebar component.
+ */
 export function AppSidebar() {
   const currentPath = usePathname();
 
