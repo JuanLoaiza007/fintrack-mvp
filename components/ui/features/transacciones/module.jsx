@@ -11,6 +11,7 @@ import {
 
 import TransactionFooter from "./footer";
 import TransactionForm from "./form";
+import TransactionHistory from "./history";
 
 /**
  * TransactionModule Component
@@ -44,11 +45,11 @@ export default function TransactionModule() {
 
   return (
     <>
-      <div className="p-4 flex flex-col items-center justify-between w-full h-full">
+      <div className="p-4 gap-2 flex flex-col items-center justify-between w-full h-full max-h-screen overflow-y-hidden">
         <div className="p-4">
           <h1 className="font-bold text-2xl">Gestión de transacciones</h1>
         </div>
-        <div className="flex-grow"> </div>
+        <TransactionHistory />
         <TransactionFooter onOpenCreate={setIsCreateOpen} />
       </div>
       <Dialog
@@ -58,7 +59,7 @@ export default function TransactionModule() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Crear Transaccion</DialogTitle>
-            <TransactionForm />
+            <TransactionForm setIsCreateOpen={setIsCreateOpen} />
           </DialogHeader>
         </DialogContent>
       </Dialog>

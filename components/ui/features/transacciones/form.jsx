@@ -1,6 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
+import { useTransactionContext } from "@/context/TransactionContext";
+import {
+  TRANSACTION_TYPES,
+  TRANSACTION_CATEGORIES,
+} from "@/components/schemas/transaccion";
 
 import {
   transaccionSchema,
@@ -13,6 +18,7 @@ import BooleanInput from "../boolean-input";
 import DateInput from "../date-input";
 import { Button } from "../../button";
 import { addTransaction } from "@/db/db";
+import { set, setISODay } from "date-fns";
 
 /**
  * TransactionForm Component
@@ -40,29 +46,16 @@ import { addTransaction } from "@/db/db";
  * - The `essential` field is conditionally rendered based on the selected transaction type.
  * - The form handles submission by creating a payload and passing it to the `addTransaction` function.
  */
-export default function TransactionForm() {
+export default function TransactionForm({ setIsCreateOpen }) {
+  const { notifyTransactionUpdate } = useTransactionContext();
+
   const form = useForm({
     resolver: zodResolver(transaccionSchema),
     defaultValues: defaultTransaccion,
   });
 
-  const categories = [
-    { value: "food", label: "Comida y Bebida" },
-    { value: "shopping", label: "Compras" },
-    { value: "housing", label: "Vivienda" },
-    { value: "transport", label: "Transporte" },
-    { value: "vehicles", label: "Vehículos" },
-    { value: "entertainment", label: "Vida y Entretenimiento" },
-    { value: "communications", label: "Comunicaciones, PC" },
-    { value: "investments", label: "Inversiones" },
-    { value: "work", label: "Trabajo" },
-    { value: "other", label: "Otros" },
-  ];
-
-  const types = [
-    { value: "income", label: "Ingreso" },
-    { value: "expense", label: "Gasto" },
-  ];
+  const types = TRANSACTION_TYPES;
+  const categories = TRANSACTION_CATEGORIES;
 
   /**
    * Handles the submission of transaction data.
@@ -83,6 +76,8 @@ export default function TransactionForm() {
     }
 
     addTransaction(payload);
+    notifyTransactionUpdate();
+    setIsCreateOpen(false);
   };
 
   return (
