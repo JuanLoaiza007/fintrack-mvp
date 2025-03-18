@@ -12,8 +12,34 @@ import {
 import TransactionFooter from "./footer";
 import TransactionForm from "./form";
 
+/**
+ * TransactionModule Component
+ *
+ * @description
+ * This component serves as the main module for managing transactions. It includes
+ * a header, a footer with actions, and a dialog for creating new transactions.
+ *
+ * @component
+ *
+ * @returns {JSX.Element} The rendered TransactionModule component.
+ *
+ * @example
+ * <TransactionModule />
+ *
+ * @description
+ * - Displays a header with the title "Gestión de transacciones".
+ * - Includes a footer with actions to open the create transaction dialog or help section.
+ * - Renders a dialog for creating a new transaction when the "isCreateOpen" state is true.
+ *
+ * @state {boolean} isCreateOpen - Controls the visibility of the create transaction dialog.
+ *
+ * @dependencies
+ * - TransactionFooter: A component that provides footer actions.
+ * - Dialog: A component for rendering modal dialogs.
+ * - DialogContent, DialogHeader, DialogTitle: Subcomponents for structuring the dialog.
+ * - TransactionForm: A form component for creating a new transaction.
+ */
 export default function TransactionModule() {
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   return (

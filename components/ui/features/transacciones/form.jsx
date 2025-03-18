@@ -14,6 +14,32 @@ import DateInput from "../date-input";
 import { Button } from "../../button";
 import { addTransaction } from "@/db/db";
 
+/**
+ * TransactionForm Component
+ *
+ * @description
+ * A form component for creating or editing a transaction. It includes fields for
+ * description, amount, type, category, date, and an optional "essential" field
+ * for expense transactions. The form uses `react-hook-form` for state management
+ * and validation.
+ *
+ * @component
+ *
+ * @returns {JSX.Element} The rendered transaction form component.
+ *
+ * @example
+ * <TransactionForm />
+ *
+ * @dependencies
+ * - `useForm` from `react-hook-form` for form state management.
+ * - `zodResolver` for schema validation.
+ * - Custom input components: `TextInput`, `NumberInput`, `SelectInput`, `DateInput`, `BooleanInput`.
+ * - `addTransaction` function for handling transaction submission.
+ *
+ * @remarks
+ * - The `essential` field is conditionally rendered based on the selected transaction type.
+ * - The form handles submission by creating a payload and passing it to the `addTransaction` function.
+ */
 export default function TransactionForm() {
   const form = useForm({
     resolver: zodResolver(transaccionSchema),
@@ -38,6 +64,18 @@ export default function TransactionForm() {
     { value: "expense", label: "Gasto" },
   ];
 
+  /**
+   * Handles the submission of transaction data.
+   *
+   * @param {Object} data - The transaction data submitted from the form.
+   * @param {string} data.type - The type of transaction, either "income" or "expense".
+   * @param {boolean} [data.essential] - Indicates if the transaction is essential (only applicable for "expense" type).
+   *
+   * @description
+   * Creates a payload object from the submitted data. If the transaction type is "income",
+   * the `essential` property is removed from the payload. The resulting payload is then
+   * passed to the `addTransaction` function to process the transaction.
+   */
   const handleSubmit = (data) => {
     const payload = { ...data };
     if (payload.type === "income") {

@@ -15,6 +15,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+/**
+ * DataTable component renders a table using the provided columns and data.
+ * It utilizes the `useReactTable` hook to manage table state and rendering.
+ *
+ * @component
+ * @param {Object} props - The props object.
+ * @param {Array} props.columns - An array of column definitions for the table.
+ * @param {Array} props.data - An array of data objects to populate the table rows.
+ * @returns {JSX.Element} A table component with headers and rows rendered dynamically.
+ */
 export function DataTable({ columns, data }) {
   const table = useReactTable({
     data,

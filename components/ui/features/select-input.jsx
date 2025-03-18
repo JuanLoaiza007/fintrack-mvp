@@ -16,6 +16,19 @@ import {
 
 import { useFormContext } from "react-hook-form";
 
+/**
+ * A custom select input component integrated with React Hook Form.
+ *
+ * @component
+ * @param {Object} props - The props for the SelectInput component.
+ * @param {string} props.name - The name of the form field.
+ * @param {string} props.label - The label displayed above the select input.
+ * @param {string} props.placeholder - The placeholder text for the select input.
+ * @param {Array} props.items - The list of items to display in the dropdown.
+ * @param {string} props.items[].value - The value of a dropdown item.
+ * @param {string} props.items[].label - The label of a dropdown item.
+ * @returns {JSX.Element} The rendered SelectInput component.
+ */
 export default function SelectInput({ name, label, placeholder, items }) {
   const { control } = useFormContext();
 
