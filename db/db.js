@@ -2,10 +2,10 @@ import { transaccionSchema } from "@/components/schemas/transaccion";
 
 /**
  * Opens an IndexedDB database named "FinanzasDB" and ensures the necessary object stores are created.
- * 
+ *
  * This function handles the creation of the "transactions" object store if it does not already exist.
  * It resolves with the opened database instance or rejects with an error if the database cannot be opened.
- * 
+ *
  * @returns {Promise<IDBDatabase>} A promise that resolves to the opened IndexedDB database instance.
  * @throws {DOMException} If there is an error opening the IndexedDB database.
  */
@@ -43,7 +43,7 @@ export async function openDB() {
  * @async
  * @function
  * @param {Object} transaction - The transaction object to be added.
- * @returns {Promise<boolean>} Resolves to `true` if the transaction is successfully added, 
+ * @returns {Promise<boolean>} Resolves to `true` if the transaction is successfully added,
  * or rejects with an error if validation or database operation fails.
  * @throws {Array} Throws an array of validation errors if the transaction fails schema validation.
  */

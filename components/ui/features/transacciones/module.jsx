@@ -49,10 +49,7 @@ export default function TransactionModule() {
           <h1 className="font-bold text-2xl">Gestión de transacciones</h1>
         </div>
         <div className="flex-grow"> </div>
-        <TransactionFooter
-          onOpenCreate={setIsCreateOpen}
-          onOpenHelp={setIsHelpOpen}
-        />
+        <TransactionFooter onOpenCreate={setIsCreateOpen} />
       </div>
       <Dialog
         open={isCreateOpen}

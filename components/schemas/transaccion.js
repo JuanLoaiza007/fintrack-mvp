@@ -34,7 +34,7 @@ export const transaccionSchema = z.object({
     ])
     .default("other"),
   essential: z.boolean().optional(),
-  date: z.coerce.string().min(1, { message: "La fecha es requerida." }),
+  date: z.coerce.string(),
 });
 
 /**
@@ -54,5 +54,5 @@ export const defaultTransaccion = {
   type: "expense",
   category: "other",
   essential: false,
-  date: "",
+  date: new Date().toISOString().split("T")[0],
 };
