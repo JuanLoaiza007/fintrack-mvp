@@ -12,33 +12,6 @@ import {
 import TransactionFooter from "./footer";
 import TransactionForm from "./form";
 
-const transacctions = [
-  {
-    id: 1,
-    date: "2021-10-10",
-    description: "Pago de servicios",
-    amount: 100,
-    category: "utilities",
-    essential: true,
-  },
-  {
-    id: 2,
-    date: "2021-10-10",
-    description: "Pago de servicios",
-    amount: 100,
-    category: "utilities",
-    essential: true,
-  },
-  {
-    id: 3,
-    date: "2021-10-10",
-    description: "Pago de servicios",
-    amount: 100,
-    category: "utilities",
-    essential: true,
-  },
-];
-
 export default function TransactionModule() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
