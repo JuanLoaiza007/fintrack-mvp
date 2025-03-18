@@ -1,6 +1,30 @@
 const { z } = require("zod");
 
 /**
+ * List of available transaction types.
+ */
+export const TRANSACTION_TYPES = [
+  { value: "income", label: "Ingresos" },
+  { value: "expense", label: "Gastos" },
+];
+
+/**
+ * List of available transaction categories.
+ */
+export const TRANSACTION_CATEGORIES = [
+  { value: "food", label: "Comida y Bebida" },
+  { value: "shopping", label: "Compras" },
+  { value: "housing", label: "Vivienda" },
+  { value: "transport", label: "Transporte" },
+  { value: "vehicles", label: "Vehículos" },
+  { value: "entertainment", label: "Vida y Entretenimiento" },
+  { value: "communications", label: "Comunicaciones, PC" },
+  { value: "investments", label: "Inversiones" },
+  { value: "work", label: "Trabajo" },
+  { value: "other", label: "Otros" },
+];
+
+/**
  * Schema definition for a transaction object using Zod.
  * This schema validates the structure and constraints of a transaction.
  *
@@ -18,21 +42,8 @@ export const transaccionSchema = z.object({
   amount: z.coerce
     .number()
     .positive({ message: "El monto debe ser positivo." }),
-  type: z.enum(["income", "expense"]).default("expense"),
-  category: z
-    .enum([
-      "food",
-      "shopping",
-      "housing",
-      "transport",
-      "vehicles",
-      "entertainment",
-      "communications",
-      "investments",
-      "work",
-      "other",
-    ])
-    .default("other"),
+  type: z.enum(TRANSACTION_TYPES.map((t) => t.value)).default("expense"),
+  category: z.enum(TRANSACTION_CATEGORIES.map((c) => c.value)).default("other"),
   essential: z.boolean().optional(),
   date: z.coerce.string(),
 });
