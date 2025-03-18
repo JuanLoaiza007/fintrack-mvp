@@ -71,3 +71,35 @@ export async function addTransaction(transaction) {
     return Promise.reject(error.errors);
   }
 }
+
+/**
+ * Retrieves all transactions from the IndexedDB database.
+ *
+ * @async
+ * @function
+ * @returns {Promise<Array>} Resolves to an array of transaction objects.
+ * @throws {DOMException} If there is an error retrieving transactions.
+ */
+export async function getTransactions() {
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("transactions", "readonly");
+      const store = tx.objectStore("transactions");
+      const request = store.getAll();
+
+      request.onsuccess = () => {
+        console.log("📂 Transacciones obtenidas:", request.result);
+        resolve(request.result);
+      };
+
+      request.onerror = () => {
+        console.error("❌ Error al obtener transacciones:", request.error);
+        reject(request.error);
+      };
+    });
+  } catch (error) {
+    console.error("❌ Error al acceder a la base de datos:", error);
+    return Promise.reject(error);
+  }
+}
