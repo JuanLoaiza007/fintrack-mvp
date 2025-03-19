@@ -1,4 +1,4 @@
-import { openDB, addTransaction, getTransactions, importTransactions, deleteTransaction , clearTransactions } from "@/db/db";
+import { openDB, addTransaction, getTransactions, importTransactions, deleteTransaction , clearTransactions, updateTransaction } from "@/db/db";
 import { defaultTransaccion } from "@/components/schemas/transaccion";
 import { Weight } from "lucide-react";
 
@@ -179,4 +179,63 @@ describe("db module", () => {
   test("importTransactions should handle an empty transaction array", async () => {
     await expect(importTransactions([])).resolves.toBe(true);
   }, 10000);
+
+  test("updateTransaction should update a transaction successfully", async () => {
+    fakeTransactionStore.put = jest.fn(() => {
+      const req = { onsuccess: null };
+      setTimeout(() => {
+        if (req.onsuccess) req.onsuccess();
+      }, 0);
+      return req;
+    });
+  
+    const updatedTransaction = {
+      id: 1,
+      description: "Updated Test",
+      amount: 200,
+      type: "income",
+    };
+  
+    await expect(updateTransaction(1, updatedTransaction)).resolves.toBe(true);
+    expect(fakeTx.objectStore).toHaveBeenCalledWith("transactions");
+    expect(fakeTransactionStore.put).toHaveBeenCalledWith(updatedTransaction);
+  }, 10000);
+  
+  test("updateTransaction should reject when transaction does not exist", async () => {
+    fakeTransactionStore.put = jest.fn(() => {
+      const req = { onerror: null, error: new Error("Error: ID de transacción inválido o no existe.") };
+      setTimeout(() => {
+        if (req.onerror) req.onerror({ target: req });
+      }, 0);
+      return req;
+    });
+  
+    const updatedTransaction = { id: 99, description: "Non-existent", amount: 300, type: "expense" };
+  
+    await expect(updateTransaction(updatedTransaction)) .rejects.toThrow("Error: ID de transacción inválido o no existe");
+  }, 10000);
+  
+  test("updateTransaction should throw an error if transactionId is invalid", async () => {
+    await expect(updateTransaction(null)).rejects.toThrow(
+      "Error: ID de transacción inválido o no existe."
+    );
+  
+    await expect(updateTransaction({ id: "abc" })).rejects.toThrow(
+      "Error: ID de transacción inválido o no existe."
+    );
+  }, 10000);
+  
+  test("updateTransaction should reject on database error", async () => {
+    fakeTransactionStore.put = jest.fn(() => {
+      const req = { onerror: null, error: new Error("Error: ID de transacción inválido o no existe.") };
+      setTimeout(() => {
+        if (req.onerror) req.onerror({ target: req });
+      }, 0);
+      return req;
+    });
+  
+    const updatedTransaction = { id: 2, description: "DB Error", amount: 400, type: "income" };
+  
+    await expect(updateTransaction(updatedTransaction)).rejects.toThrow("Error: ID de transacción inválido o no existe");
+  }, 10000);  
 });
