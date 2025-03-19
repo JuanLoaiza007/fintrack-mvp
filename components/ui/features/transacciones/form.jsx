@@ -76,11 +76,21 @@ export default function TransactionForm({ setIsCreateOpen, transaction = null })
     if (payload.type === "income") delete payload.essential;
   
     if (transaction) {
-      // Llamar a una función para actualizar
-      await updateTransaction(transaction.id, payload);
+      try {
+        const success = await updateTransaction(transaction.id, payload);
+        if (success) {
+          window.alert("✅ Transacción actualizada exitosamente.");
+        }
+      } catch (error) {
+        window.alert(`❌ Error al actualizar transacción: ${error.message}`);
+      }
     } else {
-      // Llamar a la función de agregar
-      await addTransaction(payload);
+      try {
+        await addTransaction(payload);
+        window.alert("✅ Transacción agregada exitosamente.");
+      } catch (error) {
+        window.alert(`❌ Error al agregar transacción: ${error.message}`);
+      }
     }
   
     notifyTransactionUpdate();
