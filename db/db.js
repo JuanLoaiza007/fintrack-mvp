@@ -104,6 +104,14 @@ export async function getTransactions() {
   }
 }
 
+/**
+ * Deletes all stored transactions from the IndexedDB database.
+ *
+ * @async
+ * @function
+ * @returns {Promise<boolean>} Resolves with `true` if transactions were successfully deleted.
+ * @throws {DOMException} If an error occurs while deleting transactions.
+ */
 export async function clearTransactions() {
   try {
     const db = await openDB();
@@ -123,18 +131,27 @@ export async function clearTransactions() {
       };
     });
   } catch (error) {
-
-    
+    console.error("❌ Error al borrar transacciones:", error);
+    return Promise.reject(error);
   }
 }
 
+/**
+ * Imports a list of transactions into the IndexedDB database.
+ *
+ * @async
+ * @function
+ * @param {Array<Object>} transactions - List of transactions to import.
+ * @returns {Promise<boolean>} Resolves with `true` if transactions were successfully imported.
+ * @throws {DOMException} If an error occurs while importing transactions.
+ */
 export async function importTransactions(transactions) {
   try {
     const db = await openDB();
     return new Promise((resolve, reject) => {
       const tx = db.transaction("transactions", "readwrite");
       const store = tx.objectStore("transactions");
-      const requests = transactions.map((transaction) => store.add(transaction))
+      const requests = transactions.map((transaction) => store.add(transaction));
 
       Promise.all(requests).then(() => {
         console.log("✅ Transacciones importadas.");
@@ -145,6 +162,7 @@ export async function importTransactions(transactions) {
       });
     });
   } catch (error) {
-    
+    console.error("❌ Error al importar transacciones:", error);
+    return Promise.reject(error);
   }
-};
+}
