@@ -4,6 +4,7 @@ import "@testing-library/jest-dom";
 import ReportesModule from "@/components/ui/features/reportes/module";
 import { getTransactions, clearTransactions, importTransactions } from "@/db/db";
 import { generateCSV } from "@/utils/export";
+import { TransactionProvider } from "@/context/TransactionContext";
 import Papa from "papaparse";
 
 jest.mock("@/db/db");
@@ -23,7 +24,11 @@ describe("ReportesModule", () => {
     it("renders all sections and elements", async () => {
         getTransactions.mockResolvedValue([]);
         await act(async () => {
-            render(<ReportesModule />);
+            render(
+                <TransactionProvider>
+                    <ReportesModule />
+                </TransactionProvider>            
+            );
         });
 
         await waitFor(() => expect(getTransactions).toHaveBeenCalled());
@@ -40,7 +45,11 @@ describe("ReportesModule", () => {
         getTransactions.mockResolvedValue([{ id: 1, date: new Date().toISOString(), essential: true }]);
         generateCSV.mockImplementation(() => {});
         await act(async () => {
-            render(<ReportesModule />);
+            render(
+                <TransactionProvider>
+                    <ReportesModule />
+                </TransactionProvider>            
+            );
         });
 
         fireEvent.click(screen.getByText("Generar Reportes"));
@@ -61,7 +70,11 @@ describe("ReportesModule", () => {
         });
 
         await act(async () => {
-            render(<ReportesModule />);
+            render(
+                <TransactionProvider>
+                    <ReportesModule />
+                </TransactionProvider>            
+            );
         });
 
         const file = new File(["id,essential,date\n1,true,2024-01-01"], "test.csv", { type: "text/csv" });
@@ -85,7 +98,11 @@ describe("ReportesModule", () => {
         });
 
         await act(async () => {
-            render(<ReportesModule />);
+            render(
+                <TransactionProvider>
+                    <ReportesModule />
+                </TransactionProvider>            
+            );
         });
 
         const file = new File(["wrongHeader\nvalue"], "wrong.csv", { type: "text/csv" });
@@ -101,12 +118,20 @@ describe("ReportesModule", () => {
     });
 
     it("disables import button when no file is selected", () => {
-        render(<ReportesModule />);
+        render(
+            <TransactionProvider>
+                <ReportesModule />
+            </TransactionProvider>            
+        );
         expect(screen.getByRole("button", { name: "Importar Reportes" })).toBeDisabled();
     });
 
     it("enables import button when a file is selected", () => {
-        render(<ReportesModule />);
+        render(
+            <TransactionProvider>
+                <ReportesModule />
+            </TransactionProvider>            
+        );
         const file = new File(["id,essential,date\n1,true,2024-01-01"], "test.csv", { type: "text/csv" });
         fireEvent.change(screen.getByLabelText("Seleccionar archivo CSV:"), { target: { files: [file] } });
         expect(screen.getByRole("button", { name: "Importar Reportes" })).toBeEnabled();
@@ -114,7 +139,11 @@ describe("ReportesModule", () => {
     it("filters transactions by week", async () => {
         getTransactions.mockResolvedValue([{ id: 1, date: new Date().toISOString(), essential: true }]);
         await act(async () => {
-            render(<ReportesModule />);
+            render(
+                <TransactionProvider>
+                    <ReportesModule />
+                </TransactionProvider>            
+            );
         });
         fireEvent.click(screen.getByText("Generar Reportes"));
         fireEvent.change(screen.getByRole("combobox"), { target: { value: "semana" } });
@@ -124,7 +153,11 @@ describe("ReportesModule", () => {
     it("filters transactions by month", async () => {
         getTransactions.mockResolvedValue([{ id: 1, date: new Date().toISOString(), essential: true }]);
         await act(async () => {
-            render(<ReportesModule />);
+            render(
+                <TransactionProvider>
+                    <ReportesModule />
+                </TransactionProvider>            
+            );
         });
         fireEvent.click(screen.getByText("Generar Reportes"));
         fireEvent.change(screen.getByRole("combobox"), { target: { value: "mes" } });
@@ -134,7 +167,11 @@ describe("ReportesModule", () => {
     it("filters transactions by year", async () => {
         getTransactions.mockResolvedValue([{ id: 1, date: new Date().toISOString(), essential: true }]);
         await act(async () => {
-            render(<ReportesModule />);
+            render(
+                <TransactionProvider>
+                    <ReportesModule />
+                </TransactionProvider>            
+            );
         });
         fireEvent.click(screen.getByText("Generar Reportes"));
         fireEvent.change(screen.getByRole("combobox"), { target: { value: "año" } });
