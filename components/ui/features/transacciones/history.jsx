@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
-import { getTransactions } from "@/db/db";
+import { updateTransaction, getTransactions } from "@/db/db";
 import TransactionFilters from "./filters";
 import TransactionList from "./list";
 import { useTransactionContext } from "@/context/TransactionContext";
+import TransactionItem from "./item";
 
-export default function TransactionHistory() {
+export default function TransactionHistory({ onEdit }) {
   const [dateFilter, setDateFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -85,6 +86,13 @@ export default function TransactionHistory() {
     });
   }, [filteredTransactions, sortField, sortOrder]);
 
+  const handleEdit = (id) => {
+    const transaction = transactions.find((t) => t.id === id);
+    if (transaction) {
+      onEdit(transaction);
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full bg-sidebar-accent rounded-lg shadow-lg">
       {/* Header: Contiene los filtros */}
@@ -106,9 +114,7 @@ export default function TransactionHistory() {
       {/* Main: Lista de transacciones */}
       <main className="flex-1 min-h-0 max-h-[68vh] p-2 sm:p-4">
         <TransactionList
-          handleEdit={() => {
-            window.alert("Not implemented yet.");
-          }}
+          handleEdit={handleEdit}
           handleDelete={() => {
             window.alert("Not implemented yet.");
           }}

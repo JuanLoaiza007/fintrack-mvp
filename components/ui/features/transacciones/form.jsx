@@ -17,7 +17,7 @@ import SelectInput from "../select-input";
 import BooleanInput from "../boolean-input";
 import DateInput from "../date-input";
 import { Button } from "../../button";
-import { addTransaction } from "@/db/db";
+import { addTransaction, updateTransaction } from "@/db/db";
 import { set, setISODay } from "date-fns";
 
 /**
@@ -46,12 +46,12 @@ import { set, setISODay } from "date-fns";
  * - The `essential` field is conditionally rendered based on the selected transaction type.
  * - The form handles submission by creating a payload and passing it to the `addTransaction` function.
  */
-export default function TransactionForm({ setIsCreateOpen }) {
+export default function TransactionForm({ setIsCreateOpen, transaction = null }) {
   const { notifyTransactionUpdate } = useTransactionContext();
 
   const form = useForm({
     resolver: zodResolver(transaccionSchema),
-    defaultValues: defaultTransaccion,
+    defaultValues: transaction || defaultTransaccion,
   });
 
   const types = TRANSACTION_TYPES;
@@ -69,13 +69,19 @@ export default function TransactionForm({ setIsCreateOpen }) {
    * the `essential` property is removed from the payload. The resulting payload is then
    * passed to the `addTransaction` function to process the transaction.
    */
-  const handleSubmit = (data) => {
+  const handleSubmit = async (data) => {
     const payload = { ...data };
-    if (payload.type === "income") {
-      delete payload.essential;
+    
+    if (payload.type === "income") delete payload.essential;
+  
+    if (transaction) {
+      // Llamar a una función para actualizar
+      await updateTransaction(transaction.id, payload);
+    } else {
+      // Llamar a la función de agregar
+      await addTransaction(payload);
     }
-
-    addTransaction(payload);
+  
     notifyTransactionUpdate();
     setIsCreateOpen(false);
   };

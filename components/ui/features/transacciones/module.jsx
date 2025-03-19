@@ -42,14 +42,20 @@ import TransactionHistory from "./history";
  */
 export default function TransactionModule() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
 
+  const handleEdit = (transaction) => {
+    setSelectedTransaction(transaction);
+    setIsCreateOpen(true); // Corregido
+  };
+  
   return (
     <>
       <div className="p-4 gap-2 flex flex-col items-center justify-between w-full h-full max-h-screen overflow-y-hidden">
         <div className="p-4">
           <h1 className="font-bold text-2xl">Gestión de transacciones</h1>
         </div>
-        <TransactionHistory />
+        <TransactionHistory onEdit={handleEdit}/>
         <TransactionFooter onOpenCreate={setIsCreateOpen} />
       </div>
       <Dialog
@@ -58,8 +64,8 @@ export default function TransactionModule() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Crear Transaccion</DialogTitle>
-            <TransactionForm setIsCreateOpen={setIsCreateOpen} />
+          <DialogTitle>{selectedTransaction ? "Editar Transacción" : "Crear Transacción"}</DialogTitle>
+            <TransactionForm setIsCreateOpen={setIsCreateOpen} transaction={selectedTransaction} />
           </DialogHeader>
         </DialogContent>
       </Dialog>

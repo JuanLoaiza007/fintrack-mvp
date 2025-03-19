@@ -151,18 +151,88 @@ export async function importTransactions(transactions) {
     return new Promise((resolve, reject) => {
       const tx = db.transaction("transactions", "readwrite");
       const store = tx.objectStore("transactions");
-      const requests = transactions.map((transaction) => store.add(transaction));
+      const requests = transactions.map((transaction) =>
+        store.add(transaction)
+      );
 
-      Promise.all(requests).then(() => {
-        console.log("✅ Transacciones importadas.");
-        resolve(true);
-      }).catch((error) => {
-        console.error("❌ Error al importar transacciones:", error);
-        reject(error);
-      });
+      Promise.all(requests)
+        .then(() => {
+          console.log("✅ Transacciones importadas.");
+          resolve(true);
+        })
+        .catch((error) => {
+          console.error("❌ Error al importar transacciones:", error);
+          reject(error);
+        });
     });
   } catch (error) {
     console.error("❌ Error al importar transacciones:", error);
     return Promise.reject(error);
+  }
+}
+
+/**
+ * Updates a transaction in the database.
+ *
+ * This function validates the provided transaction object against the `transaccionSchema`,
+ * opens a connection to the database, and updates the transaction in the "transactions"
+ * object store. If the operation is successful, it resolves with `true`. If there is an
+ * error during validation or the database operation, it rejects with the corresponding error.
+ *
+ * @async
+ * @function
+ * @param {Object} transaction - The transaction object to be updated.
+ * @returns {Promise<boolean>} A promise that resolves to `true` if the transaction is successfully updated,
+ * or rejects with an error if the operation fails.
+ *
+ * @throws {Array} Throws an array of validation errors if the transaction object fails validation.
+ */
+export async function updateTransaction(id, updatedData) {
+  try {
+    console.log("🔄 Actualizando transacción:", id);
+    if (!id) {
+      throw new Error("❌ Error: ID de transacción inválido.");
+    }
+    const db = await openDB();
+
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("transactions", "readwrite");
+      const store = tx.objectStore("transactions");
+
+      const getRequest = store.get(id);
+
+      getRequest.onsuccess = () => {
+        const existingTransaction = getRequest.result;
+        if (!existingTransaction) {
+          console.error("❌ Transacción no encontrada:", id);
+          reject(new Error("Transacción no encontrada"));
+          return;
+        }
+
+        // Fusionar datos existentes con los nuevos
+        const mergedTransaction = { ...existingTransaction, ...updatedData };
+
+        // **Definir updateRequest aquí**
+        const updateRequest = store.put(mergedTransaction);
+
+        updateRequest.onsuccess = () => {
+          console.log("✅ Transacción actualizada:", mergedTransaction);
+          resolve(true);
+        };
+
+        updateRequest.onerror = () => {
+          console.error("❌ Error al actualizar transacción:", updateRequest.error);
+          reject(updateRequest.error);
+        };
+      };
+
+      getRequest.onerror = () => {
+        console.error("❌ Error al obtener transacción:", getRequest.error);
+        reject(getRequest.error);
+      };
+    });
+  } catch (error) {
+    console.error("❌ Error de validación:", error.message || error.errors);
+    return Promise.reject(error.message || error.errors);
   }
 }
