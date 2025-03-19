@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import TransactionFilters from "@/components/ui/features/transacciones/filters";
-import { deleteTransaction } from "@/db/db"; // Mockearemos esta función
+import { deleteTransaction } from "@/db/db";
 import { useTransactionContext } from "@/context/TransactionContext";
 
 describe("TransactionFilters", () => {
@@ -67,8 +67,8 @@ describe("handleDelete", () => {
 
   it("llama a deleteTransaction con el ID correcto y muestra un alert de éxito", async () => {
     const { notifyTransactionUpdate } = useTransactionContext();
-    global.alert = jest.fn(); // Mock del alert
-    deleteTransaction.mockResolvedValue(true); // Simula que la transacción se elimina correctamente
+    global.alert = jest.fn();
+    deleteTransaction.mockResolvedValue(true);
 
     const testId = 123;
     const handleDelete = async (id) => {
