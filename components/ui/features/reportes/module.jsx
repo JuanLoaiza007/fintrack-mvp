@@ -80,7 +80,16 @@ export default function ReportesModule() {
             case "todo":
                 break;
             case "semana":
-                filteredTransactions = filteredTransactions.filter(t => new Date(t.date).getDay() === actualDate.getDay());
+                const startOfWeek = new Date(actualDate);
+                startOfWeek.setDate(actualDate.getDate() - actualDate.getDay()); // Primer día (domingo)
+            
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6); // Último día (sábado)
+            
+                filteredTransactions = filteredTransactions.filter(t => {
+                    const transactionDate = new Date(t.date);
+                    return transactionDate >= startOfWeek && transactionDate <= endOfWeek;
+                });
                 break;
             case "mes":
                 filteredTransactions = filteredTransactions.filter(t => new Date(t.date).getMonth() === actualDate.getMonth());
