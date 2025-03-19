@@ -1,4 +1,4 @@
-import { openDB, addTransaction, getTransactions, importTransactions, clearTransactions } from "@/db/db";
+import { openDB, addTransaction, getTransactions, importTransactions, deleteTransaction , clearTransactions } from "@/db/db";
 import { defaultTransaccion } from "@/components/schemas/transaccion";
 import { Weight } from "lucide-react";
 
@@ -91,6 +91,43 @@ describe("db module", () => {
     await expect(addTransaction(payload)).resolves.toBe(true);
     expect(fakeTx.objectStore).toHaveBeenCalledWith("transactions");
     expect(fakeTransactionStore.add).toHaveBeenCalled();
+  }, 10000);
+
+  test("deleteTransaction should delete a transaction successfully", async () => {
+    fakeTransactionStore.delete = jest.fn(() => {
+      const req = { onsuccess: null };
+      setTimeout(() => {
+        if (req.onsuccess) req.onsuccess();
+      }, 0);
+      return req;
+    });
+  
+    await expect(deleteTransaction(1)).resolves.toBe(true);
+    expect(fakeTx.objectStore).toHaveBeenCalledWith("transactions");
+    expect(fakeTransactionStore.delete).toHaveBeenCalledWith(1);
+  }, 10000);
+  
+  test("deleteTransaction should reject when transaction deletion fails", async () => {
+    const errorMessage = "Failed to delete transaction";
+    fakeTransactionStore.delete = jest.fn(() => {
+      const req = { onerror: null, error: new Error(errorMessage) };
+      setTimeout(() => {
+        if (req.onerror) req.onerror({ target: req });
+      }, 0);
+      return req;
+    });
+  
+    await expect(deleteTransaction(1)).rejects.toThrow(errorMessage);
+  }, 10000);
+  
+  test("deleteTransaction should throw an error if transactionId is invalid", async () => {
+    await expect(deleteTransaction(null)).rejects.toThrow(
+      "El ID de la transacción debe ser un número válido."
+    );
+  
+    await expect(deleteTransaction("abc")).rejects.toThrow(
+      "El ID de la transacción debe ser un número válido."
+    );
   }, 10000);
 
   test("clearTransactions should clear all transactions", async () => {

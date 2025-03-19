@@ -105,6 +105,44 @@ export async function getTransactions() {
 }
 
 /**
+ * Deletes a transaction from the database by its ID.
+ *
+ * @async
+ * @function
+ * @param {number} transactionId - The ID of the transaction to be deleted.
+ * @returns {Promise<boolean>} Resolves to `true` if the transaction is successfully deleted,
+ * or rejects with an error if the database operation fails.
+ * @throws {Error} Throws an error if the transaction ID is invalid or the operation fails.
+ */
+export async function deleteTransaction(transactionId) {
+  try {
+    if (!transactionId || typeof transactionId !== "number") {
+      throw new Error("El ID de la transacción debe ser un número válido.");
+    }
+
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("transactions", "readwrite");
+      const store = tx.objectStore("transactions");
+      const request = store.delete(transactionId);
+
+      request.onsuccess = () => {
+        console.log("✅ Transacción eliminada:", transactionId);
+        resolve(true);
+      };
+
+      request.onerror = () => {
+        console.error("❌ Error al eliminar transacción:", request.error);
+        reject(request.error);
+      };
+    });
+  } catch (error) {
+    console.error("❌ Error al eliminar transacción:", error);
+    return Promise.reject(error);
+  }
+}
+
+/**
  * Deletes all stored transactions from the IndexedDB database.
  *
  * @async
