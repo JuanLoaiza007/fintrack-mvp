@@ -103,3 +103,48 @@ export async function getTransactions() {
     return Promise.reject(error);
   }
 }
+
+export async function clearTransactions() {
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tv = db.transaction("transactions", "readwrite");
+      const store = tv.objectStore("transactions");
+      const request = store.clear();
+
+      request.onsuccess = () => {
+        console.log("✅ Transacciones borradas.");
+        resolve(true);
+      };
+
+      request.onerror = () => {
+        console.error("❌ Error al borrar transacciones:", request.error);
+        reject(request.error);
+      };
+    });
+  } catch (error) {
+
+    
+  }
+}
+
+export async function importTransactions(transactions) {
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("transactions", "readwrite");
+      const store = tx.objectStore("transactions");
+      const requests = transactions.map((transaction) => store.add(transaction))
+
+      Promise.all(requests).then(() => {
+        console.log("✅ Transacciones importadas.");
+        resolve(true);
+      }).catch((error) => {
+        console.error("❌ Error al importar transacciones:", error);
+        reject(error);
+      });
+    });
+  } catch (error) {
+    
+  }
+};
