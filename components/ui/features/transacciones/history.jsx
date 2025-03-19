@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { getTransactions } from "@/db/db";
+import { deleteTransaction, getTransactions } from "@/db/db";
 import TransactionFilters from "./filters";
 import TransactionList from "./list";
 import { useTransactionContext } from "@/context/TransactionContext";
@@ -12,7 +12,7 @@ export default function TransactionHistory() {
   const [sortOrder, setSortOrder] = useState("desc");
 
   const [transactions, setTransactions] = useState([]);
-  const { transactionUpdated } = useTransactionContext();
+  const { transactionUpdated, notifyTransactionUpdate } = useTransactionContext();
 
   useEffect(() => {
     async function fetchTransactions() {
@@ -109,8 +109,15 @@ export default function TransactionHistory() {
           handleEdit={() => {
             window.alert("Not implemented yet.");
           }}
-          handleDelete={() => {
-            window.alert("Not implemented yet.");
+          handleDelete={(id) => {
+            deleteTransaction(id)
+              .then(() => {
+                window.alert("Transacción eliminada con éxito");
+              })
+              .catch((error) => {
+                window.alert(error.message);
+              });
+            notifyTransactionUpdate();
           }}
           transactions={sortedTransactions}
         />
