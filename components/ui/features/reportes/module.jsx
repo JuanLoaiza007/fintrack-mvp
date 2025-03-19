@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectSeparator } from "@/components/ui/select"
@@ -8,11 +7,13 @@ import { getTransactions, clearTransactions, importTransactions } from "@/db/db"
 import { generateCSV } from "@/utils/export";
 import Papa from "papaparse";
 import { cn } from "@/lib/utils";
+import { useTransactionContext } from "@/context/TransactionContext";
 
 export default function ReportesModule() {
     const [period, setPeriod] = useState("todo");
     const [transactions, setTransactions] = useState([]);
     const [file, setFile] = useState(null);
+    const { notifyTransactionUpdate } = useTransactionContext();
 
     useEffect(() => {
         async function loadTransactions() {
@@ -56,6 +57,7 @@ export default function ReportesModule() {
                 }));
                 await clearTransactions();
                 await importTransactions(data);
+                notifyTransactionUpdate();
                 alert("¡Reporte importado con éxito!");
             },
             error: (err) => {
