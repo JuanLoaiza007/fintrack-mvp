@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectSeparator } from "@/components/ui/select"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectSeparator } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getTransactions, clearTransactions, importTransactions } from "@/db/db";
 import { generateCSV } from "@/utils/export";
@@ -21,7 +21,7 @@ export default function ReportesModule() {
                 const data = await getTransactions();
                 setTransactions(data);
             } catch (error) {
-                console.error("Error al cargar transacciones:", error);
+                console.error("Error loading transactions:", error);
             }
         }
         loadTransactions();
@@ -32,33 +32,34 @@ export default function ReportesModule() {
     };
 
     const handleImportReports = () => {
-        if (!file){
-            alert("Selecciona un archivo CSV");
+        if (!file) {
+            alert("Por favor, seleccione un archivo CSV");
             return;
         }
 
+        const confirmImport = window.confirm("⚠️ Esto borrará todos los registros existentes. ¿Desea continuar?");
+        if (!confirmImport) return;
+
         Papa.parse(file, {
-            header: true, // the first line of the csv is the header
+            header: true,
             complete: async (results) => {
                 let data = results.data;
-
-                const expectedHeaders =  ['id', 'description', 'amount', 'type', 'category', 'essential', 'date'];
+                const expectedHeaders = ['id', 'description', 'amount', 'type', 'category', 'essential', 'date'];
                 const actualHeaders = Object.keys(data[0]);
+                
                 if (JSON.stringify(expectedHeaders) !== JSON.stringify(actualHeaders)) {
                     alert("El archivo CSV no tiene el formato correcto");
                     return;
                 }
 
-                // Conversión de 'essential' a booleano
                 data = data.map(item => ({
                     ...item,
-                    essential: item.essential.toLowerCase() === 'true' ? true : false 
-                    // Cualquier valor distinto de 'true' se convierte en false
+                    essential: item.essential.toLowerCase() === 'true'
                 }));
                 await clearTransactions();
                 await importTransactions(data);
                 notifyTransactionUpdate();
-                alert("¡Reporte importado con éxito!");
+                alert("Reporte importado correctamente");
             },
             error: (err) => {
                 alert("Error al importar el archivo CSV");
@@ -70,7 +71,7 @@ export default function ReportesModule() {
     const handleGenerateReports = () => {
         let filteredTransactions = transactions.map(t => ({
             ...t,
-            essential: t.essential !== undefined ? t.essential : false // Asigna false si 'essential' no existe
+            essential: t.essential !== undefined ? t.essential : false 
         }));
 
         const actualDate = new Date();
@@ -92,7 +93,6 @@ export default function ReportesModule() {
     }
     return (
         <div className="p-4">
-            {/* Sección de Reportes en Construcción */}
             <div className="mb-8">
                 <h2 className="text-xl font-semibold mb-4">Reportes (En Construcción)</h2>
                 <div className="space-y-2">
@@ -102,7 +102,6 @@ export default function ReportesModule() {
                 </div>
             </div>
 
-            {/* Sección de Generación de Reportes (Exportar) */}
             <div className="mb-4 p-4 border rounded-md">
                 <h3 className="text-lg font-semibold mb-4">Generar Reportes (Exportar)</h3>
                 <div className="flex items-center space-x-4">
@@ -113,18 +112,17 @@ export default function ReportesModule() {
                         <SelectContent>
                             <SelectItem value="todo">Todo</SelectItem>
                             <SelectSeparator />
-                            <SelectItem value="semana">Semana</SelectItem>
+                            <SelectItem value="semana">Ultima semana</SelectItem>
                             <SelectSeparator />
-                            <SelectItem value="mes">Mes</SelectItem>
+                            <SelectItem value="mes">Ultimo mes</SelectItem>
                             <SelectSeparator />
-                            <SelectItem value="año">Año</SelectItem>
+                            <SelectItem value="año">Ultimo año</SelectItem>
                         </SelectContent>
                     </Select>
                     <Button onClick={handleGenerateReports}>Generar Reportes</Button>
                 </div>
             </div>
 
-            {/* Sección de Importación de Reportes */}
             <div className="p-4 border rounded-md">
                 <h3 className="text-lg font-semibold mb-4">Importar Reportes (CSV)</h3>
                 <div className="flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-4">

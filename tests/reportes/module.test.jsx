@@ -19,6 +19,7 @@ global.alert = jest.fn();
 describe("ReportesModule", () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        jest.spyOn(window, 'confirm').mockImplementation(() => true); // Simula que el usuario acepta
     });
 
     it("renders all sections and elements", async () => {
@@ -96,25 +97,25 @@ describe("ReportesModule", () => {
                 data: [{ wrongHeader: "value" }], // Incorrect header
             });
         });
-
+    
         await act(async () => {
             render(
                 <TransactionProvider>
                     <ReportesModule />
-                </TransactionProvider>            
+                </TransactionProvider>
             );
         });
-
+    
         const file = new File(["wrongHeader\nvalue"], "wrong.csv", { type: "text/csv" });
         await act(async () => {
             fireEvent.change(screen.getByLabelText("Seleccionar archivo CSV:"), { target: { files: [file] } });
         });
-
+    
         await act(async () => {
             fireEvent.click(screen.getByRole("button", { name: "Importar Reportes" }));
         });
-
-        expect(global.alert).toHaveBeenCalledWith("El archivo CSV no tiene el formato correcto");
+    
+        expect(global.alert).toHaveBeenCalledWith("El archivo CSV no tiene el formato correcto"); // ✅ Mensaje corregido
     });
 
     it("disables import button when no file is selected", () => {
