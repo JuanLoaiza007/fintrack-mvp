@@ -19,6 +19,7 @@ import DateInput from "../date-input";
 import { Button } from "../../button";
 import { addTransaction, updateTransaction } from "@/db/db";
 import { set, setISODay } from "date-fns";
+import { useEffect } from "react";
 
 /**
  * TransactionForm Component
@@ -85,6 +86,10 @@ export default function TransactionForm({ setIsCreateOpen, transaction = null })
     notifyTransactionUpdate();
     setIsCreateOpen(false);
   };
+
+  useEffect(() => {
+    form.reset(transaction || defaultTransaccion);
+  }, [transaction]);
 
   return (
     <div>

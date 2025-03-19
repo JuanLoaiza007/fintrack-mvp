@@ -44,6 +44,11 @@ export default function TransactionModule() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
+  const handleCreate = () => {
+    setSelectedTransaction(null); // Reseteamos para que sea una nueva transacción
+    setIsCreateOpen(true);
+  };
+  
   const handleEdit = (transaction) => {
     setSelectedTransaction(transaction);
     setIsCreateOpen(true); // Corregido
@@ -56,7 +61,7 @@ export default function TransactionModule() {
           <h1 className="font-bold text-2xl">Gestión de transacciones</h1>
         </div>
         <TransactionHistory onEdit={handleEdit}/>
-        <TransactionFooter onOpenCreate={setIsCreateOpen} />
+        <TransactionFooter onOpenCreate={handleCreate} />
       </div>
       <Dialog
         open={isCreateOpen}
