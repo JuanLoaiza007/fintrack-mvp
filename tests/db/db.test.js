@@ -1,5 +1,6 @@
-import { openDB, addTransaction, getTransactions } from "@/db/db";
+import { openDB, addTransaction, getTransactions, importTransactions, clearTransactions } from "@/db/db";
 import { defaultTransaccion } from "@/components/schemas/transaccion";
+import { Weight } from "lucide-react";
 
 describe("db module", () => {
   let fakeTransactionStore;
@@ -11,6 +12,7 @@ describe("db module", () => {
     fakeTransactionStore = {
       add: jest.fn(),
       getAll: jest.fn(),
+      clear: jest.fn(),
     };
 
     fakeTx = {
@@ -89,5 +91,55 @@ describe("db module", () => {
     await expect(addTransaction(payload)).resolves.toBe(true);
     expect(fakeTx.objectStore).toHaveBeenCalledWith("transactions");
     expect(fakeTransactionStore.add).toHaveBeenCalled();
+  }, 10000);
+
+  test("clearTransactions should clear all transactions", async () => {
+    fakeTransactionStore.clear.mockImplementation(() => {
+      const req = { onsuccess: null };
+      setTimeout(() => {
+        if (req.onsuccess) req.onsuccess();
+      }, 0);
+      return req;
+    });
+
+    await expect(clearTransactions()).resolves.toBe(true);
+    expect(fakeTx.objectStore).toHaveBeenCalledWith("transactions");
+    expect(fakeTransactionStore.clear).toHaveBeenCalled();
+  }, 10000);
+
+  test("clearTransactions should reject on error", async () => {
+    const errorMessage = "Failed to clear transactions";
+    fakeTransactionStore.clear.mockImplementation(() => {
+      const req = { onerror: null, error: new Error(errorMessage) };
+      setTimeout(() => {
+        if (req.onerror) req.onerror({ target: req });
+      }, 0);
+      return req;
+    });
+
+    await expect(clearTransactions()).rejects.toThrow(errorMessage);
+  }, 10000);
+
+  test("importTransactions should add all transactions successfully", async () => {
+    fakeTransactionStore.add.mockImplementation(() => {
+      const req = { onsuccess: null };
+      setTimeout(() => {
+        if (req.onsuccess) req.onsuccess();
+      }, 0);
+      return req;
+    });
+
+    const transactions = [
+      { id: 1, description: "Test 1", amount: 100, type: "income" },
+      { id: 2, description: "Test 2", amount: 200, type: "expense" },
+    ];
+
+    await expect(importTransactions(transactions)).resolves.toBe(true);
+    expect(fakeTx.objectStore).toHaveBeenCalledWith("transactions");
+    expect(fakeTransactionStore.add).toHaveBeenCalledTimes(transactions.length);
+  }, 10000);
+
+  test("importTransactions should handle an empty transaction array", async () => {
+    await expect(importTransactions([])).resolves.toBe(true);
   }, 10000);
 });
