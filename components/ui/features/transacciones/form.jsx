@@ -105,6 +105,7 @@ export default function TransactionForm({ setIsCreateOpen, transaction = null })
     <div>
       <Form {...form}>
         <form
+          data-testid="transaction-form"
           className="flex flex-col py-4 gap-4"
           onSubmit={form.handleSubmit(handleSubmit)}
         >
