@@ -18,7 +18,6 @@ import BooleanInput from "../boolean-input";
 import DateInput from "../date-input";
 import { Button } from "../../button";
 import { addTransaction, updateTransaction } from "@/db/db";
-import { set, setISODay } from "date-fns";
 import { useEffect } from "react";
 
 /**
@@ -47,7 +46,10 @@ import { useEffect } from "react";
  * - The `essential` field is conditionally rendered based on the selected transaction type.
  * - The form handles submission by creating a payload and passing it to the `addTransaction` function.
  */
-export default function TransactionForm({ setIsCreateOpen, transaction = null }) {
+export default function TransactionForm({
+  setIsCreateOpen,
+  transaction = null,
+}) {
   const { notifyTransactionUpdate } = useTransactionContext();
 
   const form = useForm({
@@ -72,9 +74,9 @@ export default function TransactionForm({ setIsCreateOpen, transaction = null })
    */
   const handleSubmit = async (data) => {
     const payload = { ...data };
-    
+
     if (payload.type === "income") delete payload.essential;
-  
+
     if (transaction) {
       try {
         const success = await updateTransaction(transaction.id, payload);
@@ -92,7 +94,7 @@ export default function TransactionForm({ setIsCreateOpen, transaction = null })
         window.alert(`❌ Error al agregar transacción: ${error.message}`);
       }
     }
-  
+
     notifyTransactionUpdate();
     setIsCreateOpen(false);
   };

@@ -90,7 +90,9 @@ describe("handleDelete", () => {
     await handleDelete(testId);
 
     expect(deleteTransaction).toHaveBeenCalledWith(testId);
-    expect(global.alert).toHaveBeenCalledWith("Transacción eliminada con éxito");
+    expect(global.alert).toHaveBeenCalledWith(
+      "Transacción eliminada con éxito",
+    );
     expect(notifyTransactionUpdate).toHaveBeenCalled();
   });
 
@@ -119,7 +121,6 @@ describe("handleDelete", () => {
   });
 });
 
-
 describe("handleSubmit function", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -131,41 +132,65 @@ describe("handleSubmit function", () => {
 
   it("muestra un mensaje de éxito al agregar una transacción", async () => {
     addTransaction.mockResolvedValueOnce(); // Simula que la función se ejecuta sin errores
-  
+
     render(<TransactionForm transaction={null} setIsCreateOpen={jest.fn()} />);
-  
+
     // Llenar los campos antes de enviar
-    fireEvent.change(screen.getByLabelText(/Description/i), { target: { value: "Compra" } });
-    fireEvent.change(screen.getByLabelText(/Amount/i), { target: { value: "1000" } });
-    fireEvent.change(screen.getByLabelText(/Tipo/i), { target: { value: "expense" } });
-    fireEvent.change(screen.getByLabelText(/Category/i), { target: { value: "Food" } });
-    fireEvent.change(screen.getByLabelText(/Fecha/i), { target: { value: "2025-03-19" } });
-  
+    fireEvent.change(screen.getByLabelText(/Description/i), {
+      target: { value: "Compra" },
+    });
+    fireEvent.change(screen.getByLabelText(/Amount/i), {
+      target: { value: "1000" },
+    });
+    fireEvent.change(screen.getByLabelText(/Tipo/i), {
+      target: { value: "expense" },
+    });
+    fireEvent.change(screen.getByLabelText(/Category/i), {
+      target: { value: "Food" },
+    });
+    fireEvent.change(screen.getByLabelText(/Fecha/i), {
+      target: { value: "2025-03-19" },
+    });
+
     await act(async () => {
       fireEvent.submit(screen.getByTestId("transaction-form"));
     });
-  
+
     expect(addTransaction).toHaveBeenCalled(); // Verifica que se ejecutó correctamente
-    expect(window.alert).toHaveBeenCalledWith("✅ Transacción agregada exitosamente.");
+    expect(window.alert).toHaveBeenCalledWith(
+      "✅ Transacción agregada exitosamente.",
+    );
   });
-  
+
   it("muestra un mensaje de error al fallar al agregar una transacción", async () => {
     addTransaction.mockRejectedValueOnce(new Error("Error al agregar"));
-  
+
     render(<TransactionForm transaction={null} setIsCreateOpen={jest.fn()} />);
-  
+
     // Llenar los campos antes de enviar
-    fireEvent.change(screen.getByLabelText(/Description/i), { target: { value: "Compra" } });
-    fireEvent.change(screen.getByLabelText(/Amount/i), { target: { value: "1000" } });
-    fireEvent.change(screen.getByLabelText(/Tipo/i), { target: { value: "expense" } });
-    fireEvent.change(screen.getByLabelText(/Category/i), { target: { value: "Food" } });
-    fireEvent.change(screen.getByLabelText(/Fecha/i), { target: { value: "2025-03-19" } });
-  
+    fireEvent.change(screen.getByLabelText(/Description/i), {
+      target: { value: "Compra" },
+    });
+    fireEvent.change(screen.getByLabelText(/Amount/i), {
+      target: { value: "1000" },
+    });
+    fireEvent.change(screen.getByLabelText(/Tipo/i), {
+      target: { value: "expense" },
+    });
+    fireEvent.change(screen.getByLabelText(/Category/i), {
+      target: { value: "Food" },
+    });
+    fireEvent.change(screen.getByLabelText(/Fecha/i), {
+      target: { value: "2025-03-19" },
+    });
+
     await act(async () => {
       fireEvent.submit(screen.getByTestId("transaction-form"));
     });
-  
+
     expect(addTransaction).toHaveBeenCalled(); // Verifica que se ejecutó
-    expect(window.alert).toHaveBeenCalledWith("❌ Error al agregar transacción: Error al agregar");
+    expect(window.alert).toHaveBeenCalledWith(
+      "❌ Error al agregar transacción: Error al agregar",
+    );
   });
 });

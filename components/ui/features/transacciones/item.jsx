@@ -76,7 +76,7 @@ export default function TransactionItem({
   return (
     <li
       className={`flex justify-between items-center p-4 bg-white rounded-lg shadow border-l-4 ${getBorderColor(
-        transaction
+        transaction,
       )}`}
     >
       <div className="flex flex-col">

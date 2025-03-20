@@ -1,9 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
-import { deleteTransaction, updateTransaction, getTransactions } from "@/db/db";
+import { deleteTransaction, getTransactions } from "@/db/db";
 import TransactionFilters from "./filters";
 import TransactionList from "./list";
 import { useTransactionContext } from "@/context/TransactionContext";
-import TransactionItem from "./item";
 
 export default function TransactionHistory({ onEdit }) {
   const [dateFilter, setDateFilter] = useState("all");
@@ -13,7 +12,8 @@ export default function TransactionHistory({ onEdit }) {
   const [sortOrder, setSortOrder] = useState("desc");
 
   const [transactions, setTransactions] = useState([]);
-  const { transactionUpdated, notifyTransactionUpdate } = useTransactionContext();
+  const { transactionUpdated, notifyTransactionUpdate } =
+    useTransactionContext();
 
   useEffect(() => {
     async function fetchTransactions() {

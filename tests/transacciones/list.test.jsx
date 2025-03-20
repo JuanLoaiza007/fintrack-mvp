@@ -16,10 +16,10 @@ describe("TransactionList Component", () => {
         transactions={[]}
         handleEdit={dummyHandleEdit}
         handleDelete={dummyHandleDelete}
-      />
+      />,
     );
     expect(
-      screen.getByText("No hay transacciones registradas.")
+      screen.getByText("No hay transacciones registradas."),
     ).toBeInTheDocument();
   });
 
@@ -50,7 +50,7 @@ describe("TransactionList Component", () => {
         transactions={transactions}
         handleEdit={dummyHandleEdit}
         handleDelete={dummyHandleDelete}
-      />
+      />,
     );
     expect(screen.getByText(/Test Income/i)).toBeInTheDocument();
     expect(screen.getByText(/Test Expense/i)).toBeInTheDocument();
@@ -74,7 +74,7 @@ describe("TransactionList Component", () => {
         transactions={transactions}
         handleEdit={dummyHandleEdit}
         handleDelete={dummyHandleDelete}
-      />
+      />,
     );
 
     const editButton = screen.getByRole("button", { name: /Editar/i });

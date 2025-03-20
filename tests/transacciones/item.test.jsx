@@ -26,7 +26,7 @@ describe("TransactionItem Component", () => {
         transaction={sampleTransaction}
         handleEdit={mockHandleEdit}
         handleDelete={mockHandleDelete}
-      />
+      />,
     );
 
     // Check that the description is rendered
@@ -35,8 +35,8 @@ describe("TransactionItem Component", () => {
     // Check that the formatted amount is rendered (currency symbol "COP" is part of it)
     expect(
       screen.getByText(
-        (content) => content.includes("$") && content.includes("500")
-      )
+        (content) => content.includes("$") && content.includes("500"),
+      ),
     ).toBeInTheDocument();
 
     // Check that at least one element with type label "Ingresos" is rendered
@@ -56,7 +56,7 @@ describe("TransactionItem Component", () => {
         transaction={sampleTransaction}
         handleEdit={mockHandleEdit}
         handleDelete={mockHandleDelete}
-      />
+      />,
     );
 
     const editButton = screen.getByRole("button", { name: /Editar/i });

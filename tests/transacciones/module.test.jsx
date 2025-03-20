@@ -9,7 +9,7 @@ describe("TransactionModule", () => {
     render(
       <TransactionProvider>
         <TransactionModule />
-      </TransactionProvider>
+      </TransactionProvider>,
     );
 
     // Verify that the header is rendered

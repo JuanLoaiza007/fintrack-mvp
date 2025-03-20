@@ -1,7 +1,15 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 export default function Home() {
-  return (
-    <div className="flex w-full h-screen justify-center items-center">
-      <h1 className="text-2xl font-bold">Home</h1>
-    </div>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    // Ruta interna
+    router.replace("/transacciones");
+  }, []);
+
+  return null;
 }
