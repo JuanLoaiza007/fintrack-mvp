@@ -1,16 +1,13 @@
 {
-  "source": {
-    "include": ["src"],
-    "includePattern": "\\.jsx?$"
-  },
-  "opts": {
-    "destination": "./docs",
-    "recurse": true,
-    "template": "default"
-  },
-  "templates": {
-    "default": {
-      "includeDate": false
+    "source": {
+      "include": ["components", "lib", "components/schemas", "app"],
+      "includePattern": "\\.(js|jsx|ts|tsx)$",
+      "excludePattern": "(node_modules|docs)"
+    },
+    "opts": {
+      "destination": "./docs",
+      "recurse": true,
+      "template": "templates/default"
     }
   }
-}
+  
