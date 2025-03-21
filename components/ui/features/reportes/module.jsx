@@ -75,6 +75,7 @@ export default function ReportesModule() {
 
         data = data.map((item) => ({
           ...item,
+          id: parseInt(item.id),
           essential: item.essential.toLowerCase() === "true",
         }));
         await clearTransactions();
