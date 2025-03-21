@@ -59,7 +59,7 @@ describe("db module", () => {
 
   test("openDB returns a DB object", async () => {
     await expect(openDB()).resolves.toBe(fakeDB);
-    expect(global.indexedDB.open).toHaveBeenCalledWith("FinanzasDB", 1);
+    expect(global.indexedDB.open).toHaveBeenCalledWith("FinanzasDB", 2);
   }, 10000);
 
   test("getTransactions returns transactions array", async () => {
