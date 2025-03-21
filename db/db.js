@@ -12,7 +12,7 @@ import { transaccionSchema } from "@/components/schemas/transaccion";
 export async function openDB() {
   return new Promise((resolve, reject) => {
     console.log("🔹 Abriendo IndexedDB...");
-    const request = indexedDB.open("FinanzasDB", 1);
+    const request = indexedDB.open("FinanzasDB", 2);
 
     request.onupgradeneeded = (event) => {
       console.log("🛠️ Verificando y creando almacenes...");
@@ -21,6 +21,11 @@ export async function openDB() {
       if (!db.objectStoreNames.contains("transactions")) {
         db.createObjectStore("transactions", { keyPath: "id" });
         console.log("✅ Almacén de transacciones creado.");
+      }
+
+      if (!db.objectStoreNames.contains("goals")) {
+        db.createObjectStore("goals", { keyPath: "id" });
+        console.log("✅ Almacén de metas creado.");
       }
     };
 
@@ -261,4 +266,50 @@ export async function updateTransaction(id, updatedData) {
     console.error("❌ Error de validación:", error.message || error.errors);
     return Promise.reject(error.message || error.errors);
   }
+}
+
+export async function addGoal(goal) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("goals", "readwrite");
+    tx.objectStore("goals").add({ ...goal, id: Date.now() }).onsuccess = () =>
+      res(true);
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+export async function getGoals() {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("goals", "readonly");
+    tx.objectStore("goals").getAll().onsuccess = (e) => res(e.target.result);
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+export async function updateGoal(id, goal) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("goals", "readwrite");
+    tx.objectStore("goals").put({ id, ...goal }).onsuccess = () => res(true);
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+export async function deleteGoal(id) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("goals", "readwrite");
+    tx.objectStore("goals").delete(id).onsuccess = () => res(true);
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+export async function clearGoals() {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("goals", "readwrite");
+    tx.objectStore("goals").clear().onsuccess = () => res(true);
+    tx.onerror = () => rej(tx.error);
+  });
 }
