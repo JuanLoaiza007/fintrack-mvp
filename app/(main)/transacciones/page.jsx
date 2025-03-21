@@ -1,13 +1,21 @@
 import TransactionModule from "@/components/ui/features/transacciones/module";
 
 /**
- * TransactionPage component.
+ * Renders the TransactionPage component, which serves as the main entry point for the transaction module.
  *
- * This is the default export for the TransactionPage module, which renders
- * the TransactionModule component. It serves as the main page for displaying
- * transaction-related content.
+ * @component
+ * @remarks This component uses the TransactionModule component to display transaction-related features.
+ * It does not accept any props and has no side effects or hooks.
  *
  * @returns {JSX.Element} The rendered TransactionModule component.
+ *
+ * @example
+ * // Example usage:
+ * import TransactionPage from './path/to/TransactionPage';
+ *
+ * function App() {
+ *   return <TransactionPage />;
+ * }
  */
 export default function TransactionPage() {
   return <TransactionModule />;

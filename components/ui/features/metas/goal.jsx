@@ -3,7 +3,26 @@ import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import { Progress } from "../../progress";
 
+/**
+ * Displays a savings goal and its progress based on transactions.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {Object} props.goal - The savings goal object, containing `amount` (required) and `description` (optional).
+ * @param {Array} props.transactions - The list of transactions to calculate progress from (optional, default is an empty array).
+ * @returns {JSX.Element} A component that renders the savings goal and progress.
+ * @remarks This component uses `useMemo` to optimize calculations and `useEffect` to display toast notifications based on progress.
+ * @example
+ * const goal = { amount: 5000, description: "Vacation savings" };
+ * const transactions = [
+ *   { type: "income", amount: 2000 },
+ *   { type: "income", amount: 1000, category: "savings" },
+ * ];
+ *
+ * <Goal goal={goal} transactions={transactions} />
+ */
 export function Goal({ goal, transactions }) {
+  // Calculating the total saved amount
   const totalSaved = useMemo(
     () =>
       transactions
@@ -12,9 +31,20 @@ export function Goal({ goal, transactions }) {
     [transactions],
   );
 
+  // Calculating the percentage of the goal reached
   const percent =
     Math.min((totalSaved / goal?.amount ?? 1) * 100, 100).toFixed(0) || 0;
 
+  /**
+   * Determines the color based on the percentage of the goal reached.
+   *
+   * @param {string} percent - The percentage of the goal reached (required).
+   * @returns {string} The color code corresponding to the percentage.
+   *
+   * @example
+   * const color = getColor("80");
+   * console.log(color); // "#16A34A"
+   */
   const getColor = () => {
     const pct = Number(percent);
     if (pct >= 75) return "#16A34A";
@@ -23,6 +53,7 @@ export function Goal({ goal, transactions }) {
     return "#DC2626";
   };
 
+  // Display a toast message based on the percentage reached
   useEffect(() => {
     const pct = +percent;
     if (pct < 25) {

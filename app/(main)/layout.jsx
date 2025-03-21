@@ -7,14 +7,17 @@ import { AppSidebar } from "@/components/ui/features/sidebar";
 
 /**
  * MainLayout component that provides the main layout structure for the application.
+ * It includes a sidebar and wraps the children components with a provider for sidebar functionality.
  *
- * This component wraps its children with a `SidebarProvider` to manage the sidebar state
- * and includes the `AppSidebar` and `SidebarTrigger` components for sidebar functionality.
- * The `children` are rendered inside a `<main>` element that spans the full height and width.
- *
+ * @component
  * @param {Object} props - The props object.
- * @param {React.ReactNode} props.children - The child components to be rendered inside the layout.
- * @returns {JSX.Element} The rendered MainLayout component.
+ * @param {React.ReactNode} props.children - The child components to be rendered inside the layout. Required.
+ * @returns {JSX.Element} The rendered MainLayout component with a sidebar and main content area.
+ * @remarks This component uses the SidebarProvider to manage the state of the sidebar and includes the AppSidebar and SidebarTrigger components.
+ * @example
+ * <MainLayout>
+ *   <div>Welcome to the app!</div>
+ * </MainLayout>
  */
 export default function MainLayout({ children }) {
   return (

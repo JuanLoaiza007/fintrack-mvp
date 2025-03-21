@@ -3,11 +3,21 @@ import GoalModule from "@/components/ui/features/metas/module";
 /**
  * GoalPage component.
  *
- * This is the default export for the GoalPage module, which renders
- * the GoalModule component. It serves as the main page for displaying
- * goal-related content.
+ * This component serves as the main page for managing user goals.
  *
- * @returns {JSX.Element} The rendered GoalModule component.
+ * @component
+ * @remarks This component does not accept any props and directly renders the `GoalModule` component.
+ * It is intended to be used as a standalone page in the application.
+ *
+ * @returns {JSX.Element} The rendered `GoalModule` component.
+ *
+ * @example
+ * // Example usage:
+ * import GoalPage from './GoalPage';
+ *
+ * function App() {
+ *   return <GoalPage />;
+ * }
  */
 export default function GoalPage() {
   return <GoalModule />;

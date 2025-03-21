@@ -268,6 +268,21 @@ export async function updateTransaction(id, updatedData) {
   }
 }
 
+/**
+ * Adds a new goal to the "goals" object store in the database.
+ *
+ * @async
+ * @function
+ * @param {Object} goal - The goal object to be added. Required.
+ * @returns {Promise<boolean>} Resolves to `true` if the goal is successfully added.
+ * @throws {DOMException} If an error occurs during the transaction or addition process.
+ *
+ * @example
+ * const newGoal = { title: "Save for a car", amount: 5000 };
+ * addGoal(newGoal)
+ *   .then((result) => console.log("Goal added:", result))
+ *   .catch((error) => console.error("Error adding goal:", error));
+ */
 export async function addGoal(goal) {
   const db = await openDB();
   return new Promise((res, rej) => {
@@ -278,6 +293,19 @@ export async function addGoal(goal) {
   });
 }
 
+/**
+ * Retrieves all goals from the "goals" object store in the database.
+ *
+ * @async
+ * @function
+ * @returns {Promise<Array<Object>>} Resolves to an array of goal objects if successful.
+ * @throws {DOMException} If an error occurs during the transaction or retrieval process.
+ *
+ * @example
+ * getGoals()
+ *   .then((goals) => console.log("Goals retrieved:", goals))
+ *   .catch((error) => console.error("Error retrieving goals:", error));
+ */
 export async function getGoals() {
   const db = await openDB();
   return new Promise((res, rej) => {
@@ -287,6 +315,22 @@ export async function getGoals() {
   });
 }
 
+/**
+ * Updates an existing goal in the "goals" object store in the database.
+ *
+ * @async
+ * @function
+ * @param {number|string} id - The unique identifier of the goal to update. Required.
+ * @param {Object} goal - The updated goal data. Required.
+ * @returns {Promise<boolean>} Resolves to `true` if the goal is successfully updated.
+ * @throws {DOMException} If an error occurs during the transaction or update process.
+ *
+ * @example
+ * const updatedGoal = { title: "Save for vacation", amount: 2000 };
+ * updateGoal(12345, updatedGoal)
+ *   .then((result) => console.log("Goal updated:", result))
+ *   .catch((error) => console.error("Error updating goal:", error));
+ */
 export async function updateGoal(id, goal) {
   const db = await openDB();
   return new Promise((res, rej) => {
@@ -296,20 +340,25 @@ export async function updateGoal(id, goal) {
   });
 }
 
+/**
+ * Deletes a goal from the "goals" object store in the database by its ID.
+ *
+ * @async
+ * @function
+ * @param {number|string} id - The unique identifier of the goal to delete. Required.
+ * @returns {Promise<boolean>} Resolves to `true` if the goal is successfully deleted.
+ * @throws {DOMException} If an error occurs during the transaction or deletion process.
+ *
+ * @example
+ * deleteGoal(12345)
+ *   .then((result) => console.log("Goal deleted:", result))
+ *   .catch((error) => console.error("Error deleting goal:", error));
+ */
 export async function deleteGoal(id) {
   const db = await openDB();
   return new Promise((res, rej) => {
     const tx = db.transaction("goals", "readwrite");
     tx.objectStore("goals").delete(id).onsuccess = () => res(true);
-    tx.onerror = () => rej(tx.error);
-  });
-}
-
-export async function clearGoals() {
-  const db = await openDB();
-  return new Promise((res, rej) => {
-    const tx = db.transaction("goals", "readwrite");
-    tx.objectStore("goals").clear().onsuccess = () => res(true);
     tx.onerror = () => rej(tx.error);
   });
 }

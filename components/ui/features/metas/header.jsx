@@ -1,6 +1,25 @@
 import { Plus, Trash2, Edit, List } from "lucide-react";
 import { Button } from "../../button";
 
+/**
+ * Renders a header with buttons for managing monthly goals.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {function} props.onOpenCreate - Callback to open the goal creation modal. Required.
+ * @param {function} props.onDelete - Callback to delete the current goal. Required.
+ * @param {function} props.onListOpen - Callback to open the goal list modal. Required.
+ * @param {boolean} props.goal - Indicates if a goal is already defined. Optional.
+ * @remarks This component uses the `Button` component and icons from `lucide-react`.
+ * @returns {JSX.Element} A header with buttons for creating, editing, deleting, and listing goals.
+ * @example
+ * <GoalHeader
+ *   onOpenCreate={(isOpen) => console.log("Open Create:", isOpen)}
+ *   onDelete={() => console.log("Delete goal")}
+ *   onListOpen={(isOpen) => console.log("Open List:", isOpen)}
+ *   goal={true}
+ * />
+ */
 export default function GoalHeader({
   onOpenCreate,
   onDelete,
