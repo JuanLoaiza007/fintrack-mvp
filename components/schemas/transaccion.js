@@ -29,7 +29,7 @@ export const TRANSACTION_CATEGORIES = [
  * This schema validates the structure and constraints of a transaction.
  *
  * @constant
- * @type {import("zod").ZodObject}
+ * @type {Object}
  * @property {string} description - A required description of the transaction. Must be at least 1 character long.
  * @property {number} amount - A required positive number representing the transaction amount.
  * @property {"income"|"expense"} type - The type of transaction, either "income" or "expense". Defaults to "expense".
