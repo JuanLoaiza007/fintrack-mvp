@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { FormProvider, useForm } from "react-hook-form";
 import { format } from "date-fns";
 import DateInput from "@/components/ui/features/date-input";
@@ -45,7 +45,4 @@ describe("DateInput Component", () => {
     const formattedDate = format(testDate, "PPP");
     expect(screen.getByText(formattedDate)).toBeInTheDocument();
   });
-
-  // (Opcional) Puedes agregar tests para simular la apertura del popover y la selección de una fecha.
-  // Esto dependerá de la implementación interna del componente Calendar.
 });
