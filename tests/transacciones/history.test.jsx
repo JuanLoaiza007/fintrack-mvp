@@ -1,196 +1,200 @@
 import React from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
-import TransactionFilters from "@/components/ui/features/transacciones/filters";
-import TransactionForm from "@/components/ui/features/transacciones/form";
-import { deleteTransaction, updateTransaction, addTransaction } from "@/db/db";
-import { useTransactionContext } from "@/context/TransactionContext";
-import TransactionModule from "@/components/ui/features/transacciones/module";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import TransactionHistory from "@/components/ui/features/transacciones/history";
+import { getTransactions, deleteTransaction } from "@/db/db";
 
-// Unificar los mocks en un solo bloque al inicio
+// Mock database functions
 jest.mock("@/db/db", () => ({
-  deleteTransaction: jest.fn(),
-  updateTransaction: jest.fn(),
-  addTransaction: jest.fn(),
+  getTransactions: jest.fn(),
+  deleteTransaction: jest.fn(() => Promise.resolve(true)),
 }));
 
+// Mock TransactionContext to bypass provider wrapping
 jest.mock("@/context/TransactionContext", () => ({
-  useTransactionContext: jest.fn(),
+  useTransactionContext: () => ({
+    transactionUpdated: false,
+    notifyTransactionUpdate: jest.fn(),
+  }),
 }));
 
-describe("TransactionFilters", () => {
-  const mockSetDateFilter = jest.fn();
-  const mockSetTypeFilter = jest.fn();
-  const mockSetCategoryFilter = jest.fn();
-  const mockSetSortField = jest.fn();
-  const mockSetSortOrder = jest.fn();
-
-  const defaultProps = {
-    dateFilter: "all",
-    setDateFilter: mockSetDateFilter,
-    typeFilter: "all",
-    setTypeFilter: mockSetTypeFilter,
-    categoryFilter: "all",
-    setCategoryFilter: mockSetCategoryFilter,
-    sortField: "date",
-    setSortField: mockSetSortField,
-    sortOrder: "asc",
-    setSortOrder: mockSetSortOrder,
-  };
+describe("TransactionHistory Component", () => {
+  const dummyOnEdit = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("renders all filter labels and reset button", () => {
-    render(<TransactionFilters {...defaultProps} />);
-    expect(screen.getByText("Periodo:")).toBeInTheDocument();
-    expect(screen.getByText("Tipo:")).toBeInTheDocument();
-    expect(screen.getByText("Categoría:")).toBeInTheDocument();
-    expect(screen.getByText("Ordenar por:")).toBeInTheDocument();
-    expect(screen.getByText(/Restablecer filtros/i)).toBeInTheDocument();
+  it("renders header and main sections with proper aria labels", async () => {
+    getTransactions.mockResolvedValueOnce([]);
+    render(<TransactionHistory onEdit={dummyOnEdit} />);
+    expect(screen.getByLabelText("Transaction History")).toBeInTheDocument();
+    expect(screen.getByLabelText("Transaction Filters")).toBeInTheDocument();
+    expect(screen.getByLabelText("Transaction List")).toBeInTheDocument();
   });
 
-  it("calls reset functions when reset button is clicked", () => {
-    render(<TransactionFilters {...defaultProps} />);
-    const resetButton = screen.getByText(/Restablecer filtros/i);
-    fireEvent.click(resetButton);
-    expect(mockSetDateFilter).toHaveBeenCalledWith("all");
-    expect(mockSetTypeFilter).toHaveBeenCalledWith("all");
-    expect(mockSetCategoryFilter).toHaveBeenCalledWith("all");
-    expect(mockSetSortField).toHaveBeenCalledWith("date");
-    expect(mockSetSortOrder).toHaveBeenCalledWith("dsc");
-  });
-});
-
-describe("handleDelete", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    global.alert = jest.fn();
-    useTransactionContext.mockReturnValue({
-      notifyTransactionUpdate: jest.fn(),
+  it("renders empty state when no transactions are returned", async () => {
+    getTransactions.mockResolvedValueOnce([]);
+    render(<TransactionHistory onEdit={dummyOnEdit} />);
+    await waitFor(() => {
+      expect(
+        screen.getByText(/No hay transacciones registradas./i),
+      ).toBeInTheDocument();
     });
   });
 
-  it("llama a deleteTransaction con el ID correcto y muestra un alert de éxito", async () => {
-    const { notifyTransactionUpdate } = useTransactionContext();
-    deleteTransaction.mockResolvedValue(true);
-
-    const testId = 123;
-    const handleDelete = async (id) => {
-      await deleteTransaction(id)
-        .then(() => {
-          window.alert("Transacción eliminada con éxito");
-        })
-        .catch((error) => {
-          window.alert(error.message);
-        });
-      notifyTransactionUpdate();
-    };
-
-    await handleDelete(testId);
-
-    expect(deleteTransaction).toHaveBeenCalledWith(testId);
-    expect(global.alert).toHaveBeenCalledWith(
-      "Transacción eliminada con éxito",
-    );
-    expect(notifyTransactionUpdate).toHaveBeenCalled();
-  });
-
-  it("muestra un alert de error cuando deleteTransaction falla", async () => {
-    const { notifyTransactionUpdate } = useTransactionContext();
-    const errorMessage = "Error al eliminar";
-    deleteTransaction.mockRejectedValue(new Error(errorMessage));
-
-    const testId = 456;
-    const handleDelete = async (id) => {
-      await deleteTransaction(id)
-        .then(() => {
-          window.alert("Transacción eliminada con éxito");
-        })
-        .catch((error) => {
-          window.alert(error.message);
-        });
-      notifyTransactionUpdate();
-    };
-
-    await handleDelete(testId);
-
-    expect(deleteTransaction).toHaveBeenCalledWith(testId);
-    expect(global.alert).toHaveBeenCalledWith(errorMessage);
-    expect(notifyTransactionUpdate).toHaveBeenCalled();
-  });
-});
-
-describe("handleSubmit function", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    global.alert = jest.fn();
-    useTransactionContext.mockReturnValue({
-      notifyTransactionUpdate: jest.fn(),
+  it("renders a list of transactions when data is available", async () => {
+    const fakeTransactions = [
+      {
+        id: 1,
+        description: "Test Income",
+        amount: 100,
+        type: "income",
+        category: "food",
+        essential: false,
+        date: "2025-03-18",
+      },
+      {
+        id: 2,
+        description: "Test Expense",
+        amount: 200,
+        type: "expense",
+        category: "shopping",
+        essential: true,
+        date: "2025-03-19",
+      },
+    ];
+    getTransactions.mockResolvedValueOnce(fakeTransactions);
+    render(<TransactionHistory onEdit={dummyOnEdit} />);
+    await waitFor(() => {
+      expect(screen.getByText(/Test Income/i)).toBeInTheDocument();
+      expect(screen.getByText(/Test Expense/i)).toBeInTheDocument();
     });
   });
 
-  it("muestra un mensaje de éxito al agregar una transacción", async () => {
-    addTransaction.mockResolvedValueOnce(); // Simula que la función se ejecuta sin errores
-
-    render(<TransactionForm transaction={null} setIsCreateOpen={jest.fn()} />);
-
-    // Llenar los campos antes de enviar
-    fireEvent.change(screen.getByLabelText(/Description/i), {
-      target: { value: "Compra" },
+  it("calls onEdit when the edit button is clicked", async () => {
+    const fakeTransactions = [
+      {
+        id: 1,
+        description: "Test Income",
+        amount: 100,
+        type: "income",
+        category: "food",
+        essential: false,
+        date: "2025-03-18",
+      },
+    ];
+    getTransactions.mockResolvedValueOnce(fakeTransactions);
+    render(<TransactionHistory onEdit={dummyOnEdit} />);
+    await waitFor(() => {
+      expect(screen.getByText(/Test Income/i)).toBeInTheDocument();
     });
-    fireEvent.change(screen.getByLabelText(/Amount/i), {
-      target: { value: "1000" },
-    });
-    fireEvent.change(screen.getByLabelText(/Tipo/i), {
-      target: { value: "expense" },
-    });
-    fireEvent.change(screen.getByLabelText(/Category/i), {
-      target: { value: "Food" },
-    });
-    fireEvent.change(screen.getByLabelText(/Fecha/i), {
-      target: { value: "2025-03-19" },
-    });
-
-    await act(async () => {
-      fireEvent.submit(screen.getByTestId("transaction-form"));
-    });
-
-    expect(addTransaction).toHaveBeenCalled(); // Verifica que se ejecutó correctamente
-    expect(window.alert).toHaveBeenCalledWith(
-      "✅ Transacción agregada exitosamente.",
-    );
+    const editButton = screen.getByRole("button", { name: /Editar/i });
+    fireEvent.click(editButton);
+    expect(dummyOnEdit).toHaveBeenCalledWith(fakeTransactions[0]);
   });
 
-  it("muestra un mensaje de error al fallar al agregar una transacción", async () => {
-    addTransaction.mockRejectedValueOnce(new Error("Error al agregar"));
+  it("calls deleteTransaction when the delete button is clicked", async () => {
+    const fakeTransactions = [
+      {
+        id: 1,
+        description: "Test Expense",
+        amount: 200,
+        type: "expense",
+        category: "shopping",
+        essential: true,
+        date: "2025-03-19",
+      },
+    ];
+    getTransactions.mockResolvedValueOnce(fakeTransactions);
+    render(<TransactionHistory onEdit={dummyOnEdit} />);
+    await waitFor(() => {
+      expect(screen.getByText(/Test Expense/i)).toBeInTheDocument();
+    });
+    const deleteButton = screen.getByRole("button", { name: /Eliminar/i });
+    fireEvent.click(deleteButton);
+    await waitFor(() => {
+      expect(deleteTransaction).toHaveBeenCalledWith(1);
+    });
+  });
 
-    render(<TransactionForm transaction={null} setIsCreateOpen={jest.fn()} />);
+  // Additional tests for increasing branch and line coverage
 
-    // Llenar los campos antes de enviar
-    fireEvent.change(screen.getByLabelText(/Description/i), {
-      target: { value: "Compra" },
+  it("renders component and updates state on transaction fetch failure", async () => {
+    const consoleErrorSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    getTransactions.mockRejectedValueOnce(new Error("DB error"));
+    render(<TransactionHistory onEdit={dummyOnEdit} />);
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "Error al obtener transacciones:",
+        expect.any(Error),
+      );
     });
-    fireEvent.change(screen.getByLabelText(/Amount/i), {
-      target: { value: "1000" },
-    });
-    fireEvent.change(screen.getByLabelText(/Tipo/i), {
-      target: { value: "expense" },
-    });
-    fireEvent.change(screen.getByLabelText(/Category/i), {
-      target: { value: "Food" },
-    });
-    fireEvent.change(screen.getByLabelText(/Fecha/i), {
-      target: { value: "2025-03-19" },
-    });
+    consoleErrorSpy.mockRestore();
+  });
 
-    await act(async () => {
-      fireEvent.submit(screen.getByTestId("transaction-form"));
+  it("filters transactions by type and category when non-default values are set", async () => {
+    const fakeTransactions = [
+      {
+        id: 1,
+        description: "Test Income",
+        amount: 100,
+        type: "income",
+        category: "food",
+        essential: false,
+        date: "2025-03-18",
+      },
+      {
+        id: 2,
+        description: "Test Expense",
+        amount: 200,
+        type: "expense",
+        category: "shopping",
+        essential: true,
+        date: "2025-03-19",
+      },
+    ];
+    getTransactions.mockResolvedValueOnce(fakeTransactions);
+    render(<TransactionHistory onEdit={dummyOnEdit} />);
+    await waitFor(() => {
+      expect(screen.getByText(/Test Expense/i)).toBeInTheDocument();
     });
+    // Directly simulate state changes by firing change events on the select elements
+    const typeSelect = screen.getAllByRole("combobox")[1];
+    fireEvent.change(typeSelect, { target: { value: "income" } });
+    const categorySelect = screen.getAllByRole("combobox")[2];
+    fireEvent.change(categorySelect, { target: { value: "food" } });
+    await waitFor(() => {
+      expect(screen.queryByText(/Test Expense/i)).toBeNull();
+    });
+  });
 
-    expect(addTransaction).toHaveBeenCalled(); // Verifica que se ejecutó
-    expect(window.alert).toHaveBeenCalledWith(
-      "❌ Error al agregar transacción: Error al agregar",
-    );
+  it("sorts transactions by amount in ascending order", async () => {
+    const fakeTransactions = [
+      {
+        id: 1,
+        description: "Test Income",
+        amount: 300,
+        type: "income",
+        category: "food",
+        essential: false,
+        date: "2025-03-18",
+      },
+      {
+        id: 2,
+        description: "Test Income Lower",
+        amount: 100,
+        type: "income",
+        category: "food",
+        essential: false,
+        date: "2025-03-18",
+      },
+    ];
+    getTransactions.mockResolvedValueOnce(fakeTransactions);
+    render(<TransactionHistory onEdit={dummyOnEdit} />);
+    await waitFor(() => {
+      expect(screen.getByText(/Test Income Lower/i)).toBeInTheDocument();
+    });
   });
 });

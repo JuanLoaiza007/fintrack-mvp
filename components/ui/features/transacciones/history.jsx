@@ -4,6 +4,17 @@ import TransactionFilters from "./filters";
 import TransactionList from "./list";
 import { useTransactionContext } from "@/context/TransactionContext";
 
+/**
+ * Renders the TransactionHistory component which fetches, filters, sorts, and displays a list of transactions.
+ *
+ * @component
+ * @param {Object} props - Component props.
+ * @param {Function} props.onEdit — A required callback function invoked with a transaction object when an edit is requested.
+ * @returns {JSX.Element} The rendered TransactionHistory component.
+ *
+ * @example
+ * <TransactionHistory onEdit={(transaction) => console.log(transaction)} />
+ */
 export default function TransactionHistory({ onEdit }) {
   const [dateFilter, setDateFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -16,6 +27,16 @@ export default function TransactionHistory({ onEdit }) {
     useTransactionContext();
 
   useEffect(() => {
+    /**
+     * Asynchronously fetches transactions from the database and updates the state.
+     *
+     * @async
+     * @function fetchTransactions
+     * @returns {Promise<void>} A promise that resolves when the transactions have been successfully fetched.
+     *
+     * @example
+     * fetchTransactions().catch(error => console.error(error));
+     */
     async function fetchTransactions() {
       try {
         const data = await getTransactions();
@@ -86,6 +107,17 @@ export default function TransactionHistory({ onEdit }) {
     });
   }, [filteredTransactions, sortField, sortOrder]);
 
+  /**
+   * Handles the edit action for a transaction.
+   *
+   * @function handleEdit
+   * @param {number} id — The unique identifier of the transaction to be edited.
+   * @returns {void}
+   *
+   * @example
+   * // To edit a transaction with id 123:
+   * handleEdit(123);
+   */
   const handleEdit = (id) => {
     const transaction = transactions.find((t) => t.id === id);
     if (transaction) {
@@ -94,9 +126,12 @@ export default function TransactionHistory({ onEdit }) {
   };
 
   return (
-    <div className="flex flex-col w-full h-full bg-sidebar-accent rounded-lg shadow-lg">
+    <div
+      className="flex flex-col w-full h-full bg-sidebar-accent rounded-lg shadow-lg"
+      aria-label="Transaction History"
+    >
       {/* Header: Contiene los filtros */}
-      <header className="border-b">
+      <header className="border-b" aria-label="Transaction Filters">
         <TransactionFilters
           dateFilter={dateFilter}
           setDateFilter={setDateFilter}
@@ -112,7 +147,10 @@ export default function TransactionHistory({ onEdit }) {
       </header>
 
       {/* Main: Lista de transacciones */}
-      <main className="flex-1 min-h-0 max-h-[68vh] p-2 sm:p-4">
+      <main
+        className="flex-1 min-h-0 max-h-[68vh] p-2 sm:p-4"
+        aria-label="Transaction List"
+      >
         <TransactionList
           handleEdit={handleEdit}
           handleDelete={(id) => {
