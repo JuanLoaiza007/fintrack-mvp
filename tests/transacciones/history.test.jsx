@@ -2,7 +2,6 @@ import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import TransactionHistory from "@/components/ui/features/transacciones/history";
 import { getTransactions, deleteTransaction } from "@/db/db";
-import { useTransactionContext } from "@/context/TransactionContext";
 
 // Mock database functions
 jest.mock("@/db/db", () => ({
@@ -10,7 +9,7 @@ jest.mock("@/db/db", () => ({
   deleteTransaction: jest.fn(() => Promise.resolve(true)),
 }));
 
-// Mock the TransactionContext to avoid Provider wrapping
+// Mock TransactionContext to bypass provider wrapping
 jest.mock("@/context/TransactionContext", () => ({
   useTransactionContext: () => ({
     transactionUpdated: false,
@@ -25,17 +24,25 @@ describe("TransactionHistory Component", () => {
     jest.clearAllMocks();
   });
 
+  it("renders header and main sections with proper aria labels", async () => {
+    getTransactions.mockResolvedValueOnce([]);
+    render(<TransactionHistory onEdit={dummyOnEdit} />);
+    expect(screen.getByLabelText("Transaction History")).toBeInTheDocument();
+    expect(screen.getByLabelText("Transaction Filters")).toBeInTheDocument();
+    expect(screen.getByLabelText("Transaction List")).toBeInTheDocument();
+  });
+
   it("renders empty state when no transactions are returned", async () => {
     getTransactions.mockResolvedValueOnce([]);
     render(<TransactionHistory onEdit={dummyOnEdit} />);
     await waitFor(() => {
       expect(
-        screen.getByText("No hay transacciones registradas."),
+        screen.getByText(/No hay transacciones registradas./i),
       ).toBeInTheDocument();
     });
   });
 
-  it("renders a list of transactions when data is returned", async () => {
+  it("renders a list of transactions when data is available", async () => {
     const fakeTransactions = [
       {
         id: 1,
@@ -64,7 +71,7 @@ describe("TransactionHistory Component", () => {
     });
   });
 
-  it("calls onEdit when a transaction edit action is triggered", async () => {
+  it("calls onEdit when the edit button is clicked", async () => {
     const fakeTransactions = [
       {
         id: 1,
@@ -81,13 +88,12 @@ describe("TransactionHistory Component", () => {
     await waitFor(() => {
       expect(screen.getByText(/Test Income/i)).toBeInTheDocument();
     });
-    // Simulate clicking the edit button on the first transaction
     const editButton = screen.getByRole("button", { name: /Editar/i });
     fireEvent.click(editButton);
     expect(dummyOnEdit).toHaveBeenCalledWith(fakeTransactions[0]);
   });
 
-  it("calls deleteTransaction and updates when delete action is triggered", async () => {
+  it("calls deleteTransaction when the delete button is clicked", async () => {
     const fakeTransactions = [
       {
         id: 1,
@@ -104,11 +110,31 @@ describe("TransactionHistory Component", () => {
     await waitFor(() => {
       expect(screen.getByText(/Test Expense/i)).toBeInTheDocument();
     });
-    // Simulate clicking the delete button on the transaction
     const deleteButton = screen.getByRole("button", { name: /Eliminar/i });
     fireEvent.click(deleteButton);
     await waitFor(() => {
       expect(deleteTransaction).toHaveBeenCalledWith(1);
     });
+  });
+
+  it("renders the component without crashing", () => {
+    getTransactions.mockResolvedValueOnce([]);
+    const { container } = render(<TransactionHistory onEdit={dummyOnEdit} />);
+    expect(container).toBeDefined();
+  });
+
+  it("logs an error when getTransactions fails", async () => {
+    const consoleErrorSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    getTransactions.mockRejectedValueOnce(new Error("DB error"));
+    render(<TransactionHistory onEdit={dummyOnEdit} />);
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "Error al obtener transacciones:",
+        expect.any(Error),
+      );
+    });
+    consoleErrorSpy.mockRestore();
   });
 });
