@@ -103,6 +103,7 @@ const config = {
     "^@/db/(.*)$": "<rootDir>/db/$1",
     "^@/components/(.*)$": "<rootDir>/components/$1",
     "^@/utils/(.*)$": "<rootDir>/utils/$1",
+    "^@/lib/(.*)$": "<rootDir>/lib/$1",
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
