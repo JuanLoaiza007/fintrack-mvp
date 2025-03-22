@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/ui/features/reportes/export.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/ui/features/reportes/export.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use client";
+import React, { useState, useEffect } from "react";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SelectSeparator,
+} from "@/components/ui/select";
+import { generateCSV } from "@/utils/export";
+import { Button } from "@/components/ui/button";
+import { getTransactions } from "@/db/db";
+
+/**
+ * @component ReportesExport
+ * @description Renders a component for exporting reports based on selected time periods.
+ * @returns {JSX.Element} A div containing a selection for time period and a button to generate reports.
+ * @example
+ * &lt;ReportesExport />
+ * @dependencies
+ * - Select: A component from "@/components/ui/select" for period selection.
+ * - SelectTrigger: Subcomponent for triggering the select dropdown.
+ * - SelectValue: Subcomponent for displaying selected value.
+ * - SelectContent: Subcomponent for containing select items.
+ * - SelectItem: Subcomponent for individual select items.
+ * - SelectSeparator: Subcomponent for separating select items.
+ * - Button: A component from "@/components/ui/button" to trigger report generation.
+ * - generateCSV: A function from "@/utils/export" to generate CSV files.
+ * - getTransactions: A function from "@/db/db" to fetch transaction data.
+ * @state {string} period - The selected time period for report generation.
+ * @state {Array&lt;Object>} transactions - An array of transaction objects fetched from the database.
+ * @remarks
+ * This component fetches transactions from the database using `getTransactions()` inside a `useEffect` hook.
+ * The `handleGenerateReports` function processes and filters transactions based on the selected period before exporting them as a CSV file.
+ * Displays an alert if no transactions are available for export.
+ */
+export default function ReportesExport() {
+  const [period, setPeriod] = useState("todo");
+  const [transactions, setTransactions] = useState([]);
+
+  useEffect(() => {
+    /**
+     * Asynchronously loads transactions from the database and sets them in the component's state.
+     * @returns {Promise&lt;void>} A promise that resolves after the transactions are loaded and the state is updated.
+     * @throws {Error} Logs an error to the console if there is a problem loading transactions.
+     * @example
+     * await loadTransactions();
+     */
+    async function loadTransactions() {
+      try {
+        const data = await getTransactions();
+        setTransactions(data);
+      } catch (error) {
+        console.error("Error loading transactions:", error);
+      }
+    }
+    loadTransactions();
+  }, []);
+
+  /**
+   * Generates and downloads a CSV file based on the filtered transactions and selected period.
+   * @param {Array&lt;Object>} transactions - The array of transaction objects to be filtered and exported. (required)
+   * @param {string} period - The selected time period for filtering transactions ('todo', 'semana', 'mes', 'año'). (required)
+   * @returns {void} This function does not return a value. It triggers the download of a CSV file.
+   * @throws {Error} Throws an alert if there are no transactions to generate a report.
+   * @example
+   * handleGenerateReports();
+   */
+  const handleGenerateReports = () => {
+    if (!transactions || transactions.length === 0) {
+      alert("⚠️ No tienes ninguna transacción para generar un reporte");
+      return;
+    }
+
+    let filteredTransactions = transactions.map((t) => ({
+      ...t,
+      essential: t.essential !== undefined ? t.essential : false,
+    }));
+
+    const actualDate = new Date();
+
+    switch (period) {
+      case "todo":
+        break;
+      case "semana":
+        const startOfWeek = new Date(actualDate);
+        startOfWeek.setDate(actualDate.getDate() - actualDate.getDay()); // Primer día (domingo)
+
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Último día (sábado)
+
+        filteredTransactions = filteredTransactions.filter((t) => {
+          const transactionDate = new Date(t.date);
+          return transactionDate >= startOfWeek &amp;&amp; transactionDate &lt;= endOfWeek;
+        });
+        break;
+      case "mes":
+        filteredTransactions = filteredTransactions.filter(
+          (t) => new Date(t.date).getMonth() === actualDate.getMonth(),
+        );
+        break;
+      case "año":
+        filteredTransactions = filteredTransactions.filter(
+          (t) => new Date(t.date).getFullYear() === actualDate.getFullYear(),
+        );
+        break;
+    }
+    generateCSV(filteredTransactions);
+  };
+
+  return (
+    &lt;div className="w-full max-w-4xl bg-white p-4 rounded-lg shadow-md">
+      &lt;h3 className="text-lg font-semibold text-gray-800 mb-4">
+        Generar Reportes (Exportar)
+      &lt;/h3>
+      &lt;div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
+        &lt;Select value={period} onValueChange={(value) => setPeriod(value)}>
+          &lt;SelectTrigger className="w-full md:w-48 border border-gray-300 rounded px-3 py-2">
+            &lt;SelectValue placeholder="Selecciona un periodo" />
+          &lt;/SelectTrigger>
+          &lt;SelectContent>
+            &lt;SelectItem value="todo">Todo&lt;/SelectItem>
+            &lt;SelectSeparator />
+            &lt;SelectItem value="semana">Última semana&lt;/SelectItem>
+            &lt;SelectSeparator />
+            &lt;SelectItem value="mes">Último mes&lt;/SelectItem>
+            &lt;SelectSeparator />
+            &lt;SelectItem value="año">Último año&lt;/SelectItem>
+          &lt;/SelectContent>
+        &lt;/Select>
+        &lt;Button
+          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+          onClick={handleGenerateReports}
+        >
+          Generar Reportes
+        &lt;/Button>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AppSidebar">AppSidebar</a></li><li><a href="global.html#GoalListItem">GoalListItem</a></li><li><a href="global.html#STATUS_ICONS">STATUS_ICONS</a></li><li><a href="global.html#STATUS_LABELS">STATUS_LABELS</a></li><li><a href="global.html#STATUS_STYLES">STATUS_STYLES</a></li><li><a href="global.html#STATUS_VARIANT">STATUS_VARIANT</a></li><li><a href="global.html#TRANSACTION_CATEGORIES">TRANSACTION_CATEGORIES</a></li><li><a href="global.html#TRANSACTION_TYPES">TRANSACTION_TYPES</a></li><li><a href="global.html#formatCurrency">formatCurrency</a></li><li><a href="global.html#getBorderColor">getBorderColor</a></li><li><a href="global.html#getCategoryLabel">getCategoryLabel</a></li><li><a href="global.html#getTypeLabel">getTypeLabel</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#isDateInNowMonth">isDateInNowMonth</a></li><li><a href="global.html#loadGoals">loadGoals</a></li><li><a href="global.html#loadTransactions">loadTransactions</a></li><li><a href="global.html#onDelete">onDelete</a></li><li><a href="global.html#transaccionSchema">transaccionSchema</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Mar 22 2025 00:07:00 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/ui/features/reportes/import.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/ui/features/reportes/import.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use client";
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import Papa from "papaparse";
+import { clearTransactions, importTransactions } from "@/db/db";
+import { useTransactionContext } from "@/context/TransactionContext";
+
+/**
+ * @component ReportesImport
+ * @description Renders a component for importing reports from a CSV file.
+ * @returns {JSX.Element} A div containing file selection and import functionality.
+ * @example
+ * &lt;ReportesImport />
+ * @dependencies
+ * - Button: A component from "@/components/ui/button" for triggering import.
+ * - Papa: A library for parsing CSV files.
+ * - clearTransactions: A function from "@/db/db" to clear existing transactions.
+ * - importTransactions: A function from "@/db/db" to import new transactions.
+ * - useTransactionContext: A custom hook from "@/context/TransactionContext" to access transaction context.
+ * @state {File|null} file - The selected CSV file for import.
+ * @sideEffects
+ * - Uses the useTransactionContext hook to access and trigger transaction updates.
+ * - Parses the selected CSV file using Papa.parse and imports transactions into the database.
+ * - Clears existing transactions before importing new ones.
+ * - Displays alerts for file selection, confirmation, and import status.
+ */
+export default function ReportesImport() {
+  const [file, setFile] = useState(null);
+  const { notifyTransactionUpdate } = useTransactionContext();
+
+  /**
+   * Handles the file change event to set the selected file in the component's state.
+   * @param {Event} e - The file input change event. (required)
+   * @returns {void} This function does not return a value.
+   * @example
+   * const inputElement = document.getElementById('file-upload');
+   * inputElement.addEventListener('change', handleFileChange);
+   */
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  /**
+   * Parses and imports transaction data from a CSV file, clearing existing transactions, updating the context, and resetting the file input.
+   * @param {File} file - The CSV file to be imported. (required)
+   * @returns {Promise&lt;void>} A promise that resolves after the transactions are imported, the context is updated, and the file input is reset.
+   * @throws {Error} Throws an alert if no file is selected or if the CSV file has an incorrect format.
+   * @example
+   * handleImportReports();
+   */
+  const handleImportReports = () => {
+    if (!file) {
+      alert("Por favor, seleccione un archivo CSV");
+      return;
+    }
+
+    const confirmImport = window.confirm(
+      "⚠️ Esto borrará todos los registros existentes. ¿Desea continuar?",
+    );
+    if (!confirmImport) return;
+
+    Papa.parse(file, {
+      header: true,
+      complete: async (results) => {
+        let data = results.data;
+        const expectedHeaders = [
+          "id",
+          "description",
+          "amount",
+          "type",
+          "category",
+          "essential",
+          "date",
+        ];
+        const actualHeaders = Object.keys(data[0]);
+
+        if (JSON.stringify(expectedHeaders) !== JSON.stringify(actualHeaders)) {
+          alert("El archivo CSV no tiene el formato correcto");
+          return;
+        }
+
+        data = data.map((item) => ({
+          ...item,
+          id: parseInt(item.id),
+          essential: item.essential.toLowerCase() === "true",
+        }));
+        await clearTransactions();
+        await importTransactions(data);
+        notifyTransactionUpdate();
+        alert("Reporte importado correctamente");
+        setFile(null);
+      },
+      error: (err) => {
+        alert("Error al importar el archivo CSV");
+        console.error(err);
+      },
+    });
+  };
+
+  return (
+    &lt;div className="w-full max-w-4xl bg-white p-4 rounded-lg shadow-md flex flex-col">
+      &lt;h3 className="text-lg font-semibold text-gray-800 mb-4">
+        Importar Reportes (CSV)
+      &lt;/h3>
+      &lt;div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
+        &lt;div className="flex flex-col items-center">
+          &lt;label
+            htmlFor="file-upload"
+            className="text-sm font-medium text-gray-700 mb-1"
+          >
+            Seleccionar archivo CSV:
+          &lt;/label>
+          &lt;div className="flex items-center space-x-2">
+            &lt;input
+              id="file-upload"
+              type="file"
+              accept=".csv"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            &lt;label
+              htmlFor="file-upload"
+              className="cursor-pointer bg-gray-100 border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+            >
+              Elegir archivo
+            &lt;/label>
+            {file &amp;&amp; (
+              &lt;span className="text-sm text-gray-600 truncate">
+                {file.name}
+              &lt;/span>
+            )}
+          &lt;/div>
+        &lt;/div>
+        &lt;div className="flex items-center">
+          &lt;Button
+            onClick={handleImportReports}
+            disabled={!file}
+            className={`px-4 py-2 rounded ${
+              file
+                ? "bg-green-500 text-white hover:bg-green-600"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            Importar Reportes
+          &lt;/Button>
+        &lt;/div>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AppSidebar">AppSidebar</a></li><li><a href="global.html#GoalListItem">GoalListItem</a></li><li><a href="global.html#STATUS_ICONS">STATUS_ICONS</a></li><li><a href="global.html#STATUS_LABELS">STATUS_LABELS</a></li><li><a href="global.html#STATUS_STYLES">STATUS_STYLES</a></li><li><a href="global.html#STATUS_VARIANT">STATUS_VARIANT</a></li><li><a href="global.html#TRANSACTION_CATEGORIES">TRANSACTION_CATEGORIES</a></li><li><a href="global.html#TRANSACTION_TYPES">TRANSACTION_TYPES</a></li><li><a href="global.html#formatCurrency">formatCurrency</a></li><li><a href="global.html#getBorderColor">getBorderColor</a></li><li><a href="global.html#getCategoryLabel">getCategoryLabel</a></li><li><a href="global.html#getTypeLabel">getTypeLabel</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#isDateInNowMonth">isDateInNowMonth</a></li><li><a href="global.html#loadGoals">loadGoals</a></li><li><a href="global.html#loadTransactions">loadTransactions</a></li><li><a href="global.html#onDelete">onDelete</a></li><li><a href="global.html#transaccionSchema">transaccionSchema</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Mar 22 2025 00:07:00 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

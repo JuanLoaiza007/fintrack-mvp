@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/ui/features/metas/module.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/ui/features/metas/module.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use client";
+
+import React, { useEffect, useState } from "react";
+
+import GoalHeader from "./header";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import GoalForm from "./form";
+import GoalMain from "./main";
+import {
+  addGoal,
+  getGoals,
+  getTransactions,
+  updateGoal,
+  deleteGoal,
+} from "@/db/db";
+import { isDateInNowMonth } from "@/lib/utils";
+import GoalList from "./list";
+
+/**
+ * A module for managing and displaying goals and their associated transactions.
+ *
+ * @component
+ * @remarks
+ * This component uses React hooks such as `useState` and `useEffect` to manage state and side effects.
+ * It fetches goals and transactions from a database and filters them for the current month.
+ * The component also handles creating, updating, and deleting goals.
+ *
+ * @returns {JSX.Element} A rendered module for managing goals, including a header, main content, and modals for creating and listing goals.
+ *
+ * @example
+ * &lt;GoalModule />
+ */
+export default function GoalModule() {
+  const [goals, setGoals] = useState([]);
+  const [goal, setGoal] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [transactions, setTransaccions] = useState([]);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isListOpen, setIsListOpen] = useState(false);
+
+  /**
+   * Asynchronously loads and filters goals for the current month.
+   *
+   * This function sets a loading state, fetches goals using the `getGoals` function,
+   * filters them to include only those with a target date in the current month, and updates the state.
+   * If an error occurs during the fetch, it logs the error message to the console.
+   *
+   * @async
+   * @function loadGoals
+   * @returns {Promise&lt;void>} A promise that resolves when the goals are loaded and the state is updated.
+   * @throws {Error} Throws an error if fetching the goals fails.
+   *
+   * @example
+   * loadGoals()
+   *   .then(() => console.log("Goals loaded successfully"))
+   *   .catch((error) => console.error("Failed to load goals:", error));
+   */
+  const loadGoals = async () => {
+    setIsLoading(true);
+    try {
+      const goals = await getGoals();
+      setGoals(goals);
+      const _goals = goals.filter((g) => isDateInNowMonth(g.targetDate));
+      setGoal(_goals[0] ?? null);
+    } catch (error) {
+      console.error(
+        error?.message ?? "An error occurred while fetching the goals.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * Asynchronously loads and filters transactions for the current month.
+   *
+   * This function sets a loading state, fetches transactions using the `getTransactions` function,
+   * filters them to include only those with a date in the current month, and updates the state.
+   * If an error occurs during the fetch, it logs the error message to the console.
+   *
+   * @async
+   * @function loadTransactions
+   * @returns {Promise&lt;void>} A promise that resolves when the transactions are loaded and the state is updated.
+   * @throws {Error} Throws an error if fetching the transactions fails.
+   *
+   * @example
+   * loadTransactions()
+   *   .then(() => console.log("Transactions loaded successfully"))
+   *   .catch((error) => console.error("Failed to load transactions:", error));
+   */
+  const loadTransactions = async () => {
+    setIsLoading(true);
+    try {
+      const transactions = await getTransactions();
+      const _transactions = transactions.filter((t) =>
+        isDateInNowMonth(t.date),
+      );
+      setTransaccions(_transactions);
+    } catch (error) {
+      console.error(
+        error?.message ?? "An error occurred while fetching the transactions.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load goals and transactions on component mount
+  useEffect(() => {
+    loadGoals();
+    loadTransactions();
+  }, []);
+
+  /**
+   * Handles the submission of a goal form.
+   *
+   * This function determines whether to create a new goal or update an existing one
+   * based on the presence of a current goal. It then reloads the goals and transactions
+   * to reflect the changes.
+   *
+   * @param {Object} data - The data submitted from the goal form (required).
+   * @returns {void} Does not return a value.
+   * @throws {Error} Throws an error if updating or adding a goal fails.
+   *
+   * @example
+   * onSubmit({ title: "New Goal", targetDate: "2023-12-31", amount: 1000 });
+   */
+  const onSubmit = (data) => {
+    if (goal) {
+      updateGoal(goal.id, data);
+    } else {
+      addGoal(data);
+    }
+
+    loadGoals();
+    loadTransactions();
+  };
+
+  /**
+   * Handles the deletion of the current goal.
+   *
+   * This function deletes the currently selected goal by its ID and reloads the goals
+   * to reflect the changes. If no goal is selected, the function does nothing.
+   *
+   * @async
+   * @function onDelete
+   * @returns {Promise&lt;void>} A promise that resolves when the goal is deleted and the goals are reloaded.
+   * @throws {Error} Throws an error if deleting the goal fails.
+   *
+   * @example
+   * onDelete()
+   *   .then(() => console.log("Goal deleted successfully"))
+   *   .catch((error) => console.error("Failed to delete goal:", error));
+   */
+  const onDelete = async () => {
+    if (goal) {
+      await deleteGoal(goal.id);
+      loadGoals();
+    }
+  };
+
+  if (isLoading) {
+    return &lt;p>Loading...&lt;/p>;
+  }
+
+  return (
+    &lt;>
+      &lt;div className="p-4 gap-2 flex flex-col items-center justify-between w-full h-full max-h-screen overflow-y-hidden">
+        &lt;div className="p-4">
+          &lt;h1 className="font-bold text-2xl">Gestión de metas&lt;/h1>
+        &lt;/div>
+        &lt;GoalHeader
+          onOpenCreate={setIsCreateOpen}
+          onListOpen={setIsListOpen}
+          onDelete={onDelete}
+          goal={goal}
+        />
+        &lt;GoalMain goal={goal} transactions={transactions} />
+      &lt;/div>
+      &lt;Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+        &lt;SheetContent>
+          &lt;SheetHeader>
+            &lt;SheetTitle>{goal ? "Editar Meta" : "Crear Meta"}&lt;/SheetTitle>
+          &lt;/SheetHeader>
+          &lt;div className="p-4">
+            &lt;GoalForm
+              goal={goal}
+              onSubmit={onSubmit}
+              setIsCreateOpen={setIsCreateOpen}
+            />
+          &lt;/div>
+        &lt;/SheetContent>
+      &lt;/Sheet>
+      &lt;Dialog open={isListOpen} onOpenChange={(open) => setIsListOpen(open)}>
+        &lt;DialogContent>
+          &lt;DialogHeader>
+            &lt;DialogTitle>Historial de Metas&lt;/DialogTitle>
+            &lt;GoalList goals={goals} />
+          &lt;/DialogHeader>
+        &lt;/DialogContent>
+      &lt;/Dialog>
+    &lt;/>
+  );
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AppSidebar">AppSidebar</a></li><li><a href="global.html#GoalListItem">GoalListItem</a></li><li><a href="global.html#STATUS_ICONS">STATUS_ICONS</a></li><li><a href="global.html#STATUS_LABELS">STATUS_LABELS</a></li><li><a href="global.html#STATUS_STYLES">STATUS_STYLES</a></li><li><a href="global.html#STATUS_VARIANT">STATUS_VARIANT</a></li><li><a href="global.html#TRANSACTION_CATEGORIES">TRANSACTION_CATEGORIES</a></li><li><a href="global.html#TRANSACTION_TYPES">TRANSACTION_TYPES</a></li><li><a href="global.html#formatCurrency">formatCurrency</a></li><li><a href="global.html#getBorderColor">getBorderColor</a></li><li><a href="global.html#getCategoryLabel">getCategoryLabel</a></li><li><a href="global.html#getTypeLabel">getTypeLabel</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#isDateInNowMonth">isDateInNowMonth</a></li><li><a href="global.html#loadGoals">loadGoals</a></li><li><a href="global.html#loadTransactions">loadTransactions</a></li><li><a href="global.html#onDelete">onDelete</a></li><li><a href="global.html#transaccionSchema">transaccionSchema</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Mar 22 2025 00:07:00 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

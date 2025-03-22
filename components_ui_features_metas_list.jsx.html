@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/ui/features/metas/list.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/ui/features/metas/list.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { ScrollArea } from "../../scroll-area";
+import { formatCurrency } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { CircleX, Goal, Loader } from "lucide-react";
+
+/**
+ * Constants for the goal status variants
+ */
+const STATUS_VARIANT = {
+  "in-progress": "outline",
+  completed: "default",
+  failure: "destructive",
+};
+
+/**
+ * Constants for the goal status styles
+ */
+const STATUS_STYLES = {
+  "in-progress": "",
+  completed: "text-green-800",
+  failure: "text-red-800",
+};
+
+/**
+ * Constants for the goal status labels
+ */
+const STATUS_LABELS = {
+  "in-progress": "EN PROGRESO",
+  completed: "COMPLETADA",
+  failure: "FALLIDA",
+};
+
+/**
+ * Constants for the goal status icons
+ */
+const STATUS_ICONS = {
+  "in-progress": Loader,
+  completed: Goal,
+  failure: CircleX,
+};
+
+/**
+ * Renders a single goal item with its details, including status and amount.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {Object} props.goal - The goal object to display. Required.
+ * @param {string} props.goal.description - The description of the goal. Required.
+ * @param {number} props.goal.amount - The monetary amount associated with the goal. Required.
+ * @param {string} props.goal.completed - The completion status of the goal. Must be one of "in-progress", "completed", or "failure". Required.
+ * @remarks This component uses dynamic styles and icons based on the goal's completion status.
+ * @returns {JSX.Element} A styled goal item with its description, status, and amount.
+ * @example
+ * const goal = {
+ *   description: "Save for a car",
+ *   amount: 5000,
+ *   completed: "in-progress",
+ * };
+ *
+ * &lt;GoalListItem goal={goal} />
+ */
+function GoalListItem({ goal }) {
+  const badgeType = STATUS_VARIANT[goal.completed] || "default";
+  const badgeClass = STATUS_STYLES[goal.completed] || "";
+  const Icon = STATUS_ICONS[goal.completed];
+
+  return (
+    &lt;div className="flex items-center justify-between w-full p-4 bg-white rounded-lg border-b-2 border-gray-100">
+      &lt;div className="flex items-center gap-4">
+        &lt;Icon className="w-5 h-5 text-gray-600" />
+        &lt;p className="text-sm text-gray-600">{goal.description}&lt;/p>
+      &lt;/div>
+
+      &lt;div className="flex items-center gap-4">
+        &lt;Badge variant={badgeType} className={badgeClass}>
+          {STATUS_LABELS[goal.completed]}
+        &lt;/Badge>
+        &lt;p className="text-lg font-semibold text-gray-900">
+          {formatCurrency(goal.amount)}
+        &lt;/p>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+
+/**
+ * Component that renders a list of goals with their details.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {Array} props.goals - An array of goal objects to display. Each goal should have an `id`, `description`, `amount`, and `completed` status. Required.
+ * @returns {JSX.Element} A styled list of goals or a message if no goals are available.
+ * @example
+ * const goals = [
+ *   { id: 1, description: "Save for a car", amount: 5000, completed: "in-progress" },
+ *   { id: 2, description: "Emergency fund", amount: 10000, completed: "completed" },
+ * ];
+ *
+ * &lt;GoalList goals={goals} />
+ */
+export default function GoalList({ goals }) {
+  return (
+    &lt;div className="flex flex-col w-full h-full bg-white rounded-lg">
+      &lt;ScrollArea className="flex flex-col mt-4 space-y-3">
+        {goals.length > 0 ? (
+          goals.map((goal) => &lt;GoalListItem key={goal.id} goal={goal} />)
+        ) : (
+          &lt;p className="text-gray-500 text-center mt-8">
+            No hay metas registradas.
+          &lt;/p>
+        )}
+      &lt;/ScrollArea>
+    &lt;/div>
+  );
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AppSidebar">AppSidebar</a></li><li><a href="global.html#GoalListItem">GoalListItem</a></li><li><a href="global.html#STATUS_ICONS">STATUS_ICONS</a></li><li><a href="global.html#STATUS_LABELS">STATUS_LABELS</a></li><li><a href="global.html#STATUS_STYLES">STATUS_STYLES</a></li><li><a href="global.html#STATUS_VARIANT">STATUS_VARIANT</a></li><li><a href="global.html#TRANSACTION_CATEGORIES">TRANSACTION_CATEGORIES</a></li><li><a href="global.html#TRANSACTION_TYPES">TRANSACTION_TYPES</a></li><li><a href="global.html#formatCurrency">formatCurrency</a></li><li><a href="global.html#getBorderColor">getBorderColor</a></li><li><a href="global.html#getCategoryLabel">getCategoryLabel</a></li><li><a href="global.html#getTypeLabel">getTypeLabel</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#isDateInNowMonth">isDateInNowMonth</a></li><li><a href="global.html#loadGoals">loadGoals</a></li><li><a href="global.html#loadTransactions">loadTransactions</a></li><li><a href="global.html#onDelete">onDelete</a></li><li><a href="global.html#transaccionSchema">transaccionSchema</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Mar 22 2025 00:07:00 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

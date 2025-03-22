@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/ui/features/transacciones/form.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/ui/features/transacciones/form.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Form } from "@/components/ui/form";
+import { useTransactionContext } from "@/context/TransactionContext";
+import {
+  TRANSACTION_TYPES,
+  TRANSACTION_CATEGORIES,
+} from "@/components/schemas/transaccion";
+
+import {
+  transaccionSchema,
+  defaultTransaccion,
+} from "@/components/schemas/transaccion";
+import TextInput from "@/components/ui/features/text-input";
+import NumberInput from "../number-input";
+import SelectInput from "../select-input";
+import BooleanInput from "../boolean-input";
+import DateInput from "../date-input";
+import { Button } from "../../button";
+import { addTransaction, updateTransaction } from "@/db/db";
+import { useEffect } from "react";
+
+/**
+ * TransactionForm Component
+ *
+ * @description
+ * A form component for creating or editing a transaction. It includes fields for
+ * description, amount, type, category, date, and an optional "essential" field
+ * for expense transactions. The form uses `react-hook-form` for state management
+ * and validation.
+ *
+ * @component
+ *
+ * @returns {JSX.Element} The rendered transaction form component.
+ *
+ * @example
+ * &lt;TransactionForm />
+ *
+ * @dependencies
+ * - `useForm` from `react-hook-form` for form state management.
+ * - `zodResolver` for schema validation.
+ * - Custom input components: `TextInput`, `NumberInput`, `SelectInput`, `DateInput`, `BooleanInput`.
+ * - `addTransaction` function for handling transaction submission.
+ *
+ * @remarks
+ * - The `essential` field is conditionally rendered based on the selected transaction type.
+ * - The form handles submission by creating a payload and passing it to the `addTransaction` function.
+ */
+export default function TransactionForm({
+  setIsCreateOpen,
+  transaction = null,
+}) {
+  const { notifyTransactionUpdate } = useTransactionContext();
+
+  const form = useForm({
+    resolver: zodResolver(transaccionSchema),
+    defaultValues: transaction || defaultTransaccion,
+  });
+
+  const types = TRANSACTION_TYPES;
+  const categories = TRANSACTION_CATEGORIES;
+
+  /**
+   * Handles the submission of transaction data.
+   *
+   * @param {Object} data - The transaction data submitted from the form.
+   * @param {string} data.type - The type of transaction, either "income" or "expense".
+   * @param {boolean} [data.essential] - Indicates if the transaction is essential (only applicable for "expense" type).
+   *
+   * @description
+   * Creates a payload object from the submitted data. If the transaction type is "income",
+   * the `essential` property is removed from the payload. The resulting payload is then
+   * passed to the `addTransaction` function to process the transaction.
+   */
+  const handleSubmit = async (data) => {
+    const payload = { ...data };
+
+    if (payload.type === "income") delete payload.essential;
+
+    if (transaction) {
+      try {
+        const success = await updateTransaction(transaction.id, payload);
+        if (success) {
+          window.alert("✅ Transacción actualizada exitosamente.");
+        }
+      } catch (error) {
+        window.alert(`❌ Error al actualizar transacción: ${error.message}`);
+      }
+    } else {
+      try {
+        await addTransaction(payload);
+        window.alert("✅ Transacción agregada exitosamente.");
+      } catch (error) {
+        window.alert(`❌ Error al agregar transacción: ${error.message}`);
+      }
+    }
+
+    notifyTransactionUpdate();
+    setIsCreateOpen(false);
+  };
+
+  useEffect(() => {
+    form.reset(transaction || defaultTransaccion);
+  }, [transaction]);
+
+  return (
+    &lt;div>
+      &lt;Form {...form}>
+        &lt;form
+          data-testid="transaction-form"
+          className="flex flex-col py-4 gap-4"
+          onSubmit={form.handleSubmit(handleSubmit)}
+        >
+          &lt;div className="flex flex-col gap-4">
+            &lt;TextInput
+              name="description"
+              label="Description"
+              placeholder="Description"
+            />
+            &lt;NumberInput name="amount" label="Amount" placeholder="Amount" />
+            &lt;SelectInput
+              name="type"
+              label="Tipo"
+              placeholder="Tipo"
+              items={types}
+            />
+            &lt;SelectInput
+              name="category"
+              label="Category"
+              placeholder="Category"
+              items={categories}
+            />
+            &lt;DateInput name="date" label="Fecha" />
+            {form.watch("type") === "expense" &amp;&amp; (
+              &lt;BooleanInput name="essential" label="Esencial" />
+            )}
+          &lt;/div>
+          &lt;div className="flex justify-center">
+            &lt;Button type="submit">Guardar&lt;/Button>
+          &lt;/div>
+        &lt;/form>
+      &lt;/Form>
+    &lt;/div>
+  );
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AppSidebar">AppSidebar</a></li><li><a href="global.html#GoalListItem">GoalListItem</a></li><li><a href="global.html#STATUS_ICONS">STATUS_ICONS</a></li><li><a href="global.html#STATUS_LABELS">STATUS_LABELS</a></li><li><a href="global.html#STATUS_STYLES">STATUS_STYLES</a></li><li><a href="global.html#STATUS_VARIANT">STATUS_VARIANT</a></li><li><a href="global.html#TRANSACTION_CATEGORIES">TRANSACTION_CATEGORIES</a></li><li><a href="global.html#TRANSACTION_TYPES">TRANSACTION_TYPES</a></li><li><a href="global.html#formatCurrency">formatCurrency</a></li><li><a href="global.html#getBorderColor">getBorderColor</a></li><li><a href="global.html#getCategoryLabel">getCategoryLabel</a></li><li><a href="global.html#getTypeLabel">getTypeLabel</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#isDateInNowMonth">isDateInNowMonth</a></li><li><a href="global.html#loadGoals">loadGoals</a></li><li><a href="global.html#loadTransactions">loadTransactions</a></li><li><a href="global.html#onDelete">onDelete</a></li><li><a href="global.html#transaccionSchema">transaccionSchema</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Mar 22 2025 00:07:00 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
