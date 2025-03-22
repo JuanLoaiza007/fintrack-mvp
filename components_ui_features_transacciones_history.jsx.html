@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/ui/features/transacciones/history.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/ui/features/transacciones/history.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useEffect, useState, useMemo } from "react";
+import { deleteTransaction, getTransactions } from "@/db/db";
+import TransactionFilters from "./filters";
+import TransactionList from "./list";
+import { useTransactionContext } from "@/context/TransactionContext";
+
+/**
+ * Renders the TransactionHistory component which fetches, filters, sorts, and displays a list of transactions.
+ *
+ * @component
+ * @param {Object} props - Component props.
+ * @param {Function} props.onEdit — A required callback function invoked with a transaction object when an edit is requested.
+ * @returns {JSX.Element} The rendered TransactionHistory component.
+ *
+ * @example
+ * &lt;TransactionHistory onEdit={(transaction) => console.log(transaction)} />
+ */
+export default function TransactionHistory({ onEdit }) {
+  const [dateFilter, setDateFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [sortField, setSortField] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
+
+  const [transactions, setTransactions] = useState([]);
+  const { transactionUpdated, notifyTransactionUpdate } =
+    useTransactionContext();
+
+  useEffect(() => {
+    /**
+     * Asynchronously fetches transactions from the database and updates the state.
+     *
+     * @async
+     * @function fetchTransactions
+     * @returns {Promise&lt;void>} A promise that resolves when the transactions have been successfully fetched.
+     *
+     * @example
+     * fetchTransactions().catch(error => console.error(error));
+     */
+    async function fetchTransactions() {
+      try {
+        const data = await getTransactions();
+        setTransactions(data);
+      } catch (error) {
+        console.error("Error al obtener transacciones:", error);
+      }
+    }
+    fetchTransactions();
+  }, [transactionUpdated]);
+
+  const filteredTransactions = useMemo(() => {
+    const now = new Date();
+    return transactions.filter((t) => {
+      const transactionDate = new Date(t.date);
+
+      // Filtro por fecha
+      if (
+        dateFilter === "day" &amp;&amp;
+        transactionDate.toDateString() !== now.toDateString()
+      ) {
+        return false;
+      }
+      if (dateFilter === "week") {
+        const weekAgo = new Date();
+        weekAgo.setDate(now.getDate() - 7);
+        if (transactionDate &lt; weekAgo) return false;
+      }
+      if (dateFilter === "month") {
+        if (
+          transactionDate.getMonth() !== now.getMonth() ||
+          transactionDate.getFullYear() !== now.getFullYear()
+        ) {
+          return false;
+        }
+      }
+
+      // Filtro por tipo (income/expense)
+      if (typeFilter !== "all" &amp;&amp; t.type !== typeFilter) {
+        return false;
+      }
+
+      // Filtro por categoría
+      if (categoryFilter !== "all" &amp;&amp; t.category !== categoryFilter) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [transactions, dateFilter, typeFilter, categoryFilter]);
+
+  const sortedTransactions = useMemo(() => {
+    return [...filteredTransactions].sort((a, b) => {
+      if (sortField === "description") {
+        return sortOrder === "asc"
+          ? a.description.localeCompare(b.description)
+          : b.description.localeCompare(a.description);
+      }
+      if (sortField === "amount") {
+        return sortOrder === "asc" ? a.amount - b.amount : b.amount - a.amount;
+      }
+      if (sortField === "date") {
+        return sortOrder === "asc"
+          ? new Date(a.date) - new Date(b.date)
+          : new Date(b.date) - new Date(a.date);
+      }
+      return 0;
+    });
+  }, [filteredTransactions, sortField, sortOrder]);
+
+  /**
+   * Handles the edit action for a transaction.
+   *
+   * @function handleEdit
+   * @param {number} id — The unique identifier of the transaction to be edited.
+   * @returns {void}
+   *
+   * @example
+   * // To edit a transaction with id 123:
+   * handleEdit(123);
+   */
+  const handleEdit = (id) => {
+    const transaction = transactions.find((t) => t.id === id);
+    if (transaction) {
+      onEdit(transaction);
+    }
+  };
+
+  return (
+    &lt;div
+      className="flex flex-col w-full h-full bg-sidebar-accent rounded-lg shadow-lg"
+      aria-label="Transaction History"
+    >
+      {/* Header: Contiene los filtros */}
+      &lt;header className="border-b" aria-label="Transaction Filters">
+        &lt;TransactionFilters
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
+          typeFilter={typeFilter}
+          setTypeFilter={setTypeFilter}
+          categoryFilter={categoryFilter}
+          setCategoryFilter={setCategoryFilter}
+          sortField={sortField}
+          setSortField={setSortField}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+        />
+      &lt;/header>
+
+      {/* Main: Lista de transacciones */}
+      &lt;main
+        className="flex-1 min-h-0 max-h-[68vh] p-2 sm:p-4"
+        aria-label="Transaction List"
+      >
+        &lt;TransactionList
+          handleEdit={handleEdit}
+          handleDelete={(id) => {
+            deleteTransaction(id)
+              .then(() => {
+                window.alert("Transacción eliminada con éxito");
+              })
+              .catch((error) => {
+                window.alert(error.message);
+              });
+            notifyTransactionUpdate();
+          }}
+          transactions={sortedTransactions}
+        />
+      &lt;/main>
+    &lt;/div>
+  );
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AppSidebar">AppSidebar</a></li><li><a href="global.html#GoalListItem">GoalListItem</a></li><li><a href="global.html#STATUS_ICONS">STATUS_ICONS</a></li><li><a href="global.html#STATUS_LABELS">STATUS_LABELS</a></li><li><a href="global.html#STATUS_STYLES">STATUS_STYLES</a></li><li><a href="global.html#STATUS_VARIANT">STATUS_VARIANT</a></li><li><a href="global.html#TRANSACTION_CATEGORIES">TRANSACTION_CATEGORIES</a></li><li><a href="global.html#TRANSACTION_TYPES">TRANSACTION_TYPES</a></li><li><a href="global.html#fetchTransactions">fetchTransactions</a></li><li><a href="global.html#formatCurrency">formatCurrency</a></li><li><a href="global.html#getBorderColor">getBorderColor</a></li><li><a href="global.html#getCategoryLabel">getCategoryLabel</a></li><li><a href="global.html#getTypeLabel">getTypeLabel</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#isDateInNowMonth">isDateInNowMonth</a></li><li><a href="global.html#loadGoals">loadGoals</a></li><li><a href="global.html#loadTransactions">loadTransactions</a></li><li><a href="global.html#onDelete">onDelete</a></li><li><a href="global.html#transaccionSchema">transaccionSchema</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Mar 22 2025 21:52:36 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
