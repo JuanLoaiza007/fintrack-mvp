@@ -126,9 +126,12 @@ export default function TransactionHistory({ onEdit }) {
   };
 
   return (
-    <div className="flex flex-col w-full h-full bg-sidebar-accent rounded-lg shadow-lg">
+    <div
+      className="flex flex-col w-full h-full bg-sidebar-accent rounded-lg shadow-lg"
+      aria-label="Transaction History"
+    >
       {/* Header: Contiene los filtros */}
-      <header className="border-b">
+      <header className="border-b" aria-label="Transaction Filters">
         <TransactionFilters
           dateFilter={dateFilter}
           setDateFilter={setDateFilter}
@@ -144,7 +147,10 @@ export default function TransactionHistory({ onEdit }) {
       </header>
 
       {/* Main: Lista de transacciones */}
-      <main className="flex-1 min-h-0 max-h-[68vh] p-2 sm:p-4">
+      <main
+        className="flex-1 min-h-0 max-h-[68vh] p-2 sm:p-4"
+        aria-label="Transaction List"
+      >
         <TransactionList
           handleEdit={handleEdit}
           handleDelete={(id) => {
