@@ -16,7 +16,7 @@ import ReportesDashboard from "./dashboard";
  */
 export default function ReportesModule() {
   return (
-    <div className="w-full flex flex-col items-center gap-6">
+    <div className="w-full flex flex-col items-center gap-6 p-4">
       <h2 className="text-2xl font-bold text-gray-800 mt-4">
         Gestión de Reportes
       </h2>
