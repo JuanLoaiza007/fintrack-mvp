@@ -1,5 +1,6 @@
 import { CircleHelp, Plus } from "lucide-react";
 import { Button } from "../../button";
+import AISuggestion from "./ai-suggestion";
 
 /**
  * TransactionFooter component renders a footer with two buttons:
@@ -7,17 +8,23 @@ import { Button } from "../../button";
  *
  * @component
  * @param {Object} props - The props object.
- * @param {function} props.onOpenHelp - Callback function to handle opening the help dialog.
  * @param {function} props.onOpenCreate - Callback function to handle opening the create transaction dialog.
  * @returns {JSX.Element} The rendered footer component.
  */
-export default function TransactionFooter({ onOpenHelp, onOpenCreate }) {
+export default function TransactionFooter({ onOpenCreate }) {
   return (
-    <div className="flex  w-full items-center justify-between">
-      <Button size="icon" onClick={() => onOpenHelp(true)}>
-        <CircleHelp className="w-6 h-6" />
-      </Button>
-      <Button size="icon" onClick={() => onOpenCreate(true)}>
+    <div
+      className="flex w-full items-center justify-between"
+      aria-label="Transaction Footer"
+    >
+      <div aria-label="AI Suggestion">
+        <AISuggestion />
+      </div>
+      <Button
+        size="icon"
+        onClick={() => onOpenCreate(true)}
+        aria-label="Create Transaction"
+      >
         <Plus className="w-6 h-6" />
       </Button>
     </div>

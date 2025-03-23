@@ -2,22 +2,17 @@
 import { createContext, useContext, useState, useCallback } from "react";
 
 /**
- * Context to handle transaction updates without affecting the CRUD logic.
+ * Context to handle transaction updates and store a copy of transactions for IA analysis.
  */
 const TransactionContext = createContext();
 
 /**
  * TransactionProvider Component
  *
- * @description
- * Provides a context for managing transaction updates in the UI.
- * This ensures that components are aware of transaction changes without
- * directly handling database operations.
- *
+ * @description Provides a context for managing transaction updates in the UI and storing a copy of transactions for IA analysis.
  * @component
- * @param {Object} props - The component props.
- * @param {React.ReactNode} props.children - The child components that will have access to the context.
- *
+ * @param {Object} props — Component props.
+ * @param {React.ReactNode} props.children — The child components that will have access to the context.
  * @returns {JSX.Element} The context provider component.
  *
  * @example
@@ -27,12 +22,13 @@ const TransactionContext = createContext();
  */
 export function TransactionProvider({ children }) {
   const [transactionUpdated, setTransactionUpdated] = useState(false);
+  const [iaTransactions, setIaTransactions] = useState([]);
 
   /**
    * Notifies that transactions have been updated.
    *
    * @function
-   * @returns {void}
+   * @returns {void} This function toggles the transactionUpdated state.
    *
    * @example
    * notifyTransactionUpdate();
@@ -43,7 +39,12 @@ export function TransactionProvider({ children }) {
 
   return (
     <TransactionContext.Provider
-      value={{ transactionUpdated, notifyTransactionUpdate }}
+      value={{
+        transactionUpdated,
+        notifyTransactionUpdate,
+        iaTransactions,
+        setIaTransactions,
+      }}
     >
       {children}
     </TransactionContext.Provider>
@@ -53,15 +54,18 @@ export function TransactionProvider({ children }) {
 /**
  * useTransactionContext Hook
  *
- * @description
- * Provides access to the transaction context.
- *
- * @returns {{ transactionUpdated: boolean, notifyTransactionUpdate: function }} The transaction context values.
+ * @description Provides access to the transaction context.
+ * @returns {{
+ *   transactionUpdated: boolean,
+ *   notifyTransactionUpdate: function,
+ *   iaTransactions: Array,
+ *   setIaTransactions: function
+ * }} The transaction context values.
  *
  * @throws {Error} If used outside of a TransactionProvider.
  *
  * @example
- * const { transactionUpdated, notifyTransactionUpdate } = useTransactionContext();
+ * const { transactionUpdated, notifyTransactionUpdate, iaTransactions, setIaTransactions } = useTransactionContext();
  */
 export function useTransactionContext() {
   const context = useContext(TransactionContext);

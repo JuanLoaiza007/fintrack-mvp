@@ -1,47 +1,44 @@
+jest.mock("remark-gfm", () => {
+  return () => {};
+});
+
+jest.mock("react-markdown", () => ({
+  __esModule: true,
+  default: ({ children }) => <div>{children}</div>,
+}));
+
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import TransactionFooter from "@/components/ui/features/transacciones/footer";
+import { TransactionProvider } from "@/context/TransactionContext";
 
-describe("TransactionFooter Component", () => {
-  it("calls onOpenHelp when the help button is clicked", () => {
-    const onOpenHelpMock = jest.fn();
-    const onOpenCreateMock = jest.fn();
-
+describe("TransactionFooter", () => {
+  it("renders AI suggestion component", () => {
     render(
-      <TransactionFooter
-        onOpenHelp={onOpenHelpMock}
-        onOpenCreate={onOpenCreateMock}
-      />,
+      <TransactionProvider>
+        <TransactionFooter onOpenCreate={jest.fn()} />
+      </TransactionProvider>
     );
-
-    // Obtenemos todos los botones. Se asume que el botón de ayuda es el primero.
-    const buttons = screen.getAllByRole("button");
-
-    // Simulamos el click en el primer botón.
-    fireEvent.click(buttons[0]);
-
-    // Se espera que onOpenHelp se llame con "true".
-    expect(onOpenHelpMock).toHaveBeenCalledWith(true);
+    expect(screen.getByLabelText("AI Suggestion")).toBeInTheDocument();
   });
 
-  it("calls onOpenCreate when the create button is clicked", () => {
-    const onOpenHelpMock = jest.fn();
-    const onOpenCreateMock = jest.fn();
-
+  it("renders create transaction button", () => {
     render(
-      <TransactionFooter
-        onOpenHelp={onOpenHelpMock}
-        onOpenCreate={onOpenCreateMock}
-      />,
+      <TransactionProvider>
+        <TransactionFooter onOpenCreate={jest.fn()} />
+      </TransactionProvider>
     );
+    expect(screen.getByLabelText("Create Transaction")).toBeInTheDocument();
+  });
 
-    // Obtenemos todos los botones. Se asume que el botón de crear es el segundo.
-    const buttons = screen.getAllByRole("button");
-
-    // Simulamos el click en el segundo botón.
-    fireEvent.click(buttons[1]);
-
-    // Se espera que onOpenCreate se llame con "true".
-    expect(onOpenCreateMock).toHaveBeenCalledWith(true);
+  it("calls onOpenCreate when create button is clicked", () => {
+    const handleOpenCreate = jest.fn();
+    render(
+      <TransactionProvider>
+        <TransactionFooter onOpenCreate={handleOpenCreate} />
+      </TransactionProvider>
+    );
+    fireEvent.click(screen.getByLabelText("Create Transaction"));
+    expect(handleOpenCreate).toHaveBeenCalledWith(true);
   });
 });
