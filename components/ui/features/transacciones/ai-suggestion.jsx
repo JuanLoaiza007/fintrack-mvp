@@ -20,7 +20,7 @@
  */
 import { useState, useEffect } from "react";
 import { request_gemini } from "@/utils/gemini";
-import { getGoals /*, getBudget */ } from "@/db/db";
+import { getGoals, getBudget } from "@/db/db";
 import { isDateInNowMonth } from "@/lib/utils";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -34,7 +34,7 @@ export default function AISuggestion() {
   const [loading, setLoading] = useState(false);
   const [showSuggestion, setShowSuggestion] = useState(false);
   const [metaAhorro, setMetaAhorro] = useState(null);
-  // const [presupuesto, setPresupuesto] = useState(null); // Para futura implementación
+  const [presupuesto, setPresupuesto] = useState(null);
 
   useEffect(() => {
     async function fetchGoals() {
@@ -45,21 +45,24 @@ export default function AISuggestion() {
         setMetaAhorro(_goals[0]?.amount ?? null);
       } catch (error) {
         console.error(
-          error?.message ?? "An error occurred while fetching the goals."
+          error?.message ?? "An error occurred while fetching the goals.",
         );
       }
     }
 
     fetchGoals();
-    // async function fetchBudget() {
-    //   try {
-    //     const budget = await getBudget();
-    //     setPresupuesto(budget);
-    //   } catch (error) {
-    //     console.error("❌ Error al obtener presupuesto:", error);
-    //   }
-    // }
-    // fetchBudget();
+
+    async function fetchBudget() {
+      try {
+        const data = await getBudget();
+        setPresupuesto(data[0]?.amount ?? null);
+      } catch (error) {
+        console.error(
+          error?.message ?? "An error occurred while fetching the budget",
+        );
+      }
+    }
+    fetchBudget();
   }, []);
 
   async function getIASuggestion() {
@@ -71,7 +74,8 @@ export default function AISuggestion() {
     setSuggestion("");
     const response = await request_gemini(
       iaTransactions,
-      metaAhorro /*, presupuesto */
+      metaAhorro,
+      presupuesto,
     );
     setSuggestion(response);
     setLoading(false);
