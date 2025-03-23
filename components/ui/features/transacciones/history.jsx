@@ -115,7 +115,7 @@ export default function TransactionHistory({ onEdit }) {
    */
   const iaSortedTransactions = useMemo(() => {
     return [...filteredTransactions].sort(
-      (a, b) => new Date(a.date) - new Date(b.date)
+      (a, b) => new Date(a.date) - new Date(b.date),
     );
   }, [filteredTransactions]);
 

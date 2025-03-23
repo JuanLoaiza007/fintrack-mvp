@@ -17,7 +17,7 @@ describe("TransactionFooter", () => {
     render(
       <TransactionProvider>
         <TransactionFooter onOpenCreate={jest.fn()} />
-      </TransactionProvider>
+      </TransactionProvider>,
     );
     expect(screen.getByLabelText("AI Suggestion")).toBeInTheDocument();
   });
@@ -26,7 +26,7 @@ describe("TransactionFooter", () => {
     render(
       <TransactionProvider>
         <TransactionFooter onOpenCreate={jest.fn()} />
-      </TransactionProvider>
+      </TransactionProvider>,
     );
     expect(screen.getByLabelText("Create Transaction")).toBeInTheDocument();
   });
@@ -36,7 +36,7 @@ describe("TransactionFooter", () => {
     render(
       <TransactionProvider>
         <TransactionFooter onOpenCreate={handleOpenCreate} />
-      </TransactionProvider>
+      </TransactionProvider>,
     );
     fireEvent.click(screen.getByLabelText("Create Transaction"));
     expect(handleOpenCreate).toHaveBeenCalledWith(true);
