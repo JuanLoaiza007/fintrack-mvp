@@ -6,12 +6,17 @@ import {
   deleteTransaction,
   clearTransactions,
   updateTransaction,
+  getBudget,
+  addBudget,
+  updateBudget,
+  deleteBudget,
 } from "@/db/db";
 import { defaultTransaccion } from "@/components/schemas/transaccion";
 import { Weight } from "lucide-react";
 
 describe("db module", () => {
   let fakeTransactionStore;
+  let fakeBudgetStore;
   let fakeTx;
   let fakeDB;
   let fakeOpenRequest;
@@ -23,8 +28,23 @@ describe("db module", () => {
       clear: jest.fn(),
     };
 
+    fakeBudgetStore = {
+      add: jest.fn(),
+      put: jest.fn(),
+      delete: jest.fn(),
+      getAll: jest.fn(),
+    };
+
     fakeTx = {
-      objectStore: jest.fn(() => fakeTransactionStore),
+      objectStore: jest.fn((storeName) => {
+        if (storeName === "transactions") {
+          return fakeTransactionStore;
+        }
+        if (storeName === "budget") {
+          return fakeBudgetStore;
+        }
+        throw new Error(`Unexpected store name: ${storeName}`);
+      }),
     };
 
     fakeDB = {
@@ -59,7 +79,7 @@ describe("db module", () => {
 
   test("openDB returns a DB object", async () => {
     await expect(openDB()).resolves.toBe(fakeDB);
-    expect(global.indexedDB.open).toHaveBeenCalledWith("FinanzasDB", 2);
+    expect(global.indexedDB.open).toHaveBeenCalledWith("FinanzasDB", 3);
   }, 10000);
 
   test("getTransactions returns transactions array", async () => {
@@ -271,5 +291,71 @@ describe("db module", () => {
     await expect(updateTransaction(updatedTransaction)).rejects.toThrow(
       "Error: ID de transacción inválido o no existe",
     );
+  }, 10000);
+
+  test("getBudget returns budget array", async () => {
+    const fakeData = [
+      { id: 1, amount: 500, description: "Food" },
+      { id: 2, amount: 1000, description: "Rent" },
+    ];
+
+    fakeBudgetStore.getAll.mockImplementation(() => {
+      const req = { onsuccess: null, result: fakeData };
+      setTimeout(() => {
+        if (req.onsuccess) req.onsuccess({ target: req });
+      }, 0);
+      return req;
+    });
+
+    await expect(getBudget()).resolves.toEqual(fakeData);
+    expect(fakeTx.objectStore).toHaveBeenCalledWith("budget");
+  }, 10000);
+
+  test("addBudget successfully adds a budget", async () => {
+    fakeBudgetStore.add.mockImplementation(() => {
+      const req = { onsuccess: null };
+      setTimeout(() => {
+        if (req.onsuccess) req.onsuccess();
+      }, 0);
+      return req;
+    });
+
+    const newBudget = { amount: 1200, description: "Savings" };
+    await expect(addBudget(newBudget)).resolves.toBe(true);
+    expect(fakeTx.objectStore).toHaveBeenCalledWith("budget");
+    expect(fakeBudgetStore.add).toHaveBeenCalled();
+  }, 10000);
+
+  test("updateBudget successfully updates a budget", async () => {
+    fakeBudgetStore.put.mockImplementation(() => {
+      const req = { onsuccess: null };
+      setTimeout(() => {
+        if (req.onsuccess) req.onsuccess();
+      }, 0);
+      return req;
+    });
+
+    const updatedBudget = {
+      id: 1,
+      amount: 1500,
+      description: "Updated Savings",
+    };
+    await expect(updateBudget(1, updatedBudget)).resolves.toBe(true);
+    expect(fakeTx.objectStore).toHaveBeenCalledWith("budget");
+    expect(fakeBudgetStore.put).toHaveBeenCalledWith(updatedBudget);
+  }, 10000);
+
+  test("deleteBudget successfully deletes a budget", async () => {
+    fakeBudgetStore.delete.mockImplementation(() => {
+      const req = { onsuccess: null };
+      setTimeout(() => {
+        if (req.onsuccess) req.onsuccess();
+      }, 0);
+      return req;
+    });
+
+    await expect(deleteBudget(1)).resolves.toBe(true);
+    expect(fakeTx.objectStore).toHaveBeenCalledWith("budget");
+    expect(fakeBudgetStore.delete).toHaveBeenCalledWith(1);
   }, 10000);
 });
