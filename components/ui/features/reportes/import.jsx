@@ -82,6 +82,7 @@ export default function ReportesImport() {
         data = data.map((item) => ({
           ...item,
           id: parseInt(item.id),
+          amount: parseFloat(item.amount),
           essential: item.essential.toLowerCase() === "true",
         }));
         await clearTransactions();
