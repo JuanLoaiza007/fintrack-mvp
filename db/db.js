@@ -1,4 +1,5 @@
 import { transaccionSchema } from "@/components/schemas/transaccion";
+import { budgetSchema } from "@/components/schemas/budget";
 
 /**
  * Opens an IndexedDB database named "FinanzasDB" and ensures the necessary object stores are created.
@@ -12,7 +13,7 @@ import { transaccionSchema } from "@/components/schemas/transaccion";
 export async function openDB() {
   return new Promise((resolve, reject) => {
     console.log("🔹 Abriendo IndexedDB...");
-    const request = indexedDB.open("FinanzasDB", 2);
+    const request = indexedDB.open("FinanzasDB", 3);
 
     request.onupgradeneeded = (event) => {
       console.log("🛠️ Verificando y creando almacenes...");
@@ -26,6 +27,11 @@ export async function openDB() {
       if (!db.objectStoreNames.contains("goals")) {
         db.createObjectStore("goals", { keyPath: "id" });
         console.log("✅ Almacén de metas creado.");
+      }
+
+      if (!db.objectStoreNames.contains("budget")) {
+        db.createObjectStore("budget", { keyPath: "id" });
+        console.log("✅ Almacén de presupuestos creado.");
       }
     };
 
@@ -359,6 +365,101 @@ export async function deleteGoal(id) {
   return new Promise((res, rej) => {
     const tx = db.transaction("goals", "readwrite");
     tx.objectStore("goals").delete(id).onsuccess = () => res(true);
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+/**
+ * Retrieves all budget records from the "budget" object store in the database.
+ *
+ * @async
+ * @function
+ * @returns {Promise<Object[]>} Resolves with an array of budget objects if successful.
+ * @throws {DOMException} If an error occurs during the transaction or retrieval process.
+ *
+ * @example
+ * getBudget()
+ *   .then((budgets) => console.log("Budgets retrieved:", budgets))
+ *   .catch((error) => console.error("Error retrieving budgets:", error));
+ */
+export async function getBudget() {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("budget", "readonly");
+    tx.objectStore("budget").getAll().onsuccess = (e) => res(e.target.result);
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+/**
+ * Adds a new budget entry to the "budget" object store in the database.
+ *
+ * @async
+ * @function
+ * @param {Object} budget - The budget object to be added. Required.
+ * @returns {Promise<boolean>} Resolves to `true` if the budget is successfully added.
+ * @throws {DOMException} If an error occurs during the transaction or addition process.
+ *
+ * @example
+ * const newBudget = { amount: 1000, description: "Monthly groceries" };
+ * addBudget(newBudget)
+ *   .then((result) => console.log("Budget added:", result))
+ *   .catch((error) => console.error("Error adding budget:", error));
+ */
+export async function addBudget(budget) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("budget", "readwrite");
+    tx.objectStore("budget").add({ ...budget, id: Date.now() }).onsuccess =
+      () => res(true);
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+/**
+ * Updates an existing budget entry in the "budget" object store in the database.
+ *
+ * @async
+ * @function
+ * @param {number} id - The unique identifier of the budget to update. Required.
+ * @param {Object} budget - The updated budget object. Required.
+ * @returns {Promise<boolean>} Resolves to `true` if the budget is successfully updated.
+ * @throws {DOMException} If an error occurs during the transaction or update process.
+ *
+ * @example
+ * const updatedBudget = { amount: 1200, description: "Updated groceries budget" };
+ * updateBudget(1, updatedBudget)
+ *   .then((result) => console.log("Budget updated:", result))
+ *   .catch((error) => console.error("Error updating budget:", error));
+ */
+export async function updateBudget(id, budget) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("budget", "readwrite");
+    tx.objectStore("budget").put({ id, ...budget }).onsuccess = () => res(true);
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+/**
+ * Deletes a budget entry from the "budget" object store in the database.
+ *
+ * @async
+ * @function
+ * @param {number} id - The unique identifier of the budget to delete. Required.
+ * @returns {Promise<boolean>} Resolves to `true` if the budget is successfully deleted.
+ * @throws {DOMException} If an error occurs during the transaction or deletion process.
+ *
+ * @example
+ * deleteBudget(1)
+ *   .then((result) => console.log("Budget deleted:", result))
+ *   .catch((error) => console.error("Error deleting budget:", error));
+ */
+export async function deleteBudget(id) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("budget", "readwrite");
+    tx.objectStore("budget").delete(id).onsuccess = () => res(true);
     tx.onerror = () => rej(tx.error);
   });
 }
