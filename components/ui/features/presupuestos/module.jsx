@@ -45,12 +45,18 @@ export default function BudgetModule() {
   /**
    * Fetches and updates the list of expense transactions.
    *
+   * This function retrieves transactions from the database, filters only expenses,
+   * and updates the component state accordingly.
+   *
    * @async
-   * @throws {Error} If there is an issue retrieving transactions.
-   * @returns {Promise<void>} Resolves once the expenses are updated.
+   * @function fetchExpenses
+   * @returns {Promise<void>} A promise that resolves once the expenses are updated.
+   * @throws {Error} Logs an error if retrieving transactions fails.
    *
    * @example
-   * await fetchExpenses();
+   * fetchExpenses()
+   *   .then(() => console.log("Expenses fetched successfully"))
+   *   .catch((error) => console.error("Failed to fetch expenses:", error));
    */
   const fetchExpenses = async () => {
     setLoading(true);
@@ -66,12 +72,17 @@ export default function BudgetModule() {
   /**
    * Fetches and sets the current budget data.
    *
+   * Retrieves budget details from the database and updates the state with the first available budget.
+   *
    * @async
-   * @throws {Error} If there is an issue retrieving the budget.
-   * @returns {Promise<void>} Resolves once the budget is set.
+   * @function fetchBudget
+   * @returns {Promise<void>} A promise that resolves once the budget is set.
+   * @throws {Error} Logs an error if retrieving the budget fails.
    *
    * @example
-   * await fetchBudget();
+   * fetchBudget()
+   *   .then(() => console.log("Budget fetched successfully"))
+   *   .catch((error) => console.error("Failed to fetch budget:", error));
    */
   const fetchBudget = async () => {
     try {
@@ -85,13 +96,21 @@ export default function BudgetModule() {
   /**
    * Handles form submission to create or update a budget.
    *
+   * If an existing budget is present, it updates it. Otherwise, it creates a new budget.
+   * After completion, it refreshes the budget and expenses data.
+   *
    * @async
-   * @param {Object} data - The budget data to be saved (required).
-   * @throws {Error} If there is an issue saving the budget.
-   * @returns {Promise<void>} Resolves once the budget is saved and state is updated.
+   * @function onSubmit
+   * @param {Object} data - The budget data to be saved.
+   * @param {number} data.amount - The budget amount.
+   * @param {string} data.category - The category associated with the budget.
+   * @returns {Promise<void>} A promise that resolves once the budget is saved and state is updated.
+   * @throws {Error} Logs an error if saving the budget fails.
    *
    * @example
-   * await onSubmit({ amount: 500, category: "Food" });
+   * onSubmit({ amount: 500, category: "Food" })
+   *   .then(() => console.log("Budget saved successfully"))
+   *   .catch((error) => console.error("Failed to save budget:", error));
    */
   const onSubmit = async (data) => {
     try {
@@ -111,12 +130,17 @@ export default function BudgetModule() {
   /**
    * Deletes the current budget if it exists.
    *
+   * If a budget is available, this function deletes it and refreshes the budget data.
+   *
    * @async
-   * @throws {Error} If there is an issue deleting the budget.
-   * @returns {Promise<void>} Resolves once the budget is deleted and state is updated.
+   * @function onDelete
+   * @returns {Promise<void>} A promise that resolves once the budget is deleted and state is updated.
+   * @throws {Error} Logs an error if deleting the budget fails.
    *
    * @example
-   * await onDelete();
+   * onDelete()
+   *   .then(() => console.log("Budget deleted successfully"))
+   *   .catch((error) => console.error("Failed to delete budget:", error));
    */
   const onDelete = async () => {
     if (budget) {

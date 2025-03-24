@@ -31,8 +31,8 @@ import { getTransactions } from "@/db/db";
  * @state {string} period - The selected time period for report generation.
  * @state {Array<Object>} transactions - An array of transaction objects fetched from the database.
  * @remarks
- * This component fetches transactions from the database using `getTransactions()` inside a `useEffect` hook.
- * The `handleGenerateReports` function processes and filters transactions based on the selected period before exporting them as a CSV file.
+ * This component fetches transactions from the database using getTransactions() inside a useEffect hook.
+ * The handleGenerateReports function processes and filters transactions based on the selected period before exporting them as a CSV file.
  * Displays an alert if no transactions are available for export.
  */
 export default function ReportesExport() {
@@ -41,9 +41,13 @@ export default function ReportesExport() {
 
   useEffect(() => {
     /**
-     * Asynchronously loads transactions from the database and sets them in the component's state.
+     * Loads transactions from the database asynchronously and updates the component state.
+     *
+     * @async
+     * @function loadTransactions
      * @returns {Promise<void>} A promise that resolves after the transactions are loaded and the state is updated.
      * @throws {Error} Logs an error to the console if there is a problem loading transactions.
+     *
      * @example
      * await loadTransactions();
      */
@@ -60,12 +64,17 @@ export default function ReportesExport() {
 
   /**
    * Generates and downloads a CSV file based on the filtered transactions and selected period.
-   * @param {Array<Object>} transactions - The array of transaction objects to be filtered and exported. (required)
-   * @param {string} period - The selected time period for filtering transactions ('todo', 'semana', 'mes', 'año'). (required)
-   * @returns {void} This function does not return a value. It triggers the download of a CSV file.
+   *
+   * This function filters transactions according to the selected period and triggers a CSV file download.
+   *
+   * @function handleGenerateReports
+   * @param {Array<Object>} transactions - The array of transaction objects to be filtered and exported.
+   * @param {string} period - The selected time period for filtering transactions ('todo', 'semana', 'mes', 'año').
+   * @returns {void} This function does not return a value.
    * @throws {Error} Throws an alert if there are no transactions to generate a report.
+   *
    * @example
-   * handleGenerateReports();
+   * handleGenerateReports(transactions, 'mes');
    */
   const handleGenerateReports = () => {
     if (!transactions || transactions.length === 0) {
