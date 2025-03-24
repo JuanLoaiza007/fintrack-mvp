@@ -13,13 +13,14 @@ import {
   clearTransactions,
   importTransactions,
 } from "@/db/db";
-import { generateCSV } from "@/utils/export";
+import { generateCSV, generatePDF } from "@/utils/export";
 import { TransactionProvider } from "@/context/TransactionContext";
 import Papa from "papaparse";
 
 jest.mock("@/db/db");
 jest.mock("@/utils/export", () => ({
   generateCSV: jest.fn(),
+  generatePDF: jest.fn(),
 }));
 jest.mock("papaparse");
 
@@ -50,6 +51,7 @@ describe("ReportesModule", () => {
     expect(screen.getByText("Generar Reportes")).toBeInTheDocument();
     expect(screen.getByText("Elegir archivo")).toBeInTheDocument();
     expect(screen.getByText("Importar Reportes")).toBeInTheDocument();
+    expect(screen.getByText("Generar Estadisticas")).toBeInTheDocument();
   });
 
   it("generates reports correctly", async () => {
@@ -68,6 +70,24 @@ describe("ReportesModule", () => {
     fireEvent.click(screen.getByText("Generar Reportes"));
 
     await waitFor(() => expect(generateCSV).toHaveBeenCalled());
+  });
+
+  it("generates PDF reports correctly", async () => {
+    getTransactions.mockResolvedValue([
+      { id: 1, date: new Date().toISOString(), essential: true },
+    ]);
+    generatePDF.mockImplementation(() => {});
+    await act(async () => {
+      render(
+        <TransactionProvider>
+          <ReportesModule />
+        </TransactionProvider>,
+      );
+    });
+
+    fireEvent.click(screen.getByText("Generar Estadisticas"));
+
+    await waitFor(() => expect(generatePDF).toHaveBeenCalled());
   });
 
   it("imports reports correctly", async () => {
@@ -175,6 +195,7 @@ describe("ReportesModule", () => {
       screen.getByRole("button", { name: "Importar Reportes" }),
     ).toBeEnabled();
   });
+
   it("filters transactions by week", async () => {
     getTransactions.mockResolvedValue([
       { id: 1, date: new Date().toISOString(), essential: true },

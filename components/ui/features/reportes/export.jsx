@@ -8,7 +8,8 @@ import {
   SelectItem,
   SelectSeparator,
 } from "@/components/ui/select";
-import { generateCSV } from "@/utils/export";
+import { calculateStatistics } from "@/utils/statistics";
+import { generateCSV, generatePDF } from "@/utils/export";
 import { Button } from "@/components/ui/button";
 import { getTransactions } from "@/db/db";
 
@@ -26,7 +27,9 @@ import { getTransactions } from "@/db/db";
  * - SelectItem: Subcomponent for individual select items.
  * - SelectSeparator: Subcomponent for separating select items.
  * - Button: A component from "@/components/ui/button" to trigger report generation.
+ * - calculateStatistics: A function from "@/utils/statistics" to calculate statistics.
  * - generateCSV: A function from "@/utils/export" to generate CSV files.
+ * - generatePDF: A function from "@/utils/export" to generate PDF files.
  * - getTransactions: A function from "@/db/db" to fetch transaction data.
  * @state {string} period - The selected time period for report generation.
  * @state {Array<Object>} transactions - An array of transaction objects fetched from the database.
@@ -63,9 +66,9 @@ export default function ReportesExport() {
   }, []);
 
   /**
-   * Generates and downloads a CSV file based on the filtered transactions and selected period.
+   * Generates and downloads a CSV file or a PDF file based on the filtered transactions and selected period.
    *
-   * This function filters transactions according to the selected period and triggers a CSV file download.
+   * This function filters transactions according to the selected period and  can generate a CSV or PDF file.
    *
    * @function handleGenerateReports
    * @param {Array<Object>} transactions - The array of transaction objects to be filtered and exported.
@@ -76,7 +79,7 @@ export default function ReportesExport() {
    * @example
    * handleGenerateReports(transactions, 'mes');
    */
-  const handleGenerateReports = () => {
+  const handleGenerateReports = (format) => {
     if (!transactions || transactions.length === 0) {
       alert("⚠️ No tienes ninguna transacción para generar un reporte");
       return;
@@ -115,7 +118,14 @@ export default function ReportesExport() {
         );
         break;
     }
-    generateCSV(filteredTransactions);
+
+    const statistics = calculateStatistics(filteredTransactions);
+
+    if(format === "pdf") {
+          generatePDF(filteredTransactions, statistics);
+        } else if(format === "csv") {
+          generateCSV(filteredTransactions);
+        }
   };
 
   return (
@@ -140,9 +150,15 @@ export default function ReportesExport() {
         </Select>
         <Button
           className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-          onClick={handleGenerateReports}
+          onClick={() => handleGenerateReports("csv")}
         >
           Generar Reportes
+        </Button>
+        <Button
+          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+          onClick={() => handleGenerateReports("pdf")}
+        >
+          Generar Estadisticas
         </Button>
       </div>
     </div>
