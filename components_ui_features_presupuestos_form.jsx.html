@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: components/ui/features/metas/form.jsx</title>
+    <title>JSDoc: Source: components/ui/features/presupuestos/form.jsx</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: components/ui/features/metas/form.jsx</h1>
+    <h1 class="page-title">Source: components/ui/features/presupuestos/form.jsx</h1>
 
     
 
@@ -26,62 +26,77 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Form } from "@/components/ui/form";
-
-import { goalSchema, defaultGoal } from "@/components/schemas/goal";
-import TextInput from "@/components/ui/features/text-input";
+            <pre class="prettyprint source linenums"><code>"use client";
+import React, { useEffect } from "react";
 import NumberInput from "../number-input";
-import { Button } from "../../button";
-import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { budgetSchema, defaultBudget } from "@/components/schemas/budget";
 
 /**
- * A form component for creating or editing a financial goal.
+ * A form component for creating or editing a budget entry.
+ *
+ * This component provides a form for users to enter budget details, including amount and description.
+ * It uses `react-hook-form` for form state management and `zodResolver` for validation.
+ * The form resets whenever the `budget` prop changes.
  *
  * @component
- * @param {Object} props - The props object.
- * @param {Function} props.setIsCreateOpen - A function to toggle the creation modal. Required.
- * @param {Object|null} [props.goal=null] - The goal data to prefill the form. Optional, defaults to null.
- * @param {Function} props.onSubmit - A callback function to handle form submission. Required.
- * @remarks This component uses `react-hook-form` for form handling and validation, and resets the form whenever the `goal` prop changes.
- * @returns {JSX.Element} A form for creating or editing a financial goal.
+ * @param {Object} props - Component properties.
+ * @param {Function} props.setIsCreateOpen - Function to toggle the budget creation modal. Required.
+ * @param {Object|null} [props.budget=null] - The budget data to prefill the form. Optional.
+ * @param {number} props.budget.amount - The amount allocated for the budget.
+ * @param {string} props.budget.description - The description of the budget.
+ * @param {Function} props.onSubmit - Function to handle form submission. Required.
+ *
+ * @returns {JSX.Element} A form with inputs for amount and description, and a submit button.
+ *
  * @example
- * &lt;GoalForm
+ * &lt;BudgetForm
  *   setIsCreateOpen={setIsCreateOpen}
- *   goal={{ amount: 500, description: "Vacation savings" }}
+ *   budget={{ amount: 1000, description: "Monthly Budget" }}
  *   onSubmit={(data) => console.log(data)}
  * />
  */
-export default function GoalForm({ setIsCreateOpen, goal = null, onSubmit }) {
+export default function BudgetForm({
+  setIsCreateOpen,
+  budget = null,
+  onSubmit,
+}) {
   const form = useForm({
-    resolver: zodResolver(goalSchema),
-    defaultValues: goal || defaultGoal,
+    resolver: zodResolver(budgetSchema),
+    defaultValues: budget || defaultBudget,
   });
 
   /**
-   * Handles the form submission by invoking the provided onSubmit callback
-   * with the form data and closing the creation modal.
+   * Handles the submission of the budget form.
+   *
+   * This function processes the form submission by invoking the `onSubmit` callback
+   * and then closing the budget creation modal.
    *
    * @async
    * @function handleSubmit
-   * @param {Object} data - The data submitted from the form (required).
-   * @returns {Promise&lt;void>} A promise that resolves when the submission is complete.
+   * @param {Object} data - The form data containing budget details.
+   * @param {number} data.amount - The budget amount.
+   * @param {string} data.description - The budget description.
+   * @returns {Promise&lt;void>} A promise that resolves when the form submission is completed.
+   * @throws {Error} Throws an error if the submission process fails.
+   *
    * @example
-   * handleSubmit({ amount: 100, description: "Savings goal" })
-   *   .then(() => console.log("Form submitted successfully"))
-   *   .catch((error) => console.error("Error submitting form", error));
+   * handleSubmit({ amount: 500, description: "Groceries" })
+   *   .then(() => console.log("Budget submitted successfully"))
+   *   .catch((error) => console.error("Submission failed", error));
    */
   const handleSubmit = async (data) => {
     onSubmit(data);
     setIsCreateOpen(false);
   };
 
-  // Reset the form when the goal prop changes
+  // Reset the form when the budget prop changes
   useEffect(() => {
-    form.reset(goal || defaultGoal);
-  }, [goal]);
-
+    form.reset(budget || defaultBudget);
+  }, [budget, form]);
   return (
     &lt;div>
       &lt;Form {...form}>
@@ -92,11 +107,6 @@ export default function GoalForm({ setIsCreateOpen, goal = null, onSubmit }) {
         >
           &lt;div className="flex flex-col gap-4">
             &lt;NumberInput name="amount" label="Amount" placeholder="Amount" />
-            &lt;TextInput
-              name="description"
-              label="Description"
-              placeholder="Description"
-            />
           &lt;/div>
           &lt;div className="flex justify-center">
             &lt;Button type="submit">Guardar&lt;/Button>
