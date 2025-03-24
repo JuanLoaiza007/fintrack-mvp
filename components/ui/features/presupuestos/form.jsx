@@ -10,15 +10,17 @@ import { budgetSchema, defaultBudget } from "@/components/schemas/budget";
 /**
  * A form component for creating or editing a budget entry.
  *
+ * This component provides a form for users to enter budget details, including amount and description.
+ * It uses `react-hook-form` for form state management and `zodResolver` for validation.
+ * The form resets whenever the `budget` prop changes.
+ *
  * @component
- * @param {Object} props - The component props.
+ * @param {Object} props - Component properties.
  * @param {Function} props.setIsCreateOpen - Function to toggle the budget creation modal. Required.
  * @param {Object|null} [props.budget=null] - The budget data to prefill the form. Optional.
+ * @param {number} props.budget.amount - The amount allocated for the budget.
+ * @param {string} props.budget.description - The description of the budget.
  * @param {Function} props.onSubmit - Function to handle form submission. Required.
- *
- * @remarks
- * Uses `react-hook-form` for form state management and `zodResolver` for schema validation.
- * The form resets whenever the `budget` prop changes.
  *
  * @returns {JSX.Element} A form with inputs for amount and description, and a submit button.
  *
@@ -42,9 +44,16 @@ export default function BudgetForm({
   /**
    * Handles the submission of the budget form.
    *
-   * @param {Object} data - The form data containing budget details. Required.
-   * @throws {Error} Throws an error if the submission process fails.
+   * This function processes the form submission by invoking the `onSubmit` callback
+   * and then closing the budget creation modal.
+   *
+   * @async
+   * @function handleSubmit
+   * @param {Object} data - The form data containing budget details.
+   * @param {number} data.amount - The budget amount.
+   * @param {string} data.description - The budget description.
    * @returns {Promise<void>} A promise that resolves when the form submission is completed.
+   * @throws {Error} Throws an error if the submission process fails.
    *
    * @example
    * handleSubmit({ amount: 500, description: "Groceries" })

@@ -9,13 +9,14 @@ import { toast } from "sonner";
  * Displays a budget summary with expenses, progress, and action buttons.
  *
  * @component
- * @param {Object[]} props.expenses - List of expense transactions (required).
- * @param {number} props.expenses[].amount - The amount of the expense (required).
- * @param {string} props.expenses[].date - The date of the expense in ISO format (required).
+ * @param {Object} props - Component properties.
+ * @param {Object[]} props.expenses - List of expense transactions.
+ * @param {number} props.expenses[].amount - The amount of the expense.
+ * @param {string} props.expenses[].date - The date of the expense in ISO format.
  * @param {Object} [props.budget] - The budget object (optional).
- * @param {number} props.budget.amount - The total budget amount (required if budget exists).
- * @param {Function} props.onOpenCreate - Callback to open the budget creation modal (required).
- * @param {Function} props.onDelete - Callback to delete the budget (required).
+ * @param {number} props.budget.amount - The total budget amount.
+ * @param {Function} props.onOpenCreate - Callback function to open the budget creation modal.
+ * @param {Function} props.onDelete - Callback function to delete the budget.
  * @remarks Uses `useEffect` to display a toast notification based on spending percentage.
  * @returns {JSX.Element} A UI component displaying budget details and controls.
  *
@@ -37,13 +38,10 @@ export default function BudgetHeader({
   onDelete,
 }) {
   /**
-   * A reference to track the last displayed toast message.
+   * Reference to track the last displayed toast message.
    *
    * @type {React.MutableRefObject<string | null>}
-   *
-   * @remarks
-   * This reference prevents duplicate toast messages from being displayed
-   * when the spending percentage changes.
+   * @remarks Prevents duplicate toast messages when the spending percentage changes.
    *
    * @example
    * lastToastRef.current = "🚨 Warning: Budget limit is near!";
@@ -52,11 +50,9 @@ export default function BudgetHeader({
   /**
    * Retrieves the total budget amount or defaults to zero.
    *
-   * @param {{ amount?: number }} budget - The budget object containing an optional amount. (optional)
    * @returns {number} The total budget amount, defaulting to 0 if not provided.
    *
    * @example
-   * const budget = { amount: 500 };
    * console.log(totalBudget); // 500
    */
   const totalBudget = budget?.amount || 0;
@@ -64,7 +60,7 @@ export default function BudgetHeader({
   /**
    * Calculates the total expenses for the current month.
    *
-   * @param {Array<{ date: string, amount: number }>} expenses - An array of expense objects, each containing a date and an amount. (required)
+   * @param {Array<{ date: string, amount: number }>} expenses - List of expenses.
    * @returns {number} The sum of all expenses for the current month.
    *
    * @example
@@ -72,8 +68,7 @@ export default function BudgetHeader({
    *   { date: "2025-03-01", amount: 50 },
    *   { date: "2025-03-15", amount: 100 },
    * ];
-   * const total = totalExpenses(expenses);
-   * console.log(total); // 150
+   * console.log(totalExpenses(expenses)); // 150
    */
   const totalExpenses = expenses
     .filter((expense) => {
@@ -92,8 +87,7 @@ export default function BudgetHeader({
    * @returns {number} The percentage of the budget that has been spent, capped at 100%.
    *
    * @example
-   * const percentage = spendingPercentage;
-   * console.log(percentage); // e.g., 50
+   * console.log(spendingPercentage); // e.g., 50
    */
   const spendingPercentage =
     totalBudget > 0 ? Math.min((totalExpenses / totalBudget) * 100, 100) : 0;
@@ -104,8 +98,7 @@ export default function BudgetHeader({
    * @returns {string} A hexadecimal color code representing the spending level.
    *
    * @example
-   * const color = getColor();
-   * console.log(color); // e.g., "#F59E0B" if spending is between 50% and 75%
+   * console.log(getColor()); // e.g., "#F59E0B" if spending is between 50% and 75%
    */
   const getColor = () => {
     const pct = Number(spendingPercentage);

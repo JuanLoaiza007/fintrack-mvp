@@ -29,9 +29,12 @@ export default function ReportesImport() {
   const { notifyTransactionUpdate } = useTransactionContext();
 
   /**
-   * Handles the file change event to set the selected file in the component's state.
-   * @param {Event} e - The file input change event. (required)
+   * Handles the file input change event and updates the component state with the selected file.
+   *
+   * @function handleFileChange
+   * @param {Event} event - The change event triggered by the file input.
    * @returns {void} This function does not return a value.
+   *
    * @example
    * const inputElement = document.getElementById('file-upload');
    * inputElement.addEventListener('change', handleFileChange);
@@ -41,12 +44,20 @@ export default function ReportesImport() {
   };
 
   /**
-   * Parses and imports transaction data from a CSV file, clearing existing transactions, updating the context, and resetting the file input.
-   * @param {File} file - The CSV file to be imported. (required)
+   * Parses and imports transaction data from a CSV file.
+   *
+   * This function clears existing transactions, updates the context, and resets the file input.
+   * It also validates the CSV format before processing the data.
+   *
+   * @async
+   * @function handleImportReports
    * @returns {Promise<void>} A promise that resolves after the transactions are imported, the context is updated, and the file input is reset.
    * @throws {Error} Throws an alert if no file is selected or if the CSV file has an incorrect format.
+   *
    * @example
-   * handleImportReports();
+   * handleImportReports()
+   *   .then(() => console.log("Report imported successfully"))
+   *   .catch((error) => console.error("Error importing report:", error));
    */
   const handleImportReports = () => {
     if (!file) {

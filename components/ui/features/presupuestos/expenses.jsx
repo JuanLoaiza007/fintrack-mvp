@@ -8,35 +8,25 @@ import {
 /**
  * Displays a list of budget expenses for the current month.
  *
+ * This component filters and displays a list of expenses that occurred within the current month.
+ * It utilizes helper functions to format dates and retrieve labels for transaction types and categories.
+ *
  * @component
- *
  * @param {Object} props - The properties passed to the component.
- * @param {Array} props.expenses - The list of expenses to display. Required.
- * @param {number} props.expenses[].id - The unique identifier for the expense.
- * @param {string} props.expenses[].description - The description of the expense.
- * @param {number} props.expenses[].amount - The monetary amount of the expense.
- * @param {string} props.expenses[].type - The type of the expense.
- * @param {string} props.expenses[].category - The category of the expense.
- * @param {boolean} props.expenses[].essential - Whether the expense is essential or not.
- * @param {string} props.expenses[].date - The date of the expense in ISO format.
- *
- * @remarks
- * Filters the provided expenses to only show those that belong to the current month.
- * Uses helper functions to retrieve labels for transaction types and categories.
- *
- * @returns {JSX.Element} A section displaying the list of expenses or a message if there are none.
+ * @param {Array<{id: number, description: string, amount: number, type: string, category: string, essential: boolean, date: string}>} props.expenses - An array of expense objects. Required.
+ * @returns {JSX.Element} A section displaying the list of expenses or a message if there are no expenses for the current month.
  *
  * @example
  * const expenses = [
- *   {
- *     id: 1,
- *     description: "Groceries",
- *     amount: 100,
- *     type: "expense",
- *     category: "food",
- *     essential: true,
- *     date: "2025-03-01T12:00:00Z"
- *   }
+ * {
+ * id: 1,
+ * description: "Groceries",
+ * amount: 100,
+ * type: "expense",
+ * category: "food",
+ * essential: true,
+ * date: "2025-03-01T12:00:00Z"
+ * }
  * ];
  *
  * <BudgetExpenses expenses={expenses} />
@@ -47,8 +37,14 @@ export default function BudgetExpenses({ expenses }) {
   /**
    * Gets the display label for a given transaction type.
    *
+   * This function retrieves the corresponding label for a transaction type from the TRANSACTION_TYPES array.
+   * If the type is not found, it returns "Desconocido".
+   *
    * @param {string} type - The transaction type value (e.g., "income" or "expense").
    * @returns {string} The corresponding label (e.g., "Ingresos" or "Gastos").
+   *
+   * @example
+   * const label = getTypeLabel("expense"); // Returns "Gastos" or "Desconocido"
    */
   const getTypeLabel = (type) => {
     return (
@@ -59,8 +55,14 @@ export default function BudgetExpenses({ expenses }) {
   /**
    * Gets the display label for a given transaction category.
    *
+   * This function retrieves the corresponding label for a transaction category from the TRANSACTION_CATEGORIES array.
+   * If the category is not found, it returns "Otros".
+   *
    * @param {string} category - The transaction category value.
    * @returns {string} The corresponding label (e.g., "Comida y Bebida").
+   *
+   * @example
+   * const label = getCategoryLabel("food"); // Returns "Comida y Bebida" or "Otros"
    */
   const getCategoryLabel = (category) => {
     return (
@@ -71,9 +73,11 @@ export default function BudgetExpenses({ expenses }) {
   /**
    * Filters expenses to include only those from the current month.
    *
-   * @param {Array} expenses - The list of expenses. Required.
-   * @param {Object} expenses[].date - The expense date in ISO format.
-   * @returns {Array} A filtered array containing only expenses from the current month.
+   * This function filters an array of expenses to return only those expenses that occurred within the current month.
+   *
+   * @function
+   * @param {Array<{date: string}>} expenses - The list of expenses. Required. Each expense object must contain a 'date' property in ISO format.
+   * @returns {Array<{id: number, description: string, amount: number, type: string, category: string, essential: boolean, date: string}>} A filtered array containing only expenses from the current month.
    *
    * @example
    * const monthlyExpenses = currentMonthExpenses(expenses);
@@ -86,10 +90,11 @@ export default function BudgetExpenses({ expenses }) {
       expenseDate.getMonth() === now.getMonth()
     );
   });
-
   /**
    * Formats a date string into a human-readable format.
    *
+   * This function converts a date string in ISO format to a "DD/MM/YYYY" format.
+   * @function
    * @param {string} dateString - The date in ISO format. Required.
    * @returns {string} The formatted date string in "DD/MM/YYYY" format.
    *
