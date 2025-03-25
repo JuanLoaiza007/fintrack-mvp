@@ -12,6 +12,9 @@ import {
   Cell,
   LineChart,
   Line,
+  ScatterChart,
+  CartesianGrid,
+  Scatter,
 } from "recharts";
 import { getTransactions } from "@/db/db";
 import {
@@ -132,19 +135,50 @@ export default function ReportesDashboard() {
 
       case "evolucion":
         const evolucion = {};
+
+        // Paso 1: Procesar datos sin formatear la fecha
         data.forEach(({ date, amount, type }) => {
-          const fecha = new Date(date).toLocaleDateString();
+          const fecha = new Date(date).toISOString().split("T")[0]; // Formato YYYY-MM-DD para ordenar
           if (!evolucion[fecha]) evolucion[fecha] = { ingresos: 0, gastos: 0 };
-          if (type === "income")
+          if (type === "income") {
             evolucion[fecha].ingresos += parseFloat(amount);
-          else evolucion[fecha].gastos += parseFloat(amount);
+          } else {
+            evolucion[fecha].gastos += parseFloat(amount);
+          }
         });
-        setFilteredData(
-          Object.keys(evolucion).map((fecha) => ({
-            name: fecha,
+
+        // Paso 2: Ordenar fechas de manera cronológica
+        const sortedData = Object.keys(evolucion)
+          .sort((a, b) => new Date(a) - new Date(b)) // Orden ascendente
+          .map((fecha) => ({
+            name: new Date(fecha).toLocaleDateString("es-ES", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            }), // Formato DD/MM/AAAA después de ordenar
             ...evolucion[fecha],
-          }))
-        );
+          }));
+
+        setFilteredData(sortedData);
+        break;
+
+      case "dispersion":
+        const dispersion = data
+          .filter(({ type }) => type === "expense")
+          .map(({ date, amount, description }) => ({
+            descripcion: description.replace(
+              /\s*\(\d{1,2}\/\d{1,2}\/\d{4}\)\s*/,
+              ""
+            ), // Elimina la fecha si está dentro de paréntesis
+            fecha: new Date(date).toLocaleDateString("es-ES", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            }),
+            gastos: parseFloat(amount),
+          }));
+
+        setFilteredData(dispersion);
         break;
     }
   };
@@ -154,6 +188,7 @@ export default function ReportesDashboard() {
     gastos_categoria: "Gastos por Categoría",
     tipos_gastos: "Gastos esenciales y no esenciales",
     evolucion: "Evolución de Ingresos y Gastos",
+    dispersion: "Dispersión de Gastos",
   };
 
   const COLORS = [
@@ -188,11 +223,16 @@ export default function ReportesDashboard() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ingresos_gastos">Ingresos y gastos</SelectItem>
-            <SelectItem value="gastos_categoria">Gastos por categoría</SelectItem>
-            <SelectItem value="ingresos_tipos_gastos">
-              Ingresos y tipos de gastos
+            <SelectItem value="gastos_categoria">
+              Gastos por categoría
             </SelectItem>
-            <SelectItem value="evolucion">Evolución de ingresos y gastos</SelectItem>
+            <SelectItem value="tipos_gastos">
+              Gastos esenciales y no esenciales
+            </SelectItem>
+            <SelectItem value="evolucion">
+              Evolución de ingresos y gastos
+            </SelectItem>
+            <SelectItem value="dispersion">Dispersión de gastos</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -213,13 +253,16 @@ export default function ReportesDashboard() {
                 label
               >
                 {filteredData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />
               <Legend />
             </PieChart>
-          ) : chartType === "ingresos_tipos_gastos" ? (
+          ) : chartType === "tipos_gastos" ? (
             <PieChart>
               <Pie
                 data={filteredData}
@@ -231,7 +274,10 @@ export default function ReportesDashboard() {
                 label
               >
                 {filteredData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />
@@ -243,9 +289,56 @@ export default function ReportesDashboard() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="ingresos" stroke="#4CAF50" name="Ingresos" />
-              <Line type="monotone" dataKey="gastos" stroke="#F44336" name="Gastos" />
+              <Line
+                type="monotone"
+                dataKey="ingresos"
+                stroke="#4CAF50"
+                name="Ingresos"
+              />
+              <Line
+                type="monotone"
+                dataKey="gastos"
+                stroke="#F44336"
+                name="Gastos"
+              />
             </LineChart>
+          ) : chartType === "dispersion" ? (
+            <ScatterChart width={600} height={300} data={filteredData}>
+              <CartesianGrid />
+              <XAxis name="Fecha" dataKey="fecha" stroke="#8884d8" />
+              <YAxis />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const { descripcion, fecha, gastos } = payload[0].payload;
+                    return (
+                      <div
+                        style={{
+                          backgroundColor: "white",
+                          padding: 10,
+                          borderRadius: 5,
+                          boxShadow: "0px 0px 5px rgba(0,0,0,0.2)",
+                        }}
+                      >
+                        <p style={{ margin: 0 }}>
+                          <strong>{descripcion}</strong>
+                        </p>{" "}
+                        {/* Nombre */}
+                        <p style={{ margin: 0 }}>Gasto: {gastos}</p>{" "}
+                        {/* Gasto */}
+                        <p style={{ margin: 0, color: "#8884d8" }}>
+                          {fecha}
+                        </p>{" "}
+                        {/* Fecha */}
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Legend />
+              <Scatter name="Gastos" dataKey="gastos" fill="#F44336" />
+            </ScatterChart>
           ) : (
             <BarChart data={filteredData} barSize={80}>
               <XAxis dataKey="name" stroke="#8884d8" />
