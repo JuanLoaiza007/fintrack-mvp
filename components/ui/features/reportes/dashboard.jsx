@@ -29,6 +29,51 @@ import {
   TRANSACTION_CATEGORIES,
 } from "@/components/schemas/transaccion";
 
+/**
+ * ReportesDashboard Component
+ *
+ * This component renders a financial reports dashboard that allows users to view
+ * and analyze their transactions through various chart types and time periods.
+ *
+ * State Variables:
+ * - `transactions`: Array of all transactions fetched from the backend.
+ * - `filteredData`: Array of data filtered and aggregated based on the selected chart type and period.
+ * - `period`: Selected time period for filtering transactions (e.g., "todo", "semana", "mes", "año").
+ * - `chartType`: Selected chart type for visualizing data (e.g., "ingresos_gastos", "gastos_categoria").
+ *
+ * Effects:
+ * - Fetches transactions data on component mount.
+ * - Filters and aggregates data whenever `transactions`, `period`, or `chartType` changes.
+ *
+ * Functions:
+ * - `filterDataByPeriod(selectedPeriod)`: Filters transactions based on the selected time period.
+ * - `aggregateData(data)`: Aggregates filtered data into the format required for the selected chart type.
+ *
+ * Chart Types:
+ * - `ingresos_gastos`: Displays total income and expenses.
+ * - `gastos_categoria`: Displays expenses grouped by categories.
+ * - `tipos_gastos`: Displays essential and non-essential expenses.
+ * - `evolucion`: Displays the evolution of income and expenses over time.
+ * - `dispersion`: Displays a scatter plot of expenses with descriptions and dates.
+ *
+ * Chart Titles:
+ * - Defined in `chartTitles` object to provide descriptive titles for each chart type.
+ *
+ * Colors:
+ * - Defined in `COLORS` array for consistent chart color schemes.
+ *
+ * UI Components:
+ * - Dropdowns for selecting time period and chart type.
+ * - Dynamic rendering of charts based on the selected chart type.
+ *
+ * Libraries Used:
+ * - Recharts: For rendering various chart types (e.g., PieChart, LineChart, BarChart, ScatterChart).
+ * - Tailwind CSS: For styling the component.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered financial reports dashboard component.
+ */
+
 export default function ReportesDashboard() {
   const [transactions, setTransactions] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -136,9 +181,9 @@ export default function ReportesDashboard() {
       case "evolucion":
         const evolucion = {};
 
-        // Paso 1: Procesar datos sin formatear la fecha
+        
         data.forEach(({ date, amount, type }) => {
-          const fecha = new Date(date).toISOString().split("T")[0]; // Formato YYYY-MM-DD para ordenar
+          const fecha = new Date(date).toISOString().split("T")[0]; 
           if (!evolucion[fecha]) evolucion[fecha] = { ingresos: 0, gastos: 0 };
           if (type === "income") {
             evolucion[fecha].ingresos += parseFloat(amount);
@@ -147,15 +192,14 @@ export default function ReportesDashboard() {
           }
         });
 
-        // Paso 2: Ordenar fechas de manera cronológica
         const sortedData = Object.keys(evolucion)
-          .sort((a, b) => new Date(a) - new Date(b)) // Orden ascendente
+          .sort((a, b) => new Date(a) - new Date(b))
           .map((fecha) => ({
             name: new Date(fecha).toLocaleDateString("es-ES", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
-            }), // Formato DD/MM/AAAA después de ordenar
+            }), 
             ...evolucion[fecha],
           }));
 
@@ -169,7 +213,7 @@ export default function ReportesDashboard() {
             descripcion: description.replace(
               /\s*\(\d{1,2}\/\d{1,2}\/\d{4}\)\s*/,
               ""
-            ), // Elimina la fecha si está dentro de paréntesis
+            ), 
             fecha: new Date(date).toLocaleDateString("es-ES", {
               day: "2-digit",
               month: "2-digit",
@@ -323,13 +367,10 @@ export default function ReportesDashboard() {
                         <p style={{ margin: 0 }}>
                           <strong>{descripcion}</strong>
                         </p>{" "}
-                        {/* Nombre */}
                         <p style={{ margin: 0 }}>Gasto: {gastos}</p>{" "}
-                        {/* Gasto */}
                         <p style={{ margin: 0, color: "#8884d8" }}>
                           {fecha}
                         </p>{" "}
-                        {/* Fecha */}
                       </div>
                     );
                   }
