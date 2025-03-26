@@ -45,7 +45,7 @@ describe("ReportesModule", () => {
 
     await waitFor(() => expect(getTransactions).toHaveBeenCalled());
 
-    expect(screen.getByText("Reportes (En Construcción)")).toBeInTheDocument();
+    expect(screen.getByText("Reportes Financieros")).toBeInTheDocument();
     expect(screen.getByText("Generar Reportes (Exportar)")).toBeInTheDocument();
     expect(screen.getByText("Importar Reportes (CSV)")).toBeInTheDocument();
     expect(screen.getByText("Generar Reportes")).toBeInTheDocument();
@@ -208,11 +208,12 @@ describe("ReportesModule", () => {
       );
     });
     fireEvent.click(screen.getByText("Generar Reportes"));
-    fireEvent.change(screen.getByRole("combobox"), {
-      target: { value: "semana" },
+    const selects = screen.getAllByRole("combobox");
+      fireEvent.change(selects[0], {
+        target: { value: "semana" },
+      });
+      expect(selects[0]).toHaveValue("semana");
     });
-    expect(screen.getByRole("combobox")).toHaveValue("semana");
-  });
 
   it("filters transactions by month", async () => {
     getTransactions.mockResolvedValue([
@@ -226,11 +227,12 @@ describe("ReportesModule", () => {
       );
     });
     fireEvent.click(screen.getByText("Generar Reportes"));
-    fireEvent.change(screen.getByRole("combobox"), {
-      target: { value: "mes" },
+    const selects = screen.getAllByRole("combobox");
+      fireEvent.change(selects[0], {
+        target: { value: "mes" },
+      });
+      expect(selects[0]).toHaveValue("mes");
     });
-    expect(screen.getByRole("combobox")).toHaveValue("mes");
-  });
 
   it("filters transactions by year", async () => {
     getTransactions.mockResolvedValue([
@@ -244,9 +246,10 @@ describe("ReportesModule", () => {
       );
     });
     fireEvent.click(screen.getByText("Generar Reportes"));
-    fireEvent.change(screen.getByRole("combobox"), {
-      target: { value: "año" },
+    const selects = screen.getAllByRole("combobox");
+      fireEvent.change(selects[0], {
+        target: { value: "año" },
+      });
+      expect(selects[0]).toHaveValue("año");
     });
-    expect(screen.getByRole("combobox")).toHaveValue("año");
   });
-});
