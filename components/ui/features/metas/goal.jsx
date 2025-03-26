@@ -26,8 +26,13 @@ export function Goal({ goal, transactions }) {
   const totalSaved = useMemo(
     () =>
       transactions
-        ?.filter((t) => t.type === "income" || t.category === "savings")
-        .reduce((sum, t) => sum + t.amount, 0),
+        ?.filter((t) => t.type === "income" || t.type === "expense")
+        .reduce((sum, t) => {
+          if (t.type === "expense") {
+            return sum - t.amount; // Resta si es "expense"
+          }
+          return sum + t.amount; // Suma si es "income"
+        }, 0),
     [transactions],
   );
 
