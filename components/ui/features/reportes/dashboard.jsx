@@ -30,48 +30,27 @@ import {
 } from "@/components/schemas/transaccion";
 
 /**
- * ReportesDashboard Component
- *
- * This component renders a financial reports dashboard that allows users to view
- * and analyze their transactions through various chart types and time periods.
- *
- * State Variables:
- * - `transactions`: Array of all transactions fetched from the backend.
- * - `filteredData`: Array of data filtered and aggregated based on the selected chart type and period.
- * - `period`: Selected time period for filtering transactions (e.g., "todo", "semana", "mes", "año").
- * - `chartType`: Selected chart type for visualizing data (e.g., "ingresos_gastos", "gastos_categoria").
- *
- * Effects:
- * - Fetches transactions data on component mount.
- * - Filters and aggregates data whenever `transactions`, `period`, or `chartType` changes.
- *
- * Functions:
- * - `filterDataByPeriod(selectedPeriod)`: Filters transactions based on the selected time period.
- * - `aggregateData(data)`: Aggregates filtered data into the format required for the selected chart type.
- *
- * Chart Types:
- * - `ingresos_gastos`: Displays total income and expenses.
- * - `gastos_categoria`: Displays expenses grouped by categories.
- * - `tipos_gastos`: Displays essential and non-essential expenses.
- * - `evolucion`: Displays the evolution of income and expenses over time.
- * - `dispersion`: Displays a scatter plot of expenses with descriptions and dates.
- *
- * Chart Titles:
- * - Defined in `chartTitles` object to provide descriptive titles for each chart type.
- *
- * Colors:
- * - Defined in `COLORS` array for consistent chart color schemes.
- *
- * UI Components:
- * - Dropdowns for selecting time period and chart type.
- * - Dynamic rendering of charts based on the selected chart type.
- *
- * Libraries Used:
- * - Recharts: For rendering various chart types (e.g., PieChart, LineChart, BarChart, ScatterChart).
- * - Tailwind CSS: For styling the component.
- *
+ * Displays financial reports using different types of charts based on user-selected criteria.
+ * 
  * @component
- * @returns {JSX.Element} The rendered financial reports dashboard component.
+ * @param {string} period - The selected time period for filtering transactions. Defaults to "todo". Optional.
+ * @param {string} chartType - The type of chart to display financial data. Defaults to "ingresos_gastos". Optional.
+ * @param {Array} transactions - The list of transactions to process. Required.
+ * @param {function} setTransactions - Function to update the transactions state. Required.
+ * @param {Array} filteredData - The processed transaction data used for visualization. Required.
+ * @param {function} setFilteredData - Function to update the filtered data state. Required.
+ * @param {Array} types - The available transaction types. Required.
+ * @param {Array} categories - The available transaction categories. Required.
+ * 
+ * @remarks
+ * - Uses `useEffect` to fetch and process transaction data.
+ * - Updates state dynamically when period, transactions, or chartType change.
+ * - Supports various types of financial data visualization including pie, line, and scatter charts.
+ * 
+ * @returns {JSX.Element} A component rendering financial reports and interactive selection controls.
+ * 
+ * @example
+ * <ReportesDashboard />
  */
 
 export default function ReportesDashboard() {
