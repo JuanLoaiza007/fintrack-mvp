@@ -209,11 +209,11 @@ describe("ReportesModule", () => {
     });
     fireEvent.click(screen.getByText("Generar Reportes"));
     const selects = screen.getAllByRole("combobox");
-      fireEvent.change(selects[0], {
-        target: { value: "semana" },
-      });
-      expect(selects[0]).toHaveValue("semana");
+    fireEvent.change(selects[0], {
+      target: { value: "semana" },
     });
+    expect(selects[0]).toHaveValue("semana");
+  });
 
   it("filters transactions by month", async () => {
     getTransactions.mockResolvedValue([
@@ -228,11 +228,11 @@ describe("ReportesModule", () => {
     });
     fireEvent.click(screen.getByText("Generar Reportes"));
     const selects = screen.getAllByRole("combobox");
-      fireEvent.change(selects[0], {
-        target: { value: "mes" },
-      });
-      expect(selects[0]).toHaveValue("mes");
+    fireEvent.change(selects[0], {
+      target: { value: "mes" },
     });
+    expect(selects[0]).toHaveValue("mes");
+  });
 
   it("filters transactions by year", async () => {
     getTransactions.mockResolvedValue([
@@ -247,9 +247,9 @@ describe("ReportesModule", () => {
     });
     fireEvent.click(screen.getByText("Generar Reportes"));
     const selects = screen.getAllByRole("combobox");
-      fireEvent.change(selects[0], {
-        target: { value: "año" },
-      });
-      expect(selects[0]).toHaveValue("año");
+    fireEvent.change(selects[0], {
+      target: { value: "año" },
     });
+    expect(selects[0]).toHaveValue("año");
   });
+});

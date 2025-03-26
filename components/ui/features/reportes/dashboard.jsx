@@ -31,7 +31,7 @@ import {
 
 /**
  * Displays financial reports using different types of charts based on user-selected criteria.
- * 
+ *
  * @component
  * @param {string} period - The selected time period for filtering transactions. Defaults to "todo". Optional.
  * @param {string} chartType - The type of chart to display financial data. Defaults to "ingresos_gastos". Optional.
@@ -41,14 +41,14 @@ import {
  * @param {function} setFilteredData - Function to update the filtered data state. Required.
  * @param {Array} types - The available transaction types. Required.
  * @param {Array} categories - The available transaction categories. Required.
- * 
+ *
  * @remarks
  * - Uses `useEffect` to fetch and process transaction data.
  * - Updates state dynamically when period, transactions, or chartType change.
  * - Supports various types of financial data visualization including pie, line, and scatter charts.
- * 
+ *
  * @returns {JSX.Element} A component rendering financial reports and interactive selection controls.
- * 
+ *
  * @example
  * <ReportesDashboard />
  */
@@ -98,7 +98,7 @@ export default function ReportesDashboard() {
         break;
       case "año":
         filtered = transactions.filter(
-          (t) => new Date(t.date).getFullYear() === now.getFullYear()
+          (t) => new Date(t.date).getFullYear() === now.getFullYear(),
         );
         break;
     }
@@ -130,13 +130,13 @@ export default function ReportesDashboard() {
         setFilteredData(
           Object.keys(categorias).map((cat) => {
             const categoryObj = TRANSACTION_CATEGORIES.find(
-              (c) => c.value === cat
+              (c) => c.value === cat,
             );
             return {
               name: categoryObj ? categoryObj.label : cat,
               value: categorias[cat],
             };
-          })
+          }),
         );
         break;
 
@@ -160,9 +160,8 @@ export default function ReportesDashboard() {
       case "evolucion":
         const evolucion = {};
 
-        
         data.forEach(({ date, amount, type }) => {
-          const fecha = new Date(date).toISOString().split("T")[0]; 
+          const fecha = new Date(date).toISOString().split("T")[0];
           if (!evolucion[fecha]) evolucion[fecha] = { ingresos: 0, gastos: 0 };
           if (type === "income") {
             evolucion[fecha].ingresos += parseFloat(amount);
@@ -178,7 +177,7 @@ export default function ReportesDashboard() {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
-            }), 
+            }),
             ...evolucion[fecha],
           }));
 
@@ -191,8 +190,8 @@ export default function ReportesDashboard() {
           .map(({ date, amount, description }) => ({
             descripcion: description.replace(
               /\s*\(\d{1,2}\/\d{1,2}\/\d{4}\)\s*/,
-              ""
-            ), 
+              "",
+            ),
             fecha: new Date(date).toLocaleDateString("es-ES", {
               day: "2-digit",
               month: "2-digit",
