@@ -121,11 +121,11 @@ export default function ReportesExport() {
 
     const statistics = calculateStatistics(filteredTransactions);
 
-    if(format === "pdf") {
-          generatePDF(filteredTransactions, statistics);
-        } else if(format === "csv") {
-          generateCSV(filteredTransactions);
-        }
+    if (format === "pdf") {
+      generatePDF(filteredTransactions, statistics);
+    } else if (format === "csv") {
+      generateCSV(filteredTransactions);
+    }
   };
 
   return (

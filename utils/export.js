@@ -61,17 +61,17 @@ export const generateCSV = (data) => {
  * @param {number} statistics.standardDeviationExpense - The standard deviation of expenses.
  * @param {number} statistics.incomeExpensePercentage - The percentage of income spent.
  * @param {Object} statistics.expenseDistribution - An object mapping expense categories to their percentage of total expenses.
- * 
+ *
  * @returns {void} The function does not return a value; it generates and saves a PDF file.
- * 
+ *
  * @throws {Error} Throws an error if transactions or statistics are missing or improperly formatted.
- * 
+ *
  * @example
  * const transactions = [
  *   { date: "2025-03-20", category: "Comida", amount: 15000, type: "gasto" },
  *   { date: "2025-03-21", category: "Trabajo", amount: 2000000, type: "ingreso" }
  * ];
- * 
+ *
  * const statistics = {
  *   balance: 1985000,
  *   meanIncome: 2000000,
@@ -82,7 +82,7 @@ export const generateCSV = (data) => {
  *   incomeExpensePercentage: 0.75,
  *   expenseDistribution: { Comida: 100 }
  * };
- * 
+ *
  * generatePDF(transactions, statistics);
  */
 
@@ -95,12 +95,32 @@ export const generatePDF = (transactions, statistics) => {
   doc.setFontSize(12);
   doc.text(`Periodo seleccionado: ${new Date().toLocaleDateString()}`, 20, 30);
   doc.text(`Balance: ${statistics.balance.toFixed(2)} COP`, 20, 40);
-  doc.text(`Media de ingresos: ${statistics.meanIncome.toFixed(2)} COP`, 20, 50);
+  doc.text(
+    `Media de ingresos: ${statistics.meanIncome.toFixed(2)} COP`,
+    20,
+    50,
+  );
   doc.text(`Media de gastos: ${statistics.meanExpense.toFixed(2)} COP`, 20, 60);
-  doc.text(`Mediana de ingresos: ${statistics.medianIncome.toFixed(2)} COP`, 20, 70);
-  doc.text(`Mediana de gastos: ${statistics.medianExpense.toFixed(2)} COP`, 20, 80);
-  doc.text(`Desviación estándar de gastos: ${statistics.standardDeviationExpense.toFixed(2)} COP`, 20, 90);
-  doc.text(`Porcentaje de ingresos gastados: ${statistics.incomeExpensePercentage.toFixed(2)}%`, 20, 100);
+  doc.text(
+    `Mediana de ingresos: ${statistics.medianIncome.toFixed(2)} COP`,
+    20,
+    70,
+  );
+  doc.text(
+    `Mediana de gastos: ${statistics.medianExpense.toFixed(2)} COP`,
+    20,
+    80,
+  );
+  doc.text(
+    `Desviación estándar de gastos: ${statistics.standardDeviationExpense.toFixed(2)} COP`,
+    20,
+    90,
+  );
+  doc.text(
+    `Porcentaje de ingresos gastados: ${statistics.incomeExpensePercentage.toFixed(2)}%`,
+    20,
+    100,
+  );
 
   // Tabla de distribución de gastos
   let startY = 110;
@@ -109,10 +129,9 @@ export const generatePDF = (transactions, statistics) => {
     startY += 10;
     autoTable(doc, {
       head: [["Categoría", "Porcentaje (%)"]],
-      body: Object.entries(statistics.expenseDistribution).map(([category, percentage]) => [
-        category,
-        `${percentage.toFixed(2)}%`
-      ]),
+      body: Object.entries(statistics.expenseDistribution).map(
+        ([category, percentage]) => [category, `${percentage.toFixed(2)}%`],
+      ),
       startY,
     });
     startY = doc.lastAutoTable.finalY + 10;

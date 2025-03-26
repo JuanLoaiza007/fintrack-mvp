@@ -106,15 +106,15 @@ describe("Goal component", () => {
     const transactions = [
       { type: "expense", amount: 500 },
       { type: "income", amount: 200 },
-      { category: "savings", amount: 300 },
+      { type: "expense", amount: 300 },
       { type: "income", amount: 100 },
     ];
 
     renderWith({ goal, transactions });
 
     expect(
-      screen.getByRole("heading", { name: /progreso \(60%\)/i }),
+      screen.getByRole("heading", { name: /progreso \(-50%\)/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText("$600")).toBeInTheDocument();
+    expect(screen.getByText("$-500")).toBeInTheDocument();
   });
 });
