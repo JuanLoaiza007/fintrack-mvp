@@ -72,7 +72,11 @@ export default function AiChat({ isOpen, onClose }) {
             }}
           />
           <div className="flex items-center justify-center gap-2">
-            <Mic className="w-6 h-6 text-purple-700" />
+            <Mic
+              className="w-6 h-6 text-purple-700"
+              role="img"
+              aria-label="Mic Icon"
+            />
             <p className="text-sm text-gray-700 text-center">
               Estoy escuchando...
             </p>

@@ -34,6 +34,25 @@ window.alert = jest.fn();
 describe("AISuggestion Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    global.navigator.mediaDevices = {
+      getUserMedia: jest.fn().mockResolvedValue({
+        // Puedes retornar un objeto MediaStream falso si lo necesitas
+      }),
+    };
+
+    global.AudioContext = jest.fn().mockImplementation(() => ({
+      createAnalyser: jest.fn(() => ({
+        fftSize: 256,
+        frequencyBinCount: 128,
+        getByteFrequencyData: jest.fn(),
+      })),
+      createMediaStreamSource: jest.fn(() => ({
+        connect: jest.fn(),
+      })),
+      close: jest.fn(),
+    }));
+
+    jest.spyOn(window, "alert").mockImplementation(() => {});
   });
 
   it("renders the open suggestion button initially", () => {
