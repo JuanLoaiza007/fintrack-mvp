@@ -24,9 +24,10 @@ import { getGoals, getBudget } from "@/db/db";
 import { isDateInNowMonth } from "@/lib/utils";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { RefreshCcw, X, WandSparkles } from "lucide-react";
+import { RefreshCcw, X, WandSparkles, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTransactionContext } from "@/context/TransactionContext";
+import AiChat from "./ai-chat";
 
 export default function AISuggestion() {
   const { iaTransactions } = useTransactionContext();
@@ -35,6 +36,7 @@ export default function AISuggestion() {
   const [showSuggestion, setShowSuggestion] = useState(false);
   const [metaAhorro, setMetaAhorro] = useState(null);
   const [presupuesto, setPresupuesto] = useState(null);
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     async function fetchGoals() {
@@ -123,16 +125,27 @@ export default function AISuggestion() {
               </p>
             )}
           </div>
-          <Button
-            variant="default"
-            onClick={getIASuggestion}
-            disabled={loading}
-            className="py-2 px-4 rounded-lg flex items-center gap-2 justify-center bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
-            aria-label="Generate IA Suggestion"
-          >
-            <RefreshCcw size={16} />
-            {loading ? "Generando..." : "Generar sugerencia"}
-          </Button>
+          <div className="flex justify-between items-center">
+            <Button
+              variant="default"
+              onClick={getIASuggestion}
+              disabled={loading}
+              className="py-2 px-4 rounded-lg flex items-center gap-2 justify-center bg-purple-600 hover:bg-purple-700 text-white cursor-pointer w-[85%]"
+              aria-label="Generate IA Suggestion"
+            >
+              <RefreshCcw size={16} />
+              {loading ? "Generando..." : "Generar sugerencia"}
+            </Button>
+            <Button
+              variant="default"
+              onClick={() => setShowChat(true)}
+              className="py-2 px-4 rounded-lg flex items-center gap-2 justify-center bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
+              aria-label="Chat voice with IA"
+            >
+              <Mic size={16} />
+            </Button>
+          </div>
+          <AiChat isOpen={showChat} onClose={() => setShowChat(false)} />
         </div>
       )}
     </div>
