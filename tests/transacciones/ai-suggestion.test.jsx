@@ -1,12 +1,12 @@
 import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import AISuggestion from "@/components/ui/features/transacciones/ai-suggestion";
-import { request_gemini } from "@/utils/gemini";
+import { generateFinancialSummary } from "@/utils/gemini";
 import { getGoals } from "@/db/db";
 
 // Mock Gemini request and getGoals functions
 jest.mock("@/utils/gemini", () => ({
-  request_gemini: jest.fn(),
+  generateFinancialSummary: jest.fn(),
 }));
 jest.mock("@/db/db", () => ({
   getGoals: jest.fn(),
@@ -58,7 +58,7 @@ describe("AISuggestion Component", () => {
   it("renders the open suggestion button initially", () => {
     render(<AISuggestion />);
     expect(
-      screen.getByRole("button", { name: /open ia suggestion/i }),
+      screen.getByRole("button", { name: /open ia suggestion/i })
     ).toBeInTheDocument();
   });
 
@@ -76,21 +76,21 @@ describe("AISuggestion Component", () => {
   });
 
   it("allows closing the suggestion panel", async () => {
-    request_gemini.mockResolvedValueOnce("Suggestion text");
+    generateFinancialSummary.mockResolvedValueOnce("Suggestion text");
     render(<AISuggestion />);
     // Open the suggestion panel by clicking the open button and then generate
     fireEvent.click(
-      screen.getByRole("button", { name: /open ia suggestion/i }),
+      screen.getByRole("button", { name: /open ia suggestion/i })
     );
     fireEvent.click(
-      screen.getByRole("button", { name: /generate ia suggestion/i }),
+      screen.getByRole("button", { name: /generate ia suggestion/i })
     );
     await waitFor(() => {
       expect(screen.getByText(/suggestion text/i)).toBeInTheDocument();
     });
     // Click the close button
     fireEvent.click(
-      screen.getByRole("button", { name: /close ia suggestion/i }),
+      screen.getByRole("button", { name: /close ia suggestion/i })
     );
     await waitFor(() => {
       expect(screen.queryByText(/suggestion text/i)).toBeNull();
