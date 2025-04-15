@@ -19,7 +19,7 @@
  * }
  */
 import { useState, useEffect } from "react";
-import { request_gemini } from "@/utils/gemini";
+import { generateFinancialSummary } from "@/utils/gemini";
 import { getGoals, getBudget } from "@/db/db";
 import { isDateInNowMonth } from "@/lib/utils";
 import Markdown from "react-markdown";
@@ -47,7 +47,7 @@ export default function AISuggestion() {
         setMetaAhorro(_goals[0]?.amount ?? null);
       } catch (error) {
         console.error(
-          error?.message ?? "An error occurred while fetching the goals.",
+          error?.message ?? "An error occurred while fetching the goals."
         );
       }
     }
@@ -60,7 +60,7 @@ export default function AISuggestion() {
         setPresupuesto(data[0]?.amount ?? null);
       } catch (error) {
         console.error(
-          error?.message ?? "An error occurred while fetching the budget",
+          error?.message ?? "An error occurred while fetching the budget"
         );
       }
     }
@@ -74,10 +74,10 @@ export default function AISuggestion() {
     }
     setLoading(true);
     setSuggestion("");
-    const response = await request_gemini(
+    const response = await generateFinancialSummary(
       iaTransactions,
       metaAhorro,
-      presupuesto,
+      presupuesto
     );
     setSuggestion(response);
     setLoading(false);
@@ -145,7 +145,15 @@ export default function AISuggestion() {
               <Mic size={16} />
             </Button>
           </div>
-          <AiChat isOpen={showChat} onClose={() => setShowChat(false)} />
+          <AiChat
+            isOpen={showChat}
+            onClose={() => setShowChat(false)}
+            initialContext={{
+              transacciones: iaTransactions,
+              metaAhorro,
+              presupuesto,
+            }}
+          />
         </div>
       )}
     </div>

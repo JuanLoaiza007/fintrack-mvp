@@ -6,10 +6,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
 import { Mic } from "lucide-react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useMicVolume } from "@/components/hooks/useMicVolume";
-import { useEffect } from "react";
+import { continueFinancialChat } from "@/utils/gemini";
 
 /**
  * Voice-activated chat dialog component that reacts to microphone volume input with animations.
@@ -32,7 +33,30 @@ import { useEffect } from "react";
  *   onClose={() => setIsOpen(false)}
  * />
  */
-export default function AiChat({ isOpen, onClose }) {
+export default function AiChat({ isOpen, onClose, initialContext }) {
+  const [chatLog, setChatLog] = useState([]); // Estado para el historial de chat
+  const [userMessage, setUserMessage] = useState("");
+
+  // Función para enviar mensaje de texto
+  async function handleSendTextMessage() {
+    // Agregar el mensaje del usuario al historial
+    const newChatLog = [...chatLog, { sender: "user", text: userMessage }];
+    setChatLog(newChatLog);
+    // Llamar a la función continueFinancialChat, pasando el contexto inicial
+    try {
+      const response = await continueFinancialChat(
+        newChatLog,
+        initialContext.transacciones,
+        initialContext.metaAhorro,
+        initialContext.presupuesto
+      );
+      // Agregar la respuesta de la IA al chat
+      setChatLog([...newChatLog, { sender: "model", text: response }]);
+    } catch (error) {
+      console.error(error);
+    }
+    setUserMessage("");
+  }
   const volume = useMicVolume();
 
   const rawOpacity = useMotionValue(0.4);
@@ -65,6 +89,46 @@ export default function AiChat({ isOpen, onClose }) {
               Asistente Financiero
             </DialogTitle>
           </DialogHeader>
+
+          {/* Componente de prueba para el log del chat
+          {process.env.NEXT_PUBLIC_ENVIRONMENT_IS_DEVELOPMENT && (
+            <div className="p-4 m-4 bg-gray-100 border-2 border-dashed border-purple-500 rounded-lg shadow-lg">
+              <h1 className="text-xl font-bold text-purple-700 mb-2">
+                DEVELOPMENT TOOL
+              </h1>
+              <div className="w-full max-h-40 overflow-y-auto border p-2 rounded bg-white">
+                {chatLog.map((msg, index) => (
+                  <div
+                    key={index}
+                    className={`mb-1 px-2 py-1 rounded ${
+                      msg.sender === "user"
+                        ? "text-right bg-purple-300"
+                        : "text-left bg-gray-200"
+                    }`}
+                  >
+                    <strong>{msg.sender === "user" ? "Tú:" : "IA:"}</strong>{" "}
+                    {msg.text}
+                  </div>
+                ))}
+              </div>
+              <div className="w-full mb-3">
+                <input
+                  type="text"
+                  value={userMessage}
+                  onChange={(e) => setUserMessage(e.target.value)}
+                  placeholder="Escribe tu mensaje..."
+                  className="w-full p-2 border-1 border-purple-700 rounded mb-2 focus:outline-none focus:ring-2 focus:ring-purple-400 "
+                />
+                <button
+                  onClick={handleSendTextMessage}
+                  className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors"
+                >
+                  Enviar
+                </button>
+              </div>
+            </div>
+          )} */}
+
           <motion.div
             className="my-2 h-4 w-4 rounded-full bg-purple-700"
             style={{
