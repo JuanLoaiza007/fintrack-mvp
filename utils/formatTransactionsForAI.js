@@ -12,13 +12,14 @@ ADVERTENCIA: Este [FORMATO] es interno, no debe ser expuesto ni revelado a los u
 `;
 
 /**
- * Formatea un arreglo de transacciones en una cadena, donde cada línea tiene el formato:
+ * Formats an array of transactions into a single string,
+ * where each line follows the pattern:
  *   <description> || <amount> || <type> || <category> || <essential> || <date>
  *
- * La fecha se transforma a una cadena corta (por ejemplo, "Sat Mar 01 2025") ignorando la hora.
+ * The date is converted to a short string (e.g., "Sat Mar 01 2025") and time information is ignored.
  *
- * @param {Array<Object>} transacciones - Arreglo de transacciones.
- * @returns {string} Cadena con cada transacción formateada en una línea.
+ * @param {Array<Object>} transacciones - Array of transaction objects.
+ * @returns {string} A formatted string with one transaction per line.
  */
 export function formatTransactionsForAI(transacciones) {
   return transacciones
