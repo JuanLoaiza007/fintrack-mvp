@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: app/layout.jsx</title>
+    <title>JSDoc: Source: components/hooks/useMicVolume.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: app/layout.jsx</h1>
+    <h1 class="page-title">Source: components/hooks/useMicVolume.js</h1>
 
     
 
@@ -26,39 +26,73 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import "./globals.css";
-import { TransactionProvider } from "@/context/TransactionContext";
-import { Toaster } from "@/components/ui/sonner";
-
-export const metadata = {
-  title: "FinTrack",
-  description: "Financial control and analysis application",
-};
+            <pre class="prettyprint source linenums"><code>import { useEffect, useState, useRef } from "react";
 
 /**
- * RootLayout component that provides the main layout structure for the application.
+ * Custom React hook that captures and returns the average microphone volume in real time.
  *
- * @component
- * @param {Object} props - The props object.
- * @param {React.ReactNode} props.children - The child components to render inside the layout. Required.
- * @remarks This component wraps the application with the TransactionProvider context and includes the Toaster for notifications.
- * @returns {JSX.Element} The rendered layout structure including the children components.
+ * @returns {number} The current average volume level from the user's microphone (range: 0–255).
+ *
+ * @throws {DOMException} If access to the microphone is denied or an error occurs during audio setup.
+ *
  * @example
- * &lt;RootLayout>
- *   &lt;div>Welcome to FinTrack&lt;/div>
- * &lt;/RootLayout>
+ * import { useMicVolume } from './hooks/useMicVolume';
+ *
+ * function MicVisualizer() {
+ *   const volume = useMicVolume();
+ *
+ *   return (
+ *     &lt;div>
+ *       &lt;p>Mic Volume: {Math.round(volume)}&lt;/p>
+ *       &lt;div style={{ width: volume, height: 10, backgroundColor: 'green' }} />
+ *     &lt;/div>
+ *   );
+ * }
  */
-export default function RootLayout({ children }) {
-  return (
-    &lt;html lang="es">
-      &lt;TransactionProvider>
-        &lt;body className="flex w-full h-full">
-          &lt;Toaster />
-          {children}
-        &lt;/body>
-      &lt;/TransactionProvider>
-    &lt;/html>
-  );
+export function useMicVolume() {
+  const [volume, setVolume] = useState(0);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const dataArrayRef = useRef(null);
+  const sourceRef = useRef(null);
+
+  useEffect(() => {
+    const setupAudio = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
+      const analyser = audioContext.createAnalyser();
+      const source = audioContext.createMediaStreamSource(stream);
+
+      analyser.fftSize = 256;
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      source.connect(analyser);
+
+      audioContextRef.current = audioContext;
+      analyserRef.current = analyser;
+      dataArrayRef.current = dataArray;
+      sourceRef.current = source;
+
+      const updateVolume = () => {
+        analyser.getByteFrequencyData(dataArray);
+        const avg = dataArray.reduce((sum, val) => sum + val, 0) / bufferLength;
+        setVolume(avg);
+        requestAnimationFrame(updateVolume);
+      };
+
+      updateVolume();
+    };
+
+    setupAudio();
+
+    return () => {
+      audioContextRef.current?.close();
+    };
+  }, []);
+
+  return volume;
 }
 </code></pre>
         </article>
