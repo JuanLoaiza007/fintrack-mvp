@@ -4,26 +4,39 @@ const client = new ElevenLabsClient({
   apiKey: process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY,
 });
 
-/**
- * Graba audio desde el micrófono, detecta silencio y transcribe con ElevenLabs
- * @param {Function} onSuccess - callback con el texto reconocido
- * @param {Function} onError - callback con un mensaje de error
- */
-export const transcribeFromMic = async (onSuccess, onError) => {
-  try {
+export const useElevenLabsSTT = () => {
+  const [transcript, setTranscript] = useState("");
+  const [listening, setListening] = useState(false);
+
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const sourceRef = useRef(null);
+  const silenceTimerRef = useRef(null);
+
+  const supportsSpeechRecognition =
+    typeof window !== "undefined" && !!window.MediaRecorder;
+
+  const start = async () => {
+    if (!supportsSpeechRecognition) return;
+
+    setTranscript("");
+    audioChunksRef.current = [];
+    setListening(true);
+
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const mediaRecorder = new MediaRecorder(stream);
-    const audioChunks = [];
+    mediaRecorderRef.current = mediaRecorder;
 
-    const audioContext = new AudioContext();
-    const analyser = audioContext.createAnalyser();
-    const source = audioContext.createMediaStreamSource(stream);
-    source.connect(analyser);
-
-    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+    mediaRecorder.ondataavailable = (e) => {
+      audioChunksRef.current.push(e.data);
+    };
 
     mediaRecorder.onstop = async () => {
-      const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+      const audioBlob = new Blob(audioChunksRef.current, {
+        type: "audio/webm",
+      });
       try {
         const result = await client.speechToText.convert({
           file: audioBlob,
@@ -33,53 +46,84 @@ export const transcribeFromMic = async (onSuccess, onError) => {
           diarize: false,
         });
 
-        if (result.text && result.text.trim()) {
-          onSuccess(result.text);
-        } else {
-          onError("No se entendió lo que dijiste 😅");
-        }
+        setTranscript(result.text);
       } catch (err) {
-        console.error("Error al transcribir:", err);
-        onError("Hubo un problema al transcribir el audio.");
+        console.error("STT error:", err);
       }
-
-      audioContext.close();
+      setListening(false);
+      cleanup();
     };
 
-    // Inicia grabación
     mediaRecorder.start();
 
-    // Detectar silencio
-    const detectSilence = (timeout = 2000, threshold = 0.01) => {
-      const data = new Uint8Array(analyser.fftSize);
-      let silenceStart = Date.now();
+    // Setup audio context for silence detection
+    audioContextRef.current = new AudioContext();
+    analyserRef.current = audioContextRef.current.createAnalyser();
+    sourceRef.current = audioContextRef.current.createMediaStreamSource(stream);
+    sourceRef.current.connect(analyserRef.current);
 
-      const loop = () => {
-        analyser.getByteTimeDomainData(data);
-        const rms = Math.sqrt(
-          data.reduce((sum, val) => sum + (val - 128) ** 2, 0) / data.length
-        );
+    detectSilence(() => {
+      if (mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+      }
+    });
+  };
 
-        if (rms < threshold) {
-          if (Date.now() - silenceStart > timeout) {
-            if (mediaRecorder.state === "recording") {
-              mediaRecorder.stop();
-            }
-            return;
-          }
-        } else {
-          silenceStart = Date.now();
+  const detectSilence = (onSilence, timeout = 2000, threshold = 0.01) => {
+    const analyser = analyserRef.current;
+    const data = new Uint8Array(analyser.fftSize);
+    let silenceStart = Date.now();
+
+    const loop = () => {
+      analyser.getByteTimeDomainData(data);
+      const rms = Math.sqrt(
+        data.reduce((sum, val) => sum + (val - 128) ** 2, 0) / data.length
+      );
+
+      if (rms < threshold) {
+        if (Date.now() - silenceStart > timeout) {
+          onSilence();
+          return;
         }
+      } else {
+        silenceStart = Date.now();
+      }
 
-        requestAnimationFrame(loop);
-      };
-
-      loop();
+      silenceTimerRef.current = requestAnimationFrame(loop);
     };
 
-    detectSilence();
-  } catch (error) {
-    console.error("Error al acceder al micrófono:", error);
-    onError("No pudimos acceder al micrófono 😵. ¿Tienes los permisos activados?");
-  }
+    loop();
+  };
+
+  const stop = () => {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
+      mediaRecorderRef.current.stop();
+    }
+    cleanup();
+  };
+
+  const resetTranscript = () => setTranscript("");
+
+  const cleanup = () => {
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    if (silenceTimerRef.current) {
+      cancelAnimationFrame(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+  };
+
+  return {
+    transcript,
+    listening,
+    supportsSpeechRecognition,
+    start,
+    stop,
+    resetTranscript,
+  };
 };
