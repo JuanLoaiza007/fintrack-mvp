@@ -1,9 +1,22 @@
+import React, { useState, useRef } from "react";
 import { ElevenLabsClient } from "elevenlabs";
 
 const client = new ElevenLabsClient({
   apiKey: process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY,
 });
 
+/**
+ * Custom hook for speech-to-text functionality using ElevenLabs API.
+ * Provides methods to start and stop audio recording, detect silence, and process audio into text.
+ *
+ * @returns {Object} An object containing:
+ * - `transcript` {string}: The transcribed text from the audio.
+ * - `listening` {boolean}: Indicates whether the recording is currently active.
+ * - `supportsSpeechRecognition` {boolean}: Indicates if the browser supports MediaRecorder.
+ * - `start` {Function}: Starts the audio recording and transcription process.
+ * - `stop` {Function}: Stops the audio recording and transcription process.
+ * - `resetTranscript` {Function}: Resets the transcript to an empty string.
+ */
 export const useElevenLabsSTT = () => {
   const [transcript, setTranscript] = useState("");
   const [listening, setListening] = useState(false);
