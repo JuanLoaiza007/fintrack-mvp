@@ -60,8 +60,17 @@ export const useElevenLabsSTT = () => {
         });
 
         setTranscript(result.text);
+        console.log("transcripcion", result.text);
+        if (!result.text) {
+          alert(
+            "No se ha podido distinguir el audio, la pagina se cargará de nuevo.",
+          );
+          window.location.reload();
+        }
       } catch (err) {
         console.error("STT error:", err);
+        alert("Parece que hubo un error, la pagina se cargará de nuevo.");
+        window.location.reload();
       }
       setListening(false);
       cleanup();
@@ -90,7 +99,7 @@ export const useElevenLabsSTT = () => {
     const loop = () => {
       analyser.getByteTimeDomainData(data);
       const rms = Math.sqrt(
-        data.reduce((sum, val) => sum + (val - 128) ** 2, 0) / data.length
+        data.reduce((sum, val) => sum + (val - 128) ** 2, 0) / data.length,
       );
 
       if (rms < threshold) {
