@@ -35,7 +35,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useEffect, useState, useRef } from "react";
-import { Mic, Square } from "lucide-react";
+import { Mic } from "lucide-react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useMicVolume } from "@/components/hooks/useMicVolume";
 import { continueFinancialChat } from "@/utils/gemini";
@@ -45,7 +45,7 @@ import { getSpeechServices } from "@/utils/speechServices";
 /**
  * AI-powered financial assistant chat component with voice interaction capabilities.
  * @component
- * 
+ *
  * @param {Object} props - Component props
  * @param {boolean} props.isOpen - Controls visibility of the dialog (required)
  * @param {Function} props.onClose - Callback when dialog is closed (required)
@@ -53,14 +53,14 @@ import { getSpeechServices } from "@/utils/speechServices";
  * @param {Array} [props.initialContext.transacciones] - Transaction history
  * @param {number} [props.initialContext.metaAhorro] - Savings goal amount
  * @param {Object} [props.initialContext.presupuesto] - Budget information
- * 
+ *
  * @remarks
  * Uses speech-to-text and text-to-speech services for voice interactions.
  * Implements real-time microphone volume visualization with framer-motion animations.
  * Manages chat state and integrates with financial AI service (Gemini).
- * 
+ *
  * @returns {JSX.Element} A modal dialog with voice-controlled financial assistant interface
- * 
+ *
  * @example
  * &lt;AiChat
  *   isOpen={isChatOpen}
@@ -83,7 +83,7 @@ export default function AiChat({ isOpen, onClose, initialContext }) {
    * @param {string} userText - The recognized text from user's speech input
    * @returns {Promise&lt;void>} Resolves when the conversation turn is complete
    * @throws {Error} When there's an error processing the message
-   * 
+   *
    * @example
    * await handleTextDetected("Quiero ahorrar más dinero");
    */
@@ -131,7 +131,7 @@ export default function AiChat({ isOpen, onClose, initialContext }) {
    * Controls the microphone listening state based on dialog open/close
    * @param {boolean} isOpen - Current open state of the dialog
    * @returns {void}
-   * 
+   *
    * @example
    * useEffect(() => {
    *   // Automatic listening control
@@ -151,7 +151,7 @@ export default function AiChat({ isOpen, onClose, initialContext }) {
    * Handles microphone button click to toggle listening state
    * @returns {Promise&lt;void>} Resolves when the state change is complete
    * @throws {Error} When there's an error changing microphone state
-   * 
+   *
    * @example
    * &lt;button onClick={handleListenClick}>Toggle Mic&lt;/button>
    */
@@ -162,8 +162,8 @@ export default function AiChat({ isOpen, onClose, initialContext }) {
       }
 
       if (speech.listening) {
-        setIsProcessingSpeech(true);   
-        speech.stop();      
+        setIsProcessingSpeech(true);
+        speech.stop();
       } else {
         setIsProcessingSpeech(false);
         speech.listen();
@@ -189,7 +189,7 @@ export default function AiChat({ isOpen, onClose, initialContext }) {
    * Updates motion values based on microphone volume input
    * @param {number} volume - Current microphone volume level
    * @returns {void}
-   * 
+   *
    * @example
    * useEffect(() => {
    *   // Update motion values
@@ -219,28 +219,23 @@ export default function AiChat({ isOpen, onClose, initialContext }) {
               Asistente Financiero
             &lt;/DialogTitle>
           &lt;/DialogHeader>
-
-          {/* Componente de prueba para el log del chat */}
-          {process.env.NEXT_PUBLIC_ENVIRONMENT_IS_DEVELOPMENT &amp;&amp; (
-            &lt;div className="p-4 m-4 bg-gray-100 border-2 border-dashed border-purple-500 rounded-lg shadow-lg">
-              &lt;div className="w-full max-h-40 overflow-y-auto border p-2 rounded bg-white">
-                {chatLog.map((msg, index) => (
-                  &lt;div
-                    key={index}
-                    className={`mb-1 px-2 py-1 rounded ${
-                      msg.sender === "user"
-                        ? "text-right bg-purple-300"
-                        : "text-left bg-gray-200"
-                    }`}
-                  >
-                    &lt;strong>{msg.sender === "user" ? "Tú:" : "IA:"}&lt;/strong>{" "}
-                    {msg.text}
-                  &lt;/div>
-                ))}
-              &lt;/div>
+          &lt;div className="p-4 m-4 bg-gray-100 border-2 border-dashed border-purple-500 rounded-lg shadow-lg">
+            &lt;div className="w-full max-h-40 overflow-y-auto border p-2 rounded bg-white">
+              {chatLog.map((msg, index) => (
+                &lt;div
+                  key={index}
+                  className={`mb-1 px-2 py-1 rounded ${
+                    msg.sender === "user"
+                      ? "text-right bg-purple-300"
+                      : "text-left bg-gray-200"
+                  }`}
+                >
+                  &lt;strong>{msg.sender === "user" ? "Tú:" : "IA:"}&lt;/strong>{" "}
+                  {msg.text}
+                &lt;/div>
+              ))}
             &lt;/div>
-          )}
-
+          &lt;/div>
           {speech.listening &amp;&amp; !isProcessingSpeech &amp;&amp; (
             &lt;motion.div
               className="my-2 h-4 w-4 rounded-full bg-purple-700"
@@ -291,7 +286,7 @@ export default function AiChat({ isOpen, onClose, initialContext }) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Apr 16 2025 10:44:08 GMT-0500 (hora estándar de Colombia)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Apr 16 2025 17:37:30 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
