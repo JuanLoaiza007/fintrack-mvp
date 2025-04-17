@@ -26,9 +26,13 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import { CircleHelp, Plus } from "lucide-react";
+            <pre class="prettyprint source linenums"><code>"use client";
+
+import { useState } from "react";
+import { CircleHelp, Plus } from "lucide-react";
 import { Button } from "../../button";
 import AISuggestion from "./ai-suggestion";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
  * TransactionFooter component renders a footer with two buttons:
@@ -37,9 +41,15 @@ import AISuggestion from "./ai-suggestion";
  * @component
  * @param {Object} props - The props object.
  * @param {function} props.onOpenCreate - Callback function to handle opening the create transaction dialog.
+ * @param {function} props.onOpenCreateWithAI - Callback function to handle opening the create transaction with AI dialog.
  * @returns {JSX.Element} The rendered footer component.
  */
-export default function TransactionFooter({ onOpenCreate }) {
+export default function TransactionFooter({
+  onOpenCreate,
+  onOpenCreateWithAI,
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     &lt;div
       className="flex w-full items-center justify-between"
@@ -48,13 +58,42 @@ export default function TransactionFooter({ onOpenCreate }) {
       &lt;div aria-label="AI Suggestion">
         &lt;AISuggestion />
       &lt;/div>
-      &lt;Button
-        size="icon"
-        onClick={() => onOpenCreate(true)}
-        aria-label="Create Transaction"
+      &lt;div
+        className="relative flex items-center"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
-        &lt;Plus className="w-6 h-6" />
-      &lt;/Button>
+        &lt;AnimatePresence>
+          {isHovered &amp;&amp; (
+            &lt;motion.div
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute right-10"
+            >
+              &lt;Button
+                className="border-purple-600 bg-purple-600 text-white hover:bg-purple-700 hover:border-purple-700 cursor-pointer"
+                size="icon"
+                onClick={() => onOpenCreateWithAI()}
+                aria-label="Extra Plus Action"
+              >
+                &lt;Plus className="w-5 h-5" />
+              &lt;/Button>
+            &lt;/motion.div>
+          )}
+        &lt;/AnimatePresence>
+
+        &lt;div className="ml-4">
+          &lt;Button
+            size="icon"
+            onClick={() => onOpenCreate(true)}
+            aria-label="Create Transaction"
+          >
+            &lt;Plus className="w-6 h-6" />
+          &lt;/Button>
+        &lt;/div>
+      &lt;/div>
     &lt;/div>
   );
 }
@@ -68,13 +107,13 @@ export default function TransactionFooter({ onOpenCreate }) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AppSidebar">AppSidebar</a></li><li><a href="global.html#GoalListItem">GoalListItem</a></li><li><a href="global.html#STATUS_ICONS">STATUS_ICONS</a></li><li><a href="global.html#STATUS_LABELS">STATUS_LABELS</a></li><li><a href="global.html#STATUS_STYLES">STATUS_STYLES</a></li><li><a href="global.html#STATUS_VARIANT">STATUS_VARIANT</a></li><li><a href="global.html#TRANSACTION_CATEGORIES">TRANSACTION_CATEGORIES</a></li><li><a href="global.html#TRANSACTION_TYPES">TRANSACTION_TYPES</a></li><li><a href="global.html#fetchBudget">fetchBudget</a></li><li><a href="global.html#fetchExpenses">fetchExpenses</a></li><li><a href="global.html#fetchTransactions">fetchTransactions</a></li><li><a href="global.html#formatCurrency">formatCurrency</a></li><li><a href="global.html#getBorderColor">getBorderColor</a></li><li><a href="global.html#getCategoryLabel">getCategoryLabel</a></li><li><a href="global.html#getTypeLabel">getTypeLabel</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleFileChange">handleFileChange</a></li><li><a href="global.html#handleGenerateReports">handleGenerateReports</a></li><li><a href="global.html#handleImportReports">handleImportReports</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#isDateInNowMonth">isDateInNowMonth</a></li><li><a href="global.html#loadGoals">loadGoals</a></li><li><a href="global.html#loadTransactions">loadTransactions</a></li><li><a href="global.html#onDelete">onDelete</a></li><li><a href="global.html#onSubmit">onSubmit</a></li><li><a href="global.html#transaccionSchema">transaccionSchema</a></li><li><a href="global.html#useMicVolume">useMicVolume</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AppSidebar">AppSidebar</a></li><li><a href="global.html#GoalListItem">GoalListItem</a></li><li><a href="global.html#STATUS_ICONS">STATUS_ICONS</a></li><li><a href="global.html#STATUS_LABELS">STATUS_LABELS</a></li><li><a href="global.html#STATUS_STYLES">STATUS_STYLES</a></li><li><a href="global.html#STATUS_VARIANT">STATUS_VARIANT</a></li><li><a href="global.html#TRANSACTION_CATEGORIES">TRANSACTION_CATEGORIES</a></li><li><a href="global.html#TRANSACTION_TYPES">TRANSACTION_TYPES</a></li><li><a href="global.html#fetchBudget">fetchBudget</a></li><li><a href="global.html#fetchExpenses">fetchExpenses</a></li><li><a href="global.html#fetchTransactions">fetchTransactions</a></li><li><a href="global.html#formatCurrency">formatCurrency</a></li><li><a href="global.html#getBorderColor">getBorderColor</a></li><li><a href="global.html#getCategoryLabel">getCategoryLabel</a></li><li><a href="global.html#getTypeLabel">getTypeLabel</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleFileChange">handleFileChange</a></li><li><a href="global.html#handleGenerateReports">handleGenerateReports</a></li><li><a href="global.html#handleImportReports">handleImportReports</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#isDateInNowMonth">isDateInNowMonth</a></li><li><a href="global.html#isValidTransaction">isValidTransaction</a></li><li><a href="global.html#isValidTransactionArray">isValidTransactionArray</a></li><li><a href="global.html#loadGoals">loadGoals</a></li><li><a href="global.html#loadTransactions">loadTransactions</a></li><li><a href="global.html#onDelete">onDelete</a></li><li><a href="global.html#onSubmit">onSubmit</a></li><li><a href="global.html#transaccionSchema">transaccionSchema</a></li><li><a href="global.html#useMicVolume">useMicVolume</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Apr 16 2025 17:37:30 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Apr 17 2025 22:56:54 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
