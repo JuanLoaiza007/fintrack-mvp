@@ -33,6 +33,27 @@ jest.mock("@/components/ui/features/transacciones/form", () => ({
     </div>
   ),
 }));
+jest.mock("@/utils/gemini-transaction-interpreter", () => ({
+  interpretTransactions: jest.fn().mockResolvedValue({
+    transactions: [
+      {
+        description: "Sueldo",
+        amount: 1000000,
+        type: "income",
+        category: "work",
+        essential: false,
+        date: "2025-04-17",
+      },
+    ],
+  }),
+}));
+jest.mock(
+  "@/components/ui/features/transacciones/ai-voice-transaction-creator",
+  () => ({
+    __esModule: true,
+    default: () => <div data-testid="mock-voice-creator" />,
+  })
+);
 
 describe("TransactionModule", () => {
   beforeEach(() => {
@@ -42,7 +63,7 @@ describe("TransactionModule", () => {
   it("renders header", () => {
     render(<TransactionModule />);
     expect(
-      screen.getByRole("heading", { name: /gestión de transacciones/i }),
+      screen.getByRole("heading", { name: /gestión de transacciones/i })
     ).toBeInTheDocument();
   });
 
@@ -51,7 +72,7 @@ describe("TransactionModule", () => {
     fireEvent.click(screen.getByTestId("open-create"));
 
     expect(screen.getByTestId("transaction-form")).toHaveTextContent(
-      "Creating new",
+      "Creating new"
     );
     expect(screen.getByRole("dialog")).toBeVisible();
   });
@@ -61,7 +82,7 @@ describe("TransactionModule", () => {
     fireEvent.click(screen.getByTestId("edit-transaction"));
 
     expect(screen.getByTestId("transaction-form")).toHaveTextContent(
-      "Editing 42",
+      "Editing 42"
     );
     expect(screen.getByRole("dialog")).toBeVisible();
   });
