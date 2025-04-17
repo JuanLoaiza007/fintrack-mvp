@@ -26,6 +26,19 @@ Incluye detalles como:
 *"Ayer gasté 12 mil en almuerzo y hoy me pagaron 100 mil del trabajo"*
 `;
 
+/**
+ * AIVoiceTransactionCreator component that enables users to create transactions via voice input.
+ * The component listens to user speech, processes it with the Gemini utility, and interprets the detected transactions.
+ * It displays the results and allows users to interact with the system through a button to start/stop voice recording.
+ *
+ * @component
+ * @example
+ * return (
+ *   <AIVoiceTransactionCreator />
+ * )
+ *
+ * @returns {JSX.Element} - The AIVoiceTransactionCreator component.
+ */
 export default function AIVoiceTransactionCreator() {
   const [messages, setMessages] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -33,10 +46,20 @@ export default function AIVoiceTransactionCreator() {
 
   const { stt, tts } = getSpeechServices();
 
+  /**
+   * Function to append messages to the state.
+   * @param {string} msg - The message to append.
+   */
   const appendMessage = (msg) => {
     setMessages((prev) => [...prev, msg]);
   };
 
+  /**
+   * Handles the detected text from speech input, processes it for transaction interpretation,
+   * and validates the parsed transactions.
+   *
+   * @param {string} texto - The detected speech input text.
+   */
   const handleTextDetected = async (texto) => {
     console.clear();
     console.log("📥 Texto detectado:", texto);
@@ -82,12 +105,18 @@ export default function AIVoiceTransactionCreator() {
     }
   };
 
+  /**
+   * Speech flow handler that listens to speech input and calls the handleTextDetected function when text is detected.
+   */
   const speech = useSpeechFlow({
     onTextDetected: handleTextDetected,
     stt,
     tts,
   });
 
+  /**
+   * Toggles the recording state, starting or stopping the speech recognition.
+   */
   const handleToggleRecording = () => {
     if (speech.speaking) speech.stop();
     if (speech.listening) {
@@ -103,11 +132,18 @@ export default function AIVoiceTransactionCreator() {
   const rawScale = useMotionValue(1);
   const smoothScale = useSpring(rawScale, { stiffness: 120, damping: 15 });
 
+  /**
+   * Adjusts the scale animation based on the microphone volume.
+   */
   useEffect(() => {
     const normalized = Math.min(volume / 20, 1);
     rawScale.set(1 + normalized * 1.5);
   }, [volume, rawScale]);
 
+  /**
+   * The component renders a button to start/stop voice recording, a display for messages, and transaction instructions in Markdown format.
+   * The UI updates based on the speech recognition state and provides feedback to the user.
+   */
   return (
     <div className="flex flex-col items-center gap-4">
       {speech.listening && !isProcessing && (
