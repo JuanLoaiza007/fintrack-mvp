@@ -12,6 +12,7 @@ import {
 import TransactionFooter from "./footer";
 import TransactionForm from "./form";
 import TransactionHistory from "./history";
+import AIVoiceTransactionCreator from "./ai-voice-transaction-creator";
 
 /**
  * TransactionModule Component
@@ -42,11 +43,16 @@ import TransactionHistory from "./history";
  */
 export default function TransactionModule() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreateWithAIOpen, setIsCreateWithAIOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   const handleCreate = () => {
     setSelectedTransaction(null); // Reseteamos para que sea una nueva transacción
     setIsCreateOpen(true);
+  };
+
+  const handleCreateWithAI = () => {
+    setIsCreateWithAIOpen(true);
   };
 
   const handleEdit = (transaction) => {
@@ -61,8 +67,22 @@ export default function TransactionModule() {
           <h1 className="font-bold text-2xl">Gestión de transacciones</h1>
         </div>
         <TransactionHistory onEdit={handleEdit} />
-        <TransactionFooter onOpenCreate={handleCreate} />
+        <TransactionFooter
+          onOpenCreate={handleCreate}
+          onOpenCreateWithAI={handleCreateWithAI}
+        />
       </div>
+      <Dialog
+        open={isCreateWithAIOpen}
+        onOpenChange={(open) => setIsCreateWithAIOpen(open)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Crear Transacción</DialogTitle>
+            <AIVoiceTransactionCreator />
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
       <Dialog
         open={isCreateOpen}
         onOpenChange={(open) => setIsCreateOpen(open)}
