@@ -47,7 +47,7 @@ export default function AISuggestion() {
         setMetaAhorro(_goals[0]?.amount ?? null);
       } catch (error) {
         console.error(
-          error?.message ?? "An error occurred while fetching the goals."
+          error?.message ?? "An error occurred while fetching the goals.",
         );
       }
     }
@@ -60,7 +60,7 @@ export default function AISuggestion() {
         setPresupuesto(data[0]?.amount ?? null);
       } catch (error) {
         console.error(
-          error?.message ?? "An error occurred while fetching the budget"
+          error?.message ?? "An error occurred while fetching the budget",
         );
       }
     }
@@ -77,7 +77,7 @@ export default function AISuggestion() {
     const response = await generateFinancialSummary(
       iaTransactions,
       metaAhorro,
-      presupuesto
+      presupuesto,
     );
     setSuggestion(response);
     setLoading(false);

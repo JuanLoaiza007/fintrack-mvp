@@ -22,7 +22,7 @@ describe("TransactionFooter", () => {
     render(
       <TransactionProvider>
         <TransactionFooter onOpenCreate={jest.fn()} />
-      </TransactionProvider>
+      </TransactionProvider>,
     );
     expect(screen.getByLabelText("AI Suggestion")).toBeInTheDocument();
   });
@@ -31,7 +31,7 @@ describe("TransactionFooter", () => {
     render(
       <TransactionProvider>
         <TransactionFooter onOpenCreate={jest.fn()} />
-      </TransactionProvider>
+      </TransactionProvider>,
     );
     expect(screen.getByLabelText("Create Transaction")).toBeInTheDocument();
   });
@@ -41,7 +41,7 @@ describe("TransactionFooter", () => {
     render(
       <TransactionProvider>
         <TransactionFooter onOpenCreate={handleOpenCreate} />
-      </TransactionProvider>
+      </TransactionProvider>,
     );
     fireEvent.click(screen.getByLabelText("Create Transaction"));
     expect(handleOpenCreate).toHaveBeenCalledWith(true);
@@ -51,11 +51,11 @@ describe("TransactionFooter", () => {
     render(
       <TransactionProvider>
         <TransactionFooter onOpenCreate={jest.fn()} />
-      </TransactionProvider>
+      </TransactionProvider>,
     );
 
     expect(
-      screen.queryByLabelText("Extra Plus Action")
+      screen.queryByLabelText("Extra Plus Action"),
     ).not.toBeInTheDocument();
 
     fireEvent.mouseEnter(screen.getByLabelText("Create Transaction"));
@@ -66,7 +66,7 @@ describe("TransactionFooter", () => {
     render(
       <TransactionProvider>
         <TransactionFooter onOpenCreate={jest.fn()} />
-      </TransactionProvider>
+      </TransactionProvider>,
     );
 
     fireEvent.mouseEnter(screen.getByLabelText("Create Transaction"));
@@ -75,7 +75,7 @@ describe("TransactionFooter", () => {
     fireEvent.mouseLeave(screen.getByLabelText("Create Transaction"));
 
     await waitForElementToBeRemoved(() =>
-      screen.getByLabelText("Extra Plus Action")
+      screen.getByLabelText("Extra Plus Action"),
     );
   });
 });

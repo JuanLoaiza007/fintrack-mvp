@@ -45,10 +45,15 @@ import { useEffect } from "react";
  * @remarks
  * - The `essential` field is conditionally rendered based on the selected transaction type.
  * - The form handles submission by creating a payload and passing it to the `addTransaction` function.
+ * - The form resets its state whenever the `transaction` prop changes.
+ * - The `isSaveAvailable` prop controls the visibility of the save button.
+ * - The `setIsCreateOpen` prop is used to close the form after submission.
+ * - The `transaction` prop is used to populate the form with existing transaction data for editing.
  */
 export default function TransactionForm({
   setIsCreateOpen,
   transaction = null,
+  isSaveAvailable = true,
 }) {
   const { notifyTransactionUpdate } = useTransactionContext();
 
@@ -135,9 +140,11 @@ export default function TransactionForm({
               <BooleanInput name="essential" label="Esencial" />
             )}
           </div>
-          <div className="flex justify-center">
-            <Button type="submit">Guardar</Button>
-          </div>
+          {isSaveAvailable && (
+            <div className="flex justify-center">
+              <Button type="submit">Guardar</Button>
+            </div>
+          )}
         </form>
       </Form>
     </div>

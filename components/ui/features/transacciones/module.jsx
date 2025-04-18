@@ -47,7 +47,7 @@ export default function TransactionModule() {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   const handleCreate = () => {
-    setSelectedTransaction(null); // Reseteamos para que sea una nueva transacción
+    setSelectedTransaction(null);
     setIsCreateOpen(true);
   };
 
@@ -57,7 +57,7 @@ export default function TransactionModule() {
 
   const handleEdit = (transaction) => {
     setSelectedTransaction(transaction);
-    setIsCreateOpen(true); // Corregido
+    setIsCreateOpen(true);
   };
 
   return (
@@ -76,7 +76,7 @@ export default function TransactionModule() {
         open={isCreateWithAIOpen}
         onOpenChange={(open) => setIsCreateWithAIOpen(open)}
       >
-        <DialogContent>
+        <DialogContent className="min-w-100">
           <DialogHeader>
             <DialogTitle>Crear Transacción</DialogTitle>
             <AIVoiceTransactionCreator />

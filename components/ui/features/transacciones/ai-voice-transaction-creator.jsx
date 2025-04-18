@@ -6,11 +6,13 @@ import { getSpeechServices } from "@/utils/speechServices";
 import { interpretTransactions } from "@/utils/gemini-transaction-interpreter";
 import { isValidTransactionArray } from "@/components/schemas/transaccion";
 import useSpeechFlow from "@/utils/speechFlow";
-import { Mic, MicOff } from "lucide-react";
+import { Loader, Mic, MicOff } from "lucide-react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useMicVolume } from "@/components/hooks/useMicVolume";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import FormCarrousel from "./form/form-carrousel";
+import { toast } from "sonner";
 
 const markdownInstructions = `
 Cuéntale a la IA tus **ingresos** y **gastos** para que los registre como transacciones.
@@ -40,19 +42,10 @@ Incluye detalles como:
  * @returns {JSX.Element} - The AIVoiceTransactionCreator component.
  */
 export default function AIVoiceTransactionCreator() {
-  const [messages, setMessages] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [transacciones, setTransacciones] = useState([]);
 
   const { stt, tts } = getSpeechServices();
-
-  /**
-   * Function to append messages to the state.
-   * @param {string} msg - The message to append.
-   */
-  const appendMessage = (msg) => {
-    setMessages((prev) => [...prev, msg]);
-  };
 
   /**
    * Handles the detected text from speech input, processes it for transaction interpretation,
@@ -62,46 +55,38 @@ export default function AIVoiceTransactionCreator() {
    */
   const handleTextDetected = async (texto) => {
     console.clear();
-    console.log("📥 Texto detectado:", texto);
-    appendMessage(`✅ Interpretando: "${texto}"`);
     setIsProcessing(true);
 
     try {
       const parsed = JSON.parse(await interpretTransactions(texto));
       const transactions = parsed.transactions;
-      console.log("transactions: ", transactions);
 
       if (transactions === undefined || transactions === null)
         throw new Error("El LLM no ha podido interpretar las transacciones");
 
       if (transactions.length === 0) {
-        appendMessage("❌ No se han detectado transacciones en el texto");
+        toast.error("❌ No se han encontrado transacciones en el texto.");
         return;
       }
 
       const { valid, errors } = isValidTransactionArray(transactions);
 
       if (!valid) {
-        console.log("❌ Errores de validación:", errors);
+        toast.error(
+          `❌ No se han podido interpretar las transacciones, intente nuevamente. ${errors
+            .map((e) => e.message)
+            .join(", ")}`,
+        );
+        return;
       }
 
-      if (valid) {
-        setTransacciones(parsed);
-        appendMessage("✅ Es posible crear las transacciones");
-      } else {
-        appendMessage(
-          "❌ No se ha podido interpretar las transacciones, intente nuevamente."
-        );
-      }
+      setTransacciones(transactions);
     } catch (err) {
       console.error("❌ Error al interpretar transacción:", err);
-      appendMessage(
-        "❌ Hubo un error interno al interpretar, por favor intente nuevamente."
-      );
+      toast.error("❌ Error al interpretar transacción: " + err.message);
     } finally {
       setIsProcessing(false);
       speech.reset();
-      console.log("🔁 Finalizó proceso. isProcessing:", false);
     }
   };
 
@@ -121,10 +106,8 @@ export default function AIVoiceTransactionCreator() {
     if (speech.speaking) speech.stop();
     if (speech.listening) {
       speech.stop();
-      appendMessage("⏹️ Grabación detenida");
     } else {
       speech.listen();
-      setMessages(["🎙️ Escuchando..."]);
     }
   };
 
@@ -145,48 +128,55 @@ export default function AIVoiceTransactionCreator() {
    * The UI updates based on the speech recognition state and provides feedback to the user.
    */
   return (
-    <div className="flex flex-col items-center gap-4">
-      {speech.listening && !isProcessing && (
-        <motion.div
-          className="h-4 w-4 rounded-full bg-purple-600"
-          style={{ scale: smoothScale }}
-        />
-      )}
-      <div className="flex flex-col text-sm text-muted-foreground gap-2 p-2">
-        <p className="flex-1 text-center">
-          <span className="font-bold">🎤 Instrucciones:</span> Presiona el botón
-          para hablar con la IA
-        </p>
-        <Markdown remarkPlugins={[remarkGfm]}>{markdownInstructions}</Markdown>
-      </div>
+    <>
+      {transacciones?.length === 0 ? (
+        <div className="flex flex-col items-center gap-4">
+          {speech.listening && !isProcessing && (
+            <motion.div
+              className="h-4 w-4 rounded-full bg-purple-600"
+              style={{ scale: smoothScale }}
+            />
+          )}
+          <div className="flex flex-col text-sm text-muted-foreground gap-2 p-2">
+            <p className="flex-1 text-center">
+              <span className="font-bold">🎤 Instrucciones:</span> Presiona el
+              botón para hablar con la IA
+            </p>
+            <Markdown remarkPlugins={[remarkGfm]}>
+              {markdownInstructions}
+            </Markdown>
+          </div>
 
-      <Button
-        onClick={handleToggleRecording}
-        disabled={isProcessing}
-        className={
-          speech.listening
-            ? "bg-red-500 hover:bg-red-600"
-            : "bg-purple-500 hover:bg-purple-600"
-        }
-      >
-        {speech.listening ? (
-          <>
-            <MicOff className="w-4 h-4 mr-1" />
-          </>
-        ) : (
-          <>
-            <Mic className="w-4 h-4 mr-1" />
-          </>
-        )}
-      </Button>
-
-      {messages && (
-        <div className="flex flex-col gap-1 max-w-sm text-sm text-muted-foreground text-center">
-          {messages.map((msg, i) => (
-            <p key={i}>{msg}</p>
-          ))}
+          <Button
+            size="icon"
+            onClick={handleToggleRecording}
+            disabled={isProcessing}
+            className={`rounded-lg flex items-center text-white ${
+              speech.listening
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-purple-500 hover:bg-purple-600"
+            }`}
+          >
+            {speech.listening ? (
+              <>
+                <MicOff className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                <Mic className="w-4 h-4" />
+              </>
+            )}
+          </Button>
+          {isProcessing && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader className="animate-spin h-4 w-4" />
+              Procesando transacciones...
+            </div>
+          )}
         </div>
+      ) : (
+        <FormCarrousel transactions={transacciones} />
       )}
-    </div>
+    </>
   );
 }
