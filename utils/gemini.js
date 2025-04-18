@@ -63,7 +63,7 @@ const generationConfig = {
 export async function generateFinancialSummary(
   transacciones,
   meta_ahorro_mensual = null,
-  presupuesto_mensual = null
+  presupuesto_mensual = null,
 ) {
   const historial = JSON.parse(localStorage.getItem("ia_request_log")) || [];
 
@@ -73,7 +73,7 @@ export async function generateFinancialSummary(
 
   localStorage.setItem(
     "ia_request_log",
-    JSON.stringify([...historial, Date.now()])
+    JSON.stringify([...historial, Date.now()]),
   );
 
   const formattedTransactions = formatTransactionsForAI(transacciones);
@@ -140,7 +140,7 @@ export async function continueFinancialChat(
   chatHistory,
   transacciones,
   meta_ahorro_mensual = null,
-  presupuesto_mensual = null
+  presupuesto_mensual = null,
 ) {
   const formattedTransactions = formatTransactionsForAI(transacciones);
   try {
@@ -155,7 +155,7 @@ export async function continueFinancialChat(
     const lastUserMessages = getLastMessagesByRole(
       chatHistory,
       USER_ROLE_NAME,
-      5
+      5,
     );
 
     const result = await chatSession.sendMessage(`   

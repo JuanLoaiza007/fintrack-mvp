@@ -126,7 +126,7 @@ export function isValidTransactionArray(array) {
     errors.map((e) => ({
       path: `transactions[${index}].${e.path}`,
       message: e.message,
-    }))
+    })),
   );
 
   return { valid: false, errors };

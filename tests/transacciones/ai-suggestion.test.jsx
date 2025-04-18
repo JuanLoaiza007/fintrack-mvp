@@ -58,7 +58,7 @@ describe("AISuggestion Component", () => {
   it("renders the open suggestion button initially", () => {
     render(<AISuggestion />);
     expect(
-      screen.getByRole("button", { name: /open ia suggestion/i })
+      screen.getByRole("button", { name: /open ia suggestion/i }),
     ).toBeInTheDocument();
   });
 
@@ -80,17 +80,17 @@ describe("AISuggestion Component", () => {
     render(<AISuggestion />);
     // Open the suggestion panel by clicking the open button and then generate
     fireEvent.click(
-      screen.getByRole("button", { name: /open ia suggestion/i })
+      screen.getByRole("button", { name: /open ia suggestion/i }),
     );
     fireEvent.click(
-      screen.getByRole("button", { name: /generate ia suggestion/i })
+      screen.getByRole("button", { name: /generate ia suggestion/i }),
     );
     await waitFor(() => {
       expect(screen.getByText(/suggestion text/i)).toBeInTheDocument();
     });
     // Click the close button
     fireEvent.click(
-      screen.getByRole("button", { name: /close ia suggestion/i })
+      screen.getByRole("button", { name: /close ia suggestion/i }),
     );
     await waitFor(() => {
       expect(screen.queryByText(/suggestion text/i)).toBeNull();

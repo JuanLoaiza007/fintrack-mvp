@@ -52,7 +52,7 @@ jest.mock(
   () => ({
     __esModule: true,
     default: () => <div data-testid="mock-voice-creator" />,
-  })
+  }),
 );
 
 describe("TransactionModule", () => {
@@ -63,7 +63,7 @@ describe("TransactionModule", () => {
   it("renders header", () => {
     render(<TransactionModule />);
     expect(
-      screen.getByRole("heading", { name: /gestión de transacciones/i })
+      screen.getByRole("heading", { name: /gestión de transacciones/i }),
     ).toBeInTheDocument();
   });
 
@@ -72,7 +72,7 @@ describe("TransactionModule", () => {
     fireEvent.click(screen.getByTestId("open-create"));
 
     expect(screen.getByTestId("transaction-form")).toHaveTextContent(
-      "Creating new"
+      "Creating new",
     );
     expect(screen.getByRole("dialog")).toBeVisible();
   });
@@ -82,7 +82,7 @@ describe("TransactionModule", () => {
     fireEvent.click(screen.getByTestId("edit-transaction"));
 
     expect(screen.getByTestId("transaction-form")).toHaveTextContent(
-      "Editing 42"
+      "Editing 42",
     );
     expect(screen.getByRole("dialog")).toBeVisible();
   });

@@ -10,33 +10,34 @@ global.navigator.mediaDevices = {
 
 // Mock de MediaRecorder actualizado
 global.MediaRecorder = class {
-    constructor() {
+  constructor() {
+    this.state = "inactive";
+    this.ondataavailable = null;
+    this.onstop = null;
+
+    // Definir `stop` como mock
+    this.stop = jest.fn(() => {
       this.state = "inactive";
-      this.ondataavailable = null;
-      this.onstop = null;
-  
-      // Definir `stop` como mock
-      this.stop = jest.fn(() => {
-        this.state = "inactive";
-        if (this.onstop) this.onstop();
-      });
-  
-      this.start = jest.fn(() => {
-        this.state = "recording";
-        setTimeout(() => {
-          if (this.ondataavailable) {
-            const dummyBlob = new Blob(["audio de prueba"], { type: "audio/webm" });
-            this.ondataavailable({ data: dummyBlob });
-          }
-          if (this.onstop) {
-            this.state = "inactive";
-            this.onstop();
-          }
-        }, 100); // Simula un pequeño delay
-      });
-    }
-  };
-  
+      if (this.onstop) this.onstop();
+    });
+
+    this.start = jest.fn(() => {
+      this.state = "recording";
+      setTimeout(() => {
+        if (this.ondataavailable) {
+          const dummyBlob = new Blob(["audio de prueba"], {
+            type: "audio/webm",
+          });
+          this.ondataavailable({ data: dummyBlob });
+        }
+        if (this.onstop) {
+          this.state = "inactive";
+          this.onstop();
+        }
+      }, 100); // Simula un pequeño delay
+    });
+  }
+};
 
 global.AudioContext = class {
   constructor() {
@@ -101,7 +102,7 @@ describe("useElevenLabsSTT", () => {
 
     console.log(
       "Transcript después de ejecutar todo:",
-      result.current.transcript
+      result.current.transcript,
     );
 
     expect(result.current.listening).toBe(false);
@@ -115,21 +116,23 @@ describe("useElevenLabsSTT", () => {
         ElevenLabsClient: jest.fn().mockImplementation(() => {
           return {
             speechToText: {
-              convert: jest.fn().mockRejectedValue(new Error("Error en la conversión")),
+              convert: jest
+                .fn()
+                .mockRejectedValue(new Error("Error en la conversión")),
             },
           };
         }),
       };
     });
-  
+
     const { result } = renderHook(() => useElevenLabsSTT());
-  
+
     await act(async () => {
       await result.current.start();
       jest.runAllTimers();
       await Promise.resolve();
     });
-  
+
     expect(result.current.listening).toBe(false);
     expect(result.current.transcript).toBe("Texto de prueba");
     // Aquí podrías verificar si el error se muestra en consola o hacer alguna comprobación adicional
@@ -137,27 +140,27 @@ describe("useElevenLabsSTT", () => {
 
   it("debería restablecer el transcript correctamente", async () => {
     const { result } = renderHook(() => useElevenLabsSTT());
-  
+
     await act(async () => {
       await result.current.start();
       jest.runAllTimers();
       await Promise.resolve();
     });
-  
+
     // Cambiar el transcript
     expect(result.current.transcript).toBe("Texto de prueba");
-  
+
     // Restablecer el transcript
     act(() => {
       result.current.resetTranscript();
     });
-  
+
     expect(result.current.transcript).toBe("");
   });
 
   it("debería detectar que el navegador sí soporta la grabación de audio", () => {
     const { result } = renderHook(() => useElevenLabsSTT());
-  
+
     expect(result.current.supportsSpeechRecognition).toBe(true);
   });
 });
