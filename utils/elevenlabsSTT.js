@@ -59,18 +59,11 @@ export const useElevenLabsSTT = () => {
           diarize: false,
         });
 
-        setTranscript(result.text);
-        console.log("transcripcion", result.text);
-        if (!result.text) {
-          alert(
-            "No se ha podido distinguir el audio, la pagina se cargará de nuevo.",
-          );
-          window.location.reload();
-        }
+        setTranscript(result.text || "");
       } catch (err) {
         console.error("STT error:", err);
-        alert("Parece que hubo un error, la pagina se cargará de nuevo.");
-        window.location.reload();
+        setTranscript("");
+        alert("Parece que hubo un error, intentalo de nuevo.");
       }
       setListening(false);
       cleanup();

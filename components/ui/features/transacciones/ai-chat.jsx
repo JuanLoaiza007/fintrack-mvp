@@ -30,8 +30,15 @@ import { getSpeechServices } from "@/utils/speechServices";
  * Uses speech-to-text and text-to-speech services for voice interactions.
  * Implements real-time microphone volume visualization with framer-motion animations.
  * Manages chat state and integrates with financial AI service (Gemini).
+ * Automatically starts/stops listening when dialog opens/closes.
+ * Shows visual feedback during speech processing and microphone activity.
+ * Handles browser compatibility checks for speech APIs.
  *
- * @returns {JSX.Element} A modal dialog with voice-controlled financial assistant interface
+ * @returns {JSX.Element} A modal dialog with:
+ * - Chat message history display
+ * - Voice interaction controls
+ * - Real-time microphone visualization
+ * - Processing state indicators
  *
  * @example
  * <AiChat
@@ -60,7 +67,8 @@ export default function AiChat({ isOpen, onClose, initialContext }) {
    * await handleTextDetected("Quiero ahorrar más dinero");
    */
   const handleTextDetected = async (userText) => {
-    const newChatLog = [...chatLog, { sender: "user", text: userText }];
+    const userMessage = userText;
+    const newChatLog = [...chatLog, { sender: "user", text: userMessage }];
     setChatLog(newChatLog);
 
     if (!isProcessingRef.current) {
@@ -109,6 +117,7 @@ export default function AiChat({ isOpen, onClose, initialContext }) {
    *   // Automatic listening control
    * }, [isOpen]);
    */
+
   useEffect(() => {
     if (isOpen) {
       speech.listen();
@@ -128,20 +137,18 @@ export default function AiChat({ isOpen, onClose, initialContext }) {
    * <button onClick={handleListenClick}>Toggle Mic</button>
    */
   const handleListenClick = async () => {
+    setIsProcessingSpeech(true);
     try {
-      if (speech.speaking) {
-        speech.stop();
-      }
-
       if (speech.listening) {
-        setIsProcessingSpeech(true);
         speech.stop();
       } else {
-        setIsProcessingSpeech(false);
+        tts.cancel();
         speech.listen();
       }
     } catch (error) {
       console.error("Error al cambiar el estado del micrófono:", error);
+    } finally {
+      setIsProcessingSpeech(false);
     }
   };
 
