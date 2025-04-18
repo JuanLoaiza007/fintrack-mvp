@@ -47,7 +47,7 @@ export default function TransactionModule() {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   const handleCreate = () => {
-    setSelectedTransaction(null); // Reseteamos para que sea una nueva transacción
+    setSelectedTransaction(null);
     setIsCreateOpen(true);
   };
 

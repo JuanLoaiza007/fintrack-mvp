@@ -82,4 +82,18 @@ describe("TransactionForm Component", () => {
     expect(payload.type).toBe("income");
     expect(payload.essential).toBeUndefined();
   });
+
+  it("no muestra el botón de guardar si isSaveAvailable es false", () => {
+    render(<TransactionForm isSaveAvailable={false} />);
+    expect(
+      screen.queryByRole("button", { name: /guardar/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("muestra el botón de guardar si isSaveAvailable es true", () => {
+    render(<TransactionForm isSaveAvailable={true} />);
+    expect(
+      screen.getByRole("button", { name: /guardar/i }),
+    ).toBeInTheDocument();
+  });
 });

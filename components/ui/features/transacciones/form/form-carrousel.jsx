@@ -20,7 +20,7 @@ import FormWrapper from "./form-wrapper";
  *   { id: 1, name: "Transaction 1", amount: 100 },
  *   { id: 2, name: "Transaction 2", amount: 200 },
  * ];
- * 
+ *
  * <FormCarrousel transactions={transactions} />
  */
 export default function FormCarrousel({ transactions }) {

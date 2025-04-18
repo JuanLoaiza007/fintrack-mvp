@@ -148,7 +148,7 @@ export default function AIVoiceTransactionCreator() {
           </div>
 
           <Button
-          size="icon"
+            size="icon"
             onClick={handleToggleRecording}
             disabled={isProcessing}
             className={`rounded-lg flex items-center text-white ${

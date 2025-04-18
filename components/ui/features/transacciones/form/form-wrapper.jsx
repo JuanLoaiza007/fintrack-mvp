@@ -16,13 +16,13 @@ import TransactionForm from "../form";
  * @example
  * // Example usage:
  * import FormWrapper from './form-wrapper';
- * 
+ *
  * const transaction = {
  *   id: 1,
  *   amount: 100,
  *   description: "Groceries",
  * };
- * 
+ *
  * <FormWrapper transaction={transaction} />;
  */
 export default function FormWrapper({ transaction }) {
