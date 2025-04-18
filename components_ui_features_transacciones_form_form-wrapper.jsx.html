@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: lib/utils.js</title>
+    <title>JSDoc: Source: components/ui/features/transacciones/form/form-wrapper.jsx</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: lib/utils.js</h1>
+    <h1 class="page-title">Source: components/ui/features/transacciones/form/form-wrapper.jsx</h1>
 
     
 
@@ -26,50 +26,49 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs) {
-  return twMerge(clsx(inputs));
-}
-
-/**
- * Formats a given amount as a currency string in Colombian Pesos (COP).
- *
- * @param {number} amount - The amount to format (required).
- * @returns {string} The formatted currency string in COP.
- * @example
- * // Returns "$10,000.00"
- * formatCurrency(10000);
- *
- * // Returns "$1,234,567.89"
- * formatCurrency(1234567.89);
- */
-export function formatCurrency(amount) {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-  }).format(amount);
-}
+            <pre class="prettyprint source linenums"><code>import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { transaccionSchema } from "@/components/schemas/transaccion";
+import { useEffect } from "react";
+import TransactionForm from "../form";
 
 /**
- * Checks if a given date string corresponds to the current month and year.
+ * A wrapper component for managing the transaction form state and behavior.
  *
- * @param {string} stringDate - The date string to check (required, in a format parsable by `Date`).
- * @returns {boolean} True if the date is in the current month and year, otherwise false.
+ * @component
+ * @param {Object} props - The props for the component.
+ * @param {Object} props.transaction - The transaction data to populate the form. Required.
+ * @remarks This component uses the `react-hook-form` library for form state management and validation,
+ * and resets the form whenever the `transaction` prop changes.
+ * @returns {JSX.Element} The rendered transaction form wrapped with state management.
  * @example
- * // Returns true if today's date is in October 2023
- * isDateInNowMonth("2023-10-15");
+ * // Example usage:
+ * import FormWrapper from './form-wrapper';
  *
- * // Returns false if today's date is not in December 2023
- * isDateInNowMonth("2023-12-01");
+ * const transaction = {
+ *   id: 1,
+ *   amount: 100,
+ *   description: "Groceries",
+ * };
+ *
+ * &lt;FormWrapper transaction={transaction} />;
  */
-export function isDateInNowMonth(stringDate) {
-  const date = new Date(stringDate);
-  const now = new Date();
+export default function FormWrapper({ transaction }) {
+  const form = useForm({
+    resolver: zodResolver(transaccionSchema),
+    defaultValues: transaction,
+  });
+
+  useEffect(() => {
+    form.reset(transaction);
+  }, [transaction]);
+
   return (
-    date.getMonth() === now.getMonth() &amp;&amp;
-    date.getFullYear() === now.getFullYear()
+    &lt;TransactionForm
+      isSaveAvailable={false}
+      transaction={transaction}
+      setIsCreateOpen={() => {}}
+    />
   );
 }
 </code></pre>
