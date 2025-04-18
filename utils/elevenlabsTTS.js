@@ -101,8 +101,13 @@ export const elevenLabsTTS = {
    * await elevenLabsTTS.speak('This is an example.');
    */
   speak: async (text) => {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio = null;
+    }
     const blob = await generateAudioFromText(text);
     const audio = new Audio(createAudioURL(blob));
+    currentAudio = audio;
     await audio.play();
   },
 
