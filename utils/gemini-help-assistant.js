@@ -1,9 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 /**
- * Asistente de Ayuda para Fintrack (uso de la aplicación según Manual de Usuario).
- * Solo responde temas de uso. Fallback para consultas fuera de contexto.
+ * Help Assistant for Fintrack (app usage based on User Manual).
+ * Only answers questions related to the use of the application.
+ * Provides a fallback for out-of-scope queries.
  */
+
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
 
 const SYSTEM_INSTRUCTION = `
@@ -57,18 +59,21 @@ const generationConfig = {
 };
 
 /**
- * Envía una consulta de uso de Fintrack al modelo y devuelve la respuesta.
- * Límite de 10 solicitudes de ayuda por minuto.
+ * Sends a Fintrack usage query to the model and returns the response.
+ * Rate limit: 10 help requests per minute.
  *
  * @async
- * @param {string} pregunta - Pregunta del usuario sobre uso de Fintrack.
- * @returns {Promise<string>} - Respuesta generada o mensaje de error/límite.
+ * @param {string} question - The user's question about Fintrack usage.
+ * @returns {Promise<string>} - The generated response or an error/limit message.
  */
+
 export async function askUsageHelp(pregunta) {
   const key = "help_request_log";
   const historial = JSON.parse(localStorage.getItem(key)) || [];
   const ahora = Date.now();
   const recientes = historial.filter(ts => ahora - ts < 60000);
+
+  // Limit of 10 help requests per minute
   if (recientes.length >= 10) {
     return "Has alcanzado el límite de solicitudes de ayuda por minuto. Inténtalo más tarde.";
   }
