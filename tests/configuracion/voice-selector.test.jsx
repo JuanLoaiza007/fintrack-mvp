@@ -66,32 +66,4 @@ describe("VoiceSelector", () => {
     // Verificar que el botón esté deshabilitado
     expect(screen.getByRole("button")).toBeDisabled();
   });
-
-  // it("stores selected voice in localStorage", () => {
-  //     // Simular que el localStorage ya tiene un valor
-  //     const mockSetItem = jest.fn();
-  //     Object.defineProperty(window, "localStorage", {
-  //     value: { setItem: mockSetItem },
-  //     });
-
-  //     render(<VoiceSelector />);
-
-  //     fireEvent.click(screen.getByPlaceholderText("Selecciona una voz"));
-  //     fireEvent.click(screen.getByText("Rachel"));
-
-  //     // Verificar que el valor se guarda en localStorage
-  //     expect(mockSetItem).toHaveBeenCalledWith("selectedVoiceId", "21m00Tcm4TlvDq8ikWAM");
-  // });
-
-  // it("cancel the current audio when speak is called again", async () => {
-  //     render(<VoiceSelector />);
-
-  //     // Simular que hay un audio en reproducción
-  //     await elevenLabsTTS.speak("Texto de prueba", "JBFqnCBsd6RMkjVDRZzb");
-
-  //     // Llamar nuevamente a speak y verificar que cancel se haya llamado
-  //     await elevenLabsTTS.speak("Nuevo texto", "JBFqnCBsd6RMkjVDRZzb");
-
-  //     expect(elevenLabsTTS.cancel).toHaveBeenCalled();
-  // });
 });

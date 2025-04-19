@@ -208,7 +208,7 @@ export default function ReportesDashboard() {
   const chartTitles = {
     ingresos_gastos: "Ingresos y Gastos",
     gastos_categoria: "Gastos por Categoría",
-    tipos_gastos: "Gastos esenciales y no esenciales",
+    tipos_gastos: "Gastos Esenciales y no Esenciales",
     evolucion: "Evolución de Ingresos y Gastos",
     dispersion: "Dispersión de Gastos",
   };
@@ -240,7 +240,7 @@ export default function ReportesDashboard() {
           </SelectContent>
         </Select>
         <Select value={chartType} onValueChange={setChartType}>
-          <SelectTrigger className="w-64">
+          <SelectTrigger className="w-64" role="combobox" aria-label="grafico">
             <SelectValue placeholder="Selecciona un tipo de gráfico" />
           </SelectTrigger>
           <SelectContent>
