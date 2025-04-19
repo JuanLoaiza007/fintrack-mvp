@@ -1236,8 +1236,8 @@ This schema validates the structure and constraints of a transaction.
 
 The sidebar includes a header with the application logo and title,
 a content section with navigation links grouped under "Finanzas",
-and a footer section. The active link is highlighted based on the
-current path.
+a "How to use" section at the bottom that opens a modal, and a footer section.
+The active link is highlighted based on the current path.
 </div>
 
 
@@ -1281,7 +1281,7 @@ current path.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="components_ui_features_sidebar.jsx.html">components/ui/features/sidebar.jsx</a>, <a href="components_ui_features_sidebar.jsx.html#line62">line 62</a>
+        <a href="components_ui_features_sidebar.jsx.html">components/ui/features/sidebar.jsx</a>, <a href="components_ui_features_sidebar.jsx.html#line68">line 68</a>
     </li></ul></dd>
     
 
@@ -1886,6 +1886,277 @@ const transactions = [
 };
 
 &lt;GoalListItem goal={goal} /></code></pre>
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="UserManual"><span class="type-signature"></span>UserManual<span class="signature">(props)</span><span class="type-signature"> &rarr; {JSX.Element}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    A help chatbot component that provides voice-based guidance on using the FinTrack app.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>props</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The props object.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>trigger</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">JSX.Element</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The React element used to open the chatbot dialog. Required.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>context</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    {}
+                
+                </td>
+            
+
+            <td class="description last">Optional context object used to enhance response behavior (e.g., financial data). Defaults to an empty object.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="components_ui_features_ai-user-manual.jsx.html">components/ui/features/ai-user-manual.jsx</a>, <a href="components_ui_features_ai-user-manual.jsx.html#line40">line 40</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A dialog-based chatbot UI that listens for user voice input and responds with contextual help messages.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">JSX.Element</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>&lt;UserManual
+  trigger={&lt;Button>Open Help&lt;/Button>}
+  context={{ presupuesto: { total: 1000 }, transacciones: [] }}
+/></code></pre>
 
 
 
@@ -3804,6 +4075,121 @@ It also validates the CSV format before processing the data.
     
 
     
+    <h4 class="name" id="handleListenClick"><span class="type-signature">(async) </span>handleListenClick<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Handles microphone activation or deactivation when the user interacts with the voice assistant button.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="components_ui_features_ai-user-manual.jsx.html">components/ui/features/ai-user-manual.jsx</a>, <a href="components_ui_features_ai-user-manual.jsx.html#line121">line 121</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A promise that resolves when the microphone state has been toggled and speech listening started or stopped.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;void></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>await handleListenClick(); // Starts or stops the speech recognition</code></pre>
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="handleSubmit"><span class="type-signature">(async) </span>handleSubmit<span class="signature">(data)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
     
 
@@ -4232,6 +4618,171 @@ and then closing the budget creation modal.
     <pre class="prettyprint"><code>handleSubmit({ amount: 500, description: "Groceries" })
   .then(() => console.log("Budget submitted successfully"))
   .catch((error) => console.error("Submission failed", error));</code></pre>
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="handleTextDetected"><span class="type-signature">(async) </span>handleTextDetected<span class="signature">(userText)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Handles detected speech input from the user, updates the chat log,
+invokes the help assistant API, and responds using text-to-speech.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>userText</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The transcribed text detected from the user's voice input. Required.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="components_ui_features_ai-user-manual.jsx.html">components/ui/features/ai-user-manual.jsx</a>, <a href="components_ui_features_ai-user-manual.jsx.html#line53">line 53</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A promise that resolves when the help response has been processed and spoken.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;void></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>await handleTextDetected("¿Cómo registro una transacción?");</code></pre>
 
 
 
@@ -9169,13 +9720,13 @@ This schema validates the structure of a goal object.
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AppSidebar">AppSidebar</a></li><li><a href="global.html#GoalListItem">GoalListItem</a></li><li><a href="global.html#STATUS_ICONS">STATUS_ICONS</a></li><li><a href="global.html#STATUS_LABELS">STATUS_LABELS</a></li><li><a href="global.html#STATUS_STYLES">STATUS_STYLES</a></li><li><a href="global.html#STATUS_VARIANT">STATUS_VARIANT</a></li><li><a href="global.html#TRANSACTION_CATEGORIES">TRANSACTION_CATEGORIES</a></li><li><a href="global.html#TRANSACTION_TYPES">TRANSACTION_TYPES</a></li><li><a href="global.html#fetchBudget">fetchBudget</a></li><li><a href="global.html#fetchExpenses">fetchExpenses</a></li><li><a href="global.html#fetchTransactions">fetchTransactions</a></li><li><a href="global.html#formatCurrency">formatCurrency</a></li><li><a href="global.html#getBorderColor">getBorderColor</a></li><li><a href="global.html#getCategoryLabel">getCategoryLabel</a></li><li><a href="global.html#getTypeLabel">getTypeLabel</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleFileChange">handleFileChange</a></li><li><a href="global.html#handleGenerateReports">handleGenerateReports</a></li><li><a href="global.html#handleImportReports">handleImportReports</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#isDateInNowMonth">isDateInNowMonth</a></li><li><a href="global.html#isValidTransaction">isValidTransaction</a></li><li><a href="global.html#isValidTransactionArray">isValidTransactionArray</a></li><li><a href="global.html#loadGoals">loadGoals</a></li><li><a href="global.html#loadTransactions">loadTransactions</a></li><li><a href="global.html#onDelete">onDelete</a></li><li><a href="global.html#onSubmit">onSubmit</a></li><li><a href="global.html#transaccionSchema">transaccionSchema</a></li><li><a href="global.html#useMicVolume">useMicVolume</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AppSidebar">AppSidebar</a></li><li><a href="global.html#GoalListItem">GoalListItem</a></li><li><a href="global.html#STATUS_ICONS">STATUS_ICONS</a></li><li><a href="global.html#STATUS_LABELS">STATUS_LABELS</a></li><li><a href="global.html#STATUS_STYLES">STATUS_STYLES</a></li><li><a href="global.html#STATUS_VARIANT">STATUS_VARIANT</a></li><li><a href="global.html#TRANSACTION_CATEGORIES">TRANSACTION_CATEGORIES</a></li><li><a href="global.html#TRANSACTION_TYPES">TRANSACTION_TYPES</a></li><li><a href="global.html#UserManual">UserManual</a></li><li><a href="global.html#fetchBudget">fetchBudget</a></li><li><a href="global.html#fetchExpenses">fetchExpenses</a></li><li><a href="global.html#fetchTransactions">fetchTransactions</a></li><li><a href="global.html#formatCurrency">formatCurrency</a></li><li><a href="global.html#getBorderColor">getBorderColor</a></li><li><a href="global.html#getCategoryLabel">getCategoryLabel</a></li><li><a href="global.html#getTypeLabel">getTypeLabel</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleFileChange">handleFileChange</a></li><li><a href="global.html#handleGenerateReports">handleGenerateReports</a></li><li><a href="global.html#handleImportReports">handleImportReports</a></li><li><a href="global.html#handleListenClick">handleListenClick</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTextDetected">handleTextDetected</a></li><li><a href="global.html#isDateInNowMonth">isDateInNowMonth</a></li><li><a href="global.html#isValidTransaction">isValidTransaction</a></li><li><a href="global.html#isValidTransactionArray">isValidTransactionArray</a></li><li><a href="global.html#loadGoals">loadGoals</a></li><li><a href="global.html#loadTransactions">loadTransactions</a></li><li><a href="global.html#onDelete">onDelete</a></li><li><a href="global.html#onSubmit">onSubmit</a></li><li><a href="global.html#transaccionSchema">transaccionSchema</a></li><li><a href="global.html#useMicVolume">useMicVolume</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Apr 19 2025 04:32:00 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Apr 19 2025 21:21:49 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
