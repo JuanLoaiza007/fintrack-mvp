@@ -49,18 +49,22 @@ import { useEffect } from "react";
  * - The `isSaveAvailable` prop controls the visibility of the save button.
  * - The `setIsCreateOpen` prop is used to close the form after submission.
  * - The `transaction` prop is used to populate the form with existing transaction data for editing.
+ * - The `formInstance` prop allows for external form management if provided.
  */
 export default function TransactionForm({
   setIsCreateOpen,
   transaction = null,
   isSaveAvailable = true,
+  formInstance = null,
 }) {
   const { notifyTransactionUpdate } = useTransactionContext();
 
-  const form = useForm({
+  const internalForm = useForm({
     resolver: zodResolver(transaccionSchema),
     defaultValues: transaction || defaultTransaccion,
   });
+
+  const form = formInstance || internalForm;
 
   const types = TRANSACTION_TYPES;
   const categories = TRANSACTION_CATEGORIES;

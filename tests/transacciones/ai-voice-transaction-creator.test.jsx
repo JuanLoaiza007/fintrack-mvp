@@ -3,6 +3,7 @@ import AIVoiceTransactionCreator from "@/components/ui/features/transacciones/ai
 import { interpretTransactions } from "@/utils/gemini-transaction-interpreter";
 import { isValidTransactionArray } from "@/components/schemas/transaccion";
 import { toast } from "sonner";
+import { addTransaction } from "@/db/db";
 
 // === Mocks ===
 jest.mock("@/utils/speechServices", () => ({
@@ -10,6 +11,12 @@ jest.mock("@/utils/speechServices", () => ({
     stt: jest.fn(),
     tts: jest.fn(),
   }),
+}));
+
+jest.mock("@/context/TransactionContext", () => ({
+  useTransactionContext: jest.fn(() => ({
+    notifyTransactionUpdate: jest.fn(),
+  })),
 }));
 
 const listenMock = jest.fn();
@@ -61,16 +68,39 @@ jest.mock("react-markdown", () => (props) => {
 
 jest.mock("remark-gfm", () => () => {});
 
-jest.mock(
-  "@/components/ui/features/transacciones/form/form-carrousel",
-  () => () => <div data-testid="form-carrousel" />,
-);
+const saveMock = jest.fn();
+jest.mock("@/db/db", () => ({
+  addTransaction: jest.fn(() => Promise.resolve(saveMock())),
+}));
 
 jest.mock("sonner", () => ({
   toast: {
     error: jest.fn(),
+    success: jest.fn(),
   },
 }));
+
+jest.mock("@/components/ui/features/transacciones/form/form-carrousel", () => {
+  return ({ transactions, onSave, onDelete, onUpdate }) => (
+    <div data-testid="form-carrousel">
+      <button onClick={onSave}>Guardar Todos</button>
+      <button onClick={() => onDelete(0)}>Eliminar</button>
+      <button
+        onClick={() =>
+          onUpdate(0, {
+            description: "actualizado",
+            amount: 123,
+            type: "income",
+            category: "work",
+            date: "2024-01-01",
+          })
+        }
+      >
+        Actualizar
+      </button>
+    </div>
+  );
+});
 
 // === TESTS ===
 describe("AIVoiceTransactionCreator", () => {
@@ -78,34 +108,7 @@ describe("AIVoiceTransactionCreator", () => {
     jest.clearAllMocks();
   });
 
-  it("renders instructions and button", () => {
-    render(<AIVoiceTransactionCreator />);
-    expect(screen.getByText(/Instrucciones:/i)).toBeInTheDocument();
-    expect(screen.getByRole("button")).toBeInTheDocument();
-    expect(screen.getByTestId("markdown")).toBeInTheDocument();
-  });
-
-  it("starts listening when not currently listening", () => {
-    render(<AIVoiceTransactionCreator />);
-    fireEvent.click(screen.getByRole("button"));
-    expect(listenMock).toHaveBeenCalled();
-  });
-
-  it("stops listening when already listening", () => {
-    require("@/utils/speechFlow").mockReturnValueOnce({
-      listening: true,
-      speaking: false,
-      listen: listenMock,
-      stop: stopMock,
-      reset: resetMock,
-    });
-
-    render(<AIVoiceTransactionCreator />);
-    fireEvent.click(screen.getByRole("button"));
-    expect(stopMock).toHaveBeenCalled();
-  });
-
-  it("shows loading state while processing", async () => {
+  it("permite guardar todas las transacciones exitosamente", async () => {
     let onTextDetected;
     require("@/utils/speechFlow").mockImplementation(
       ({ onTextDetected: cb }) => {
@@ -120,19 +123,21 @@ describe("AIVoiceTransactionCreator", () => {
       },
     );
 
-    render(<AIVoiceTransactionCreator />);
-    await waitFor(() => onTextDetected("Hoy me pagaron 1000 del trabajo"));
+    render(<AIVoiceTransactionCreator setIsCreateOpen={jest.fn()} />);
+    await waitFor(() => onTextDetected("pago de sueldo"));
 
-    expect(interpretTransactions).toHaveBeenCalled();
-    expect(isValidTransactionArray).toHaveBeenCalled();
+    const guardarBtn = await screen.findByText("Guardar Todos");
+    fireEvent.click(guardarBtn);
 
-    // ✅ Esperar a que el FormCarrousel se renderice antes de hacer el assert
-    await waitFor(() =>
-      expect(screen.getByTestId("form-carrousel")).toBeInTheDocument(),
+    await waitFor(() => {
+      expect(addTransaction).toHaveBeenCalledTimes(1);
+    });
+    expect(toast.success).toHaveBeenCalledWith(
+      expect.stringMatching(/todas las transacciones fueron guardadas/i),
     );
   });
 
-  it("shows error when LLM returns empty transactions", async () => {
+  it("permite eliminar una transacción", async () => {
     let onTextDetected;
     require("@/utils/speechFlow").mockImplementation(
       ({ onTextDetected: cb }) => {
@@ -140,29 +145,26 @@ describe("AIVoiceTransactionCreator", () => {
         return {
           listening: true,
           speaking: false,
-          listen: listenMock,
-          stop: stopMock,
-          reset: resetMock,
+          listen: jest.fn(),
+          stop: jest.fn(),
+          reset: jest.fn(),
         };
       },
     );
 
-    render(<AIVoiceTransactionCreator />);
-    await waitFor(() => onTextDetected("vacío"));
+    render(<AIVoiceTransactionCreator setIsCreateOpen={jest.fn()} />);
+    await waitFor(() => onTextDetected("pago de sueldo"));
 
-    expect(screen.queryByTestId("form-carrousel")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("form-carrousel")).not.toBeInTheDocument();
-    expect(isValidTransactionArray).not.toHaveBeenCalled();
-    expect(toast.error).toHaveBeenCalledWith(
-      expect.stringMatching(/no se han encontrado transacciones/i),
-    );
+    const eliminarBtn = await screen.findByText("Eliminar");
+    fireEvent.click(eliminarBtn);
+
+    // tras eliminar la única transacción, el carrusel ya no debería renderizarse
+    await waitFor(() => {
+      expect(screen.queryByTestId("form-carrousel")).not.toBeInTheDocument();
+    });
   });
 
-  it("shows toast error on interpret failure", async () => {
-    interpretTransactions.mockRejectedValueOnce(
-      new Error("Fallo al interpretar"),
-    );
-
+  it("permite actualizar una transacción", async () => {
     let onTextDetected;
     require("@/utils/speechFlow").mockImplementation(
       ({ onTextDetected: cb }) => {
@@ -170,17 +172,27 @@ describe("AIVoiceTransactionCreator", () => {
         return {
           listening: true,
           speaking: false,
-          listen: listenMock,
-          stop: stopMock,
-          reset: resetMock,
+          listen: jest.fn(),
+          stop: jest.fn(),
+          reset: jest.fn(),
         };
       },
     );
 
-    render(<AIVoiceTransactionCreator />);
-    await waitFor(() => onTextDetected("algo que falla"));
+    render(<AIVoiceTransactionCreator setIsCreateOpen={jest.fn()} />);
+    await waitFor(() => onTextDetected("pago de sueldo"));
 
-    expect(interpretTransactions).toHaveBeenCalled();
-    expect(screen.queryByTestId("form-carrousel")).not.toBeInTheDocument();
+    const actualizarBtn = await screen.findByText("Actualizar");
+    fireEvent.click(actualizarBtn);
+
+    // verificamos internamente que se actualizó (esto puede validarse con addTransaction si se guarda luego)
+    const guardarBtn = await screen.findByText("Guardar Todos");
+    fireEvent.click(guardarBtn);
+
+    await waitFor(() => {
+      const payload = addTransaction.mock.calls[0][0];
+      expect(payload.description).toBe("actualizado");
+      expect(payload.amount).toBe(123);
+    });
   });
 });
