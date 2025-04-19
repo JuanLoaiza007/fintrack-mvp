@@ -71,7 +71,7 @@ export async function askUsageHelp(pregunta) {
   const key = "help_request_log";
   const historial = JSON.parse(localStorage.getItem(key)) || [];
   const ahora = Date.now();
-  const recientes = historial.filter(ts => ahora - ts < 60000);
+  const recientes = historial.filter((ts) => ahora - ts < 60000);
 
   // Limit of 10 help requests per minute
   if (recientes.length >= 10) {
@@ -81,7 +81,8 @@ export async function askUsageHelp(pregunta) {
   localStorage.setItem(key, JSON.stringify(recientes));
 
   try {
-    const result = await model.startChat({ generationConfig, history: [] })
+    const result = await model
+      .startChat({ generationConfig, history: [] })
       .sendMessage(pregunta);
     return result.response.text();
   } catch (error) {
