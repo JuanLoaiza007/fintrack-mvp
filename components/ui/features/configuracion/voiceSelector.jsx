@@ -11,13 +11,19 @@
  * @example
  * <VoiceSelector />
  */
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
 import { elevenLabsTTS } from "../../../../utils/elevenlabsTTS.js";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const voices = [
   { name: "George", id: "JBFqnCBsd6RMkjVDRZzb" },
@@ -39,7 +45,10 @@ export default function VoiceSelector() {
       setIsPlaying(true);
       // Cancela cualquier audio que esté sonando antes de empezar
       elevenLabsTTS.cancel();
-      await elevenLabsTTS.speak("Hola, esta es una prueba de voz", selectedVoice);
+      await elevenLabsTTS.speak(
+        "Hola, esta es una prueba de voz",
+        selectedVoice,
+      );
     } catch (error) {
       console.error("Error reproduciendo voz:", error);
     } finally {

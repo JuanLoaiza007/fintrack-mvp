@@ -1,4 +1,4 @@
-import ConfigModule from  "@/components/ui/features/configuracion/module";
+import ConfigModule from "@/components/ui/features/configuracion/module";
 
 /**
  * Configuration page component.

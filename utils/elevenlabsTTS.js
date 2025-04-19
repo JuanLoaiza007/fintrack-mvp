@@ -4,7 +4,7 @@ const client = new ElevenLabsClient({
   apiKey: process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY,
 });
 
-const DEFAULT_VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"; 
+const DEFAULT_VOICE_ID = "JBFqnCBsd6RMkjVDRZzb";
 
 let currentAudio = null;
 
@@ -102,7 +102,7 @@ export const elevenLabsTTS = {
    * await elevenLabsTTS.speak('This is an example.');
    */
   speak: async (text, voiceId = DEFAULT_VOICE_ID) => {
-    voiceId = localStorage.getItem('selectedVoiceId') || DEFAULT_VOICE_ID;
+    voiceId = localStorage.getItem("selectedVoiceId") || DEFAULT_VOICE_ID;
     if (currentAudio) {
       currentAudio.pause();
       currentAudio = null;

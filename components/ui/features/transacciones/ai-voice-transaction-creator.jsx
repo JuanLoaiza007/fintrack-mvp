@@ -90,13 +90,13 @@ export default function AIVoiceTransactionCreator() {
         appendMessage("✅ Es posible crear las transacciones");
       } else {
         appendMessage(
-          "❌ No se ha podido interpretar las transacciones, intente nuevamente."
+          "❌ No se ha podido interpretar las transacciones, intente nuevamente.",
         );
       }
     } catch (err) {
       console.error("❌ Error al interpretar transacción:", err);
       appendMessage(
-        "❌ Hubo un error interno al interpretar, por favor intente nuevamente."
+        "❌ Hubo un error interno al interpretar, por favor intente nuevamente.",
       );
     } finally {
       setIsProcessing(false);

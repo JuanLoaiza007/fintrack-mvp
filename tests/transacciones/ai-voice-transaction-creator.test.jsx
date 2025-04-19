@@ -24,7 +24,7 @@ jest.mock("@/utils/gemini-transaction-interpreter", () => ({
       transactions: texto.includes("vacío")
         ? []
         : [{ fecha: "2024-01-01", monto: 1000 }],
-    })
+    }),
   ),
 }));
 
