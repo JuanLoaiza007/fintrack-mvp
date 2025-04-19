@@ -40,6 +40,11 @@ const items = [
     link: "/reportes",
     icon: ChartArea,
   },
+  {	
+    title: "Configuración",
+    link: "/configuracion",
+    icon: ChartArea,
+  },
 ];
 
 /**
