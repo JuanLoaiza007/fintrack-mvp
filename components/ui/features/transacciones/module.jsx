@@ -40,6 +40,8 @@ import AIVoiceTransactionCreator from "./ai-voice-transaction-creator";
  * - Dialog: A component for rendering modal dialogs.
  * - DialogContent, DialogHeader, DialogTitle: Subcomponents for structuring the dialog.
  * - TransactionForm: A form component for creating a new transaction.
+ * - TransactionHistory: A component that displays the history of transactions.
+ * - AIVoiceTransactionCreator: A component that allows creating transactions using voice input.
  */
 export default function TransactionModule() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -47,7 +49,7 @@ export default function TransactionModule() {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   const handleCreate = () => {
-    setSelectedTransaction(null); // Reseteamos para que sea una nueva transacción
+    setSelectedTransaction(null);
     setIsCreateOpen(true);
   };
 
@@ -57,7 +59,7 @@ export default function TransactionModule() {
 
   const handleEdit = (transaction) => {
     setSelectedTransaction(transaction);
-    setIsCreateOpen(true); // Corregido
+    setIsCreateOpen(true);
   };
 
   return (
@@ -76,10 +78,12 @@ export default function TransactionModule() {
         open={isCreateWithAIOpen}
         onOpenChange={(open) => setIsCreateWithAIOpen(open)}
       >
-        <DialogContent>
+        <DialogContent className="min-w-100">
           <DialogHeader>
             <DialogTitle>Crear Transacción</DialogTitle>
-            <AIVoiceTransactionCreator />
+            <AIVoiceTransactionCreator
+              setIsCreateOpen={setIsCreateWithAIOpen}
+            />
           </DialogHeader>
         </DialogContent>
       </Dialog>
