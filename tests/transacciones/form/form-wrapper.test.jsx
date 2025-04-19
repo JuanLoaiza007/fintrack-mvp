@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { useForm } from "react-hook-form";
 import FormWrapper from "@/components/ui/features/transacciones/form/form-wrapper";
 import TransactionForm from "@/components/ui/features/transacciones/form";
+import { Button } from "@/components/ui/button";
 
 // Mock del componente interno para evitar su lógica y enfocar el test en el wrapper
 jest.mock("@/components/ui/features/transacciones/form", () =>
@@ -28,20 +29,34 @@ describe("FormWrapper", () => {
     essential: true,
   };
 
+  const mockOnUpdate = jest.fn();
+  const mockOnDelete = jest.fn();
+
   beforeEach(() => {
-    // Mock básico del hook useForm para devolver métodos falsos
+    jest.clearAllMocks();
+
     useForm.mockReturnValue({
       reset: jest.fn(),
       register: jest.fn(),
       handleSubmit: jest.fn(),
-      watch: jest.fn(),
+      watch: jest.fn((cb) => {
+        cb(mockTransaction);
+        return { unsubscribe: jest.fn() };
+      }),
       formState: { errors: {} },
       setValue: jest.fn(),
     });
   });
 
   it("debería renderizar TransactionForm con los props correctos", () => {
-    render(<FormWrapper transaction={mockTransaction} />);
+    render(
+      <FormWrapper
+        transaction={mockTransaction}
+        index={0}
+        onUpdate={mockOnUpdate}
+        onDelete={mockOnDelete}
+      />,
+    );
 
     const form = screen.getByTestId("transaction-form");
     expect(form).toBeInTheDocument();
@@ -50,47 +65,48 @@ describe("FormWrapper", () => {
         transaction: mockTransaction,
         isSaveAvailable: false,
         setIsCreateOpen: expect.any(Function),
+        formInstance: expect.any(Object),
       }),
       {},
     );
   });
 
-  it("debería resetear el formulario cuando cambia el prop 'transaction'", () => {
-    const resetMock = jest.fn();
-
-    // Primera instancia
-    useForm.mockReturnValueOnce({
-      reset: resetMock,
-      register: jest.fn(),
-      handleSubmit: jest.fn(),
-      watch: jest.fn(),
-      formState: { errors: {} },
-      setValue: jest.fn(),
-    });
-
-    const { rerender } = render(
-      <FormWrapper transaction={{ ...mockTransaction }} />,
+  it("debería pasar accesibilidad mínima (presencia de rol)", () => {
+    render(
+      <FormWrapper
+        transaction={mockTransaction}
+        index={0}
+        onUpdate={mockOnUpdate}
+        onDelete={mockOnDelete}
+      />,
     );
-
-    // Segunda instancia (simula que react-hook-form se vuelve a inicializar)
-    const resetMockNew = jest.fn();
-    useForm.mockReturnValueOnce({
-      reset: resetMockNew,
-      register: jest.fn(),
-      handleSubmit: jest.fn(),
-      watch: jest.fn(),
-      formState: { errors: {} },
-      setValue: jest.fn(),
-    });
-
-    const newTransaction = { ...mockTransaction, amount: 999 };
-    rerender(<FormWrapper transaction={newTransaction} />);
-
-    expect(resetMockNew).toHaveBeenCalledWith(newTransaction);
+    expect(screen.getByTestId("transaction-form")).toBeInTheDocument();
   });
 
-  it("debería pasar accesibilidad mínima (presencia de rol)", () => {
-    render(<FormWrapper transaction={mockTransaction} />);
-    expect(screen.getByTestId("transaction-form")).toBeInTheDocument();
+  it("debería ejecutar onDelete cuando se hace clic en el botón de eliminar", () => {
+    render(
+      <FormWrapper
+        transaction={mockTransaction}
+        index={0}
+        onUpdate={mockOnUpdate}
+        onDelete={mockOnDelete}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button"));
+    expect(mockOnDelete).toHaveBeenCalled();
+  });
+
+  it("debería llamar a onUpdate cuando los datos del formulario cambian", () => {
+    render(
+      <FormWrapper
+        transaction={mockTransaction}
+        index={0}
+        onUpdate={mockOnUpdate}
+        onDelete={mockOnDelete}
+      />,
+    );
+
+    expect(mockOnUpdate).toHaveBeenCalledWith(0, mockTransaction);
   });
 });

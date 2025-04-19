@@ -5,53 +5,62 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from "@/components/ui/carousel";
-import { useState } from "react";
 import FormWrapper from "./form-wrapper";
+import { Button } from "@/components/ui/button";
 
 /**
- * FormCarrousel component renders a carousel of transaction forms.
+ * A carousel-based form component for managing and editing transactions.
  *
  * @component
- * @param {Object[]} props.transactions - Array of transaction objects to display in the carousel. Required.
- * @remarks This component uses the `useState` hook to manage local state for transactions.
- * @returns {JSX.Element} A carousel displaying transaction forms with navigation controls.
+ * @param {Object[]} transactions - An array of transaction objects to display in the carousel. Required.
+ * @param {Function} onSave - Callback function triggered when the "Guardar Todos" button is clicked. Required.
+ * @param {Function} onDelete - Callback function triggered to delete a transaction by its index. Required.
+ * @param {Function} onUpdate - Callback function triggered to update a transaction. Required.
+ * @remarks This component uses a custom `Carousel` component for navigation and a `FormWrapper` for editing transactions.
+ * @returns {JSX.Element} A carousel with transaction forms and a save button.
  * @example
  * const transactions = [
  *   { id: 1, name: "Transaction 1", amount: 100 },
  *   { id: 2, name: "Transaction 2", amount: 200 },
  * ];
  *
- * <FormCarrousel transactions={transactions} />
+ * function handleSave() {
+ *   console.log("Save all transactions");
+ * }
+ *
+ * function handleDelete(index) {
+ *   console.log(`Delete transaction at index ${index}`);
+ * }
+ *
+ * function handleUpdate(index, updatedTransaction) {
+ *   console.log(`Update transaction at index ${index}`, updatedTransaction);
+ * }
+ *
+ * <FormCarrousel
+ *   transactions={transactions}
+ *   onSave={handleSave}
+ *   onDelete={handleDelete}
+ *   onUpdate={handleUpdate}
+ * />
  */
-export default function FormCarrousel({ transactions }) {
-  const [localTransactions, setLocalTransactions] = useState([...transactions]);
-
-  /**
-   * Updates a specific transaction in the local state with new data.
-   *
-   * @param {number} index - The index of the transaction to update. Required.
-   * @param {Object} updatedData - The updated transaction data. Required.
-   * @returns {void} This function does not return a value.
-   * @example
-   * handleUpdate(0, { id: 1, name: "Updated Transaction", amount: 150 });
-   */
-  const handleUpdate = (index, updatedData) => {
-    const updated = [...localTransactions];
-    updated[index] = updatedData;
-    setLocalTransactions(updated);
-  };
-
+export default function FormCarrousel({
+  transactions,
+  onSave,
+  onDelete,
+  onUpdate,
+}) {
   return (
     <div className="h-full flex flex-col items-center justify-between gap-6">
       <Carousel className="w-[380px]">
         <CarouselContent>
-          {localTransactions.map((transaction, index) => (
+          {transactions.map((transaction, index) => (
             <CarouselItem key={index} className="p-1">
               <div className="p-4 rounded bg-white">
                 <FormWrapper
                   index={index}
                   transaction={transaction}
-                  onUpdate={handleUpdate}
+                  onUpdate={onUpdate}
+                  onDelete={() => onDelete(index)}
                 />
               </div>
             </CarouselItem>
@@ -60,8 +69,13 @@ export default function FormCarrousel({ transactions }) {
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
-      <div className="text-sm text-gray-500">
-        {localTransactions.length} transacciones
+      <div className="flex flex-col items-center gap-4">
+        <div>
+          <Button onClick={onSave}>Guardar Todos</Button>
+        </div>
+        <div className="text-sm text-gray-500">
+          {transactions.length} transacciones
+        </div>
       </div>
     </div>
   );

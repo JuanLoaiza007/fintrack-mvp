@@ -100,7 +100,7 @@ describe("AiChat Component", () => {
 
     // El botón puede deshabilitarse luego del click para evitar múltiples activaciones
     expect(micButton).toBeEnabled();
-    await userEvent.click(micButton);    
+    await userEvent.click(micButton);
   });
 
   it("renders chat messages", () => {

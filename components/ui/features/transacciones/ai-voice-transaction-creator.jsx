@@ -13,6 +13,8 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import FormCarrousel from "./form/form-carrousel";
 import { toast } from "sonner";
+import { addTransaction } from "@/db/db";
+import { useTransactionContext } from "@/context/TransactionContext";
 
 const markdownInstructions = `
 Cuéntale a la IA tus **ingresos** y **gastos** para que los registre como transacciones.
@@ -29,19 +31,20 @@ Incluye detalles como:
 `;
 
 /**
- * AIVoiceTransactionCreator component that enables users to create transactions via voice input.
- * The component listens to user speech, processes it with the Gemini utility, and interprets the detected transactions.
- * It displays the results and allows users to interact with the system through a button to start/stop voice recording.
+ * A React component that enables users to create transactions using voice commands interpreted by AI.
  *
  * @component
+ * @param {Object} props - The component props.
+ * @param {Function} props.setIsCreateOpen - A function to toggle the visibility of the transaction creator modal. Required.
+ * @remarks This component uses multiple hooks, including `useState`, `useEffect`, and custom hooks like `useSpeechFlow` and `useMicVolume`.
+ * It also integrates with external services for speech-to-text (STT) and text-to-speech (TTS) functionalities.
+ * @returns {JSX.Element} A UI for voice-based transaction creation, including instructions, a recording button, and a transaction form carousel.
  * @example
- * return (
- *   <AIVoiceTransactionCreator />
- * )
- *
- * @returns {JSX.Element} - The AIVoiceTransactionCreator component.
+ * <AIVoiceTransactionCreator setIsCreateOpen={setIsCreateOpen} />
  */
-export default function AIVoiceTransactionCreator() {
+export default function AIVoiceTransactionCreator({ setIsCreateOpen }) {
+  const { notifyTransactionUpdate } = useTransactionContext();
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [transacciones, setTransacciones] = useState([]);
 
@@ -54,7 +57,6 @@ export default function AIVoiceTransactionCreator() {
    * @param {string} texto - The detected speech input text.
    */
   const handleTextDetected = async (texto) => {
-    console.clear();
     setIsProcessing(true);
 
     try {
@@ -65,7 +67,7 @@ export default function AIVoiceTransactionCreator() {
         throw new Error("El LLM no ha podido interpretar las transacciones");
 
       if (transactions.length === 0) {
-        toast.error("❌ No se han encontrado transacciones en el texto.");
+        toast.error("No se han encontrado transacciones en el texto.");
         return;
       }
 
@@ -73,7 +75,7 @@ export default function AIVoiceTransactionCreator() {
 
       if (!valid) {
         toast.error(
-          `❌ No se han podido interpretar las transacciones, intente nuevamente. ${errors
+          `No se han podido interpretar las transacciones, intente nuevamente. ${errors
             .map((e) => e.message)
             .join(", ")}`,
         );
@@ -82,12 +84,85 @@ export default function AIVoiceTransactionCreator() {
 
       setTransacciones(transactions);
     } catch (err) {
-      console.error("❌ Error al interpretar transacción:", err);
-      toast.error("❌ Error al interpretar transacción: " + err.message);
+      console.error("Error al interpretar transacción:", err);
+      toast.error("Error al interpretar transacción: " + err.message);
     } finally {
       setIsProcessing(false);
       speech.reset();
     }
+  };
+
+  /**
+   * Saves all transactions to the database, handling errors for individual transactions
+   * and notifying the user of the overall result.
+   *
+   * @async
+   * @function
+   * @throws {Error} If there is a general error while saving all transactions.
+   * @returns {Promise<void>} Resolves when all transactions are saved or errors are handled.
+   * @example
+   * await handleSaveAll(); // Saves all transactions in the current state.
+   */
+  const handleSaveAll = async () => {
+    try {
+      const promises = [];
+
+      transacciones.forEach((transaction) => {
+        const payload = { ...transaction };
+        if (payload.type === "income") delete payload.essential;
+
+        const promise = addTransaction(payload).catch((err) => {
+          console.error("Error al guardar transacción:", err);
+          toast.error(`Error al guardar transacción`);
+        });
+
+        promises.push(promise);
+      });
+
+      await Promise.all(promises);
+
+      toast.success(
+        "✅ Todas las transacciones fueron guardadas exitosamente.",
+      );
+    } catch (err) {
+      toast.error("Error general al guardar todas las transacciones");
+      console.error(
+        `Error general al guardar todas las transacciones: ${err.message}`,
+      );
+      setTransacciones([]);
+    } finally {
+      notifyTransactionUpdate();
+      setIsCreateOpen(false);
+    }
+  };
+
+  /**
+   * Deletes a transaction from the local state by its index.
+   *
+   * @param {number} index - The index of the transaction to delete. Required.
+   * @returns {void} This function does not return a value.
+   * @example
+   * handleDelete(0); // Deletes the first transaction in the list.
+   */
+  const handleDelete = (index) => {
+    const updated = [...transacciones];
+    updated.splice(index, 1);
+    setTransacciones(updated);
+  };
+
+  /**
+   * Updates a specific transaction in the local state with new data.
+   *
+   * @param {number} index - The index of the transaction to update. Required.
+   * @param {Object} updatedData - The updated transaction data. Required.
+   * @returns {void} This function does not return a value.
+   * @example
+   * handleUpdate(0, { id: 1, name: "Updated Transaction", amount: 150 });
+   */
+  const handleUpdate = (index, updatedData) => {
+    const updated = [...transacciones];
+    updated[index] = updatedData;
+    setTransacciones(updated);
   };
 
   /**
@@ -175,7 +250,12 @@ export default function AIVoiceTransactionCreator() {
           )}
         </div>
       ) : (
-        <FormCarrousel transactions={transacciones} />
+        <FormCarrousel
+          transactions={transacciones}
+          onSave={handleSaveAll}
+          onDelete={handleDelete}
+          onUpdate={handleUpdate}
+        />
       )}
     </>
   );
