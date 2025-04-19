@@ -4,7 +4,7 @@ const client = new ElevenLabsClient({
   apiKey: process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY,
 });
 
-const voiceId = "JBFqnCBsd6RMkjVDRZzb";
+const DEFAULT_VOICE_ID = "JBFqnCBsd6RMkjVDRZzb";
 
 let currentAudio = null;
 
@@ -34,7 +34,7 @@ const decodeBase64Audio = (base64) => {
  * @example
  * const audioBlob = await generateAudioFromText('Hello, world!');
  */
-export const generateAudioFromText = async (text) => {
+export const generateAudioFromText = async (text, voiceId) => {
   const response = await client.textToSpeech.streamWithTimestamps(voiceId, {
     output_format: "mp3_44100_128",
     text,
@@ -95,17 +95,19 @@ export const elevenLabsTTS = {
    * Converts text to speech and plays the resulting audio.
    *
    * @param {string} text - The text to be spoken (required).
+   * @param {string} [voiceId=DEFAULT_VOICE_ID] - The voice ID to use for text-to-speech (optional).
    * @returns {Promise<void>} A promise that resolves when the audio playback starts.
    * @throws {Error} If the text-to-speech conversion fails.
    * @example
    * await elevenLabsTTS.speak('This is an example.');
    */
-  speak: async (text) => {
+  speak: async (text, voiceId = DEFAULT_VOICE_ID) => {
+    voiceId = localStorage.getItem("selectedVoiceId") || DEFAULT_VOICE_ID;
     if (currentAudio) {
       currentAudio.pause();
       currentAudio = null;
     }
-    const blob = await generateAudioFromText(text);
+    const blob = await generateAudioFromText(text, voiceId);
     const audio = new Audio(createAudioURL(blob));
     currentAudio = audio;
     await audio.play();
