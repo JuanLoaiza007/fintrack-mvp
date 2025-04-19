@@ -35,7 +35,7 @@ const voices = [
 ];
 
 export default function VoiceSelector() {
-  const [selectedVoice, setSelectedVoice] = useState(null);
+  const [selectedVoice, setSelectedVoice] = useState("JBFqnCBsd6RMkjVDRZzb");
   const [isPlaying, setIsPlaying] = useState(false);
 
   const handlePlay = async () => {
@@ -83,6 +83,7 @@ export default function VoiceSelector() {
       </Select>
 
       <Button
+        Role="button"
         variant="ghost"
         size="icon"
         disabled={!selectedVoice || isPlaying}
