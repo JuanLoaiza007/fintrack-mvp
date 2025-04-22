@@ -107,7 +107,7 @@ export const elevenLabsTTS = {
    *   console.log('Audio has finished playing.');
    * });
    */
-  speak: async (text, voiceId = DEFAULT_VOICE_ID, onEndCallback = () => { }) => {
+  speak: async (text, voiceId = DEFAULT_VOICE_ID, onEndCallback = () => {}) => {
     voiceId = localStorage.getItem("selectedVoiceId") || DEFAULT_VOICE_ID;
     if (currentAudio) {
       currentAudio.pause();

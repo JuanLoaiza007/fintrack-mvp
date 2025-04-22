@@ -168,11 +168,13 @@ describe("elevenLabsTTS", () => {
 
     const { elevenLabsTTS } = await import("../../utils/elevenlabsTTS");
 
-    jest.spyOn(elevenLabsTTS, "speak").mockImplementation(async (text, voiceId, onEndCallback) => {
-      mockAudio.onended = onEndCallback;
-      await mockAudio.play();
-      mockAudio.onended();
-    });
+    jest
+      .spyOn(elevenLabsTTS, "speak")
+      .mockImplementation(async (text, voiceId, onEndCallback) => {
+        mockAudio.onended = onEndCallback;
+        await mockAudio.play();
+        mockAudio.onended();
+      });
 
     await elevenLabsTTS.speak("Test", undefined, mockCallback);
 

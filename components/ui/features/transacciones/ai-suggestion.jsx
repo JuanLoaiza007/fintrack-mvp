@@ -39,7 +39,7 @@ export default function AISuggestion() {
   const [presupuesto, setPresupuesto] = useState(null);
   const [showChat, setShowChat] = useState(false);
   const { tts } = getSpeechServices();
-  const [playing, setPlaying] = useState(false)
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     async function fetchGoals() {
@@ -93,8 +93,10 @@ export default function AISuggestion() {
       presupuesto,
     );
     setSuggestion(response);
-    tts.speak(response, undefined, () => { setPlaying(false) })
-    setPlaying(true)
+    tts.speak(response, undefined, () => {
+      setPlaying(false);
+    });
+    setPlaying(true);
     setLoading(false);
     setShowSuggestion(true);
   }
@@ -110,15 +112,23 @@ export default function AISuggestion() {
    */
   async function handleTTS() {
     if (playing) {
-      tts.cancel()
-      setPlaying(false)
+      tts.cancel();
+      setPlaying(false);
     } else {
       if (suggestion == "") {
-        tts.speak("Presiona generar para obtener una sugerencia", undefined, () => { setPlaying(false) })
+        tts.speak(
+          "Presiona generar para obtener una sugerencia",
+          undefined,
+          () => {
+            setPlaying(false);
+          },
+        );
       } else {
-        tts.speak(suggestion, undefined, () => { setPlaying(false) })
+        tts.speak(suggestion, undefined, () => {
+          setPlaying(false);
+        });
       }
-      setPlaying(true)
+      setPlaying(true);
     }
   }
 
@@ -170,11 +180,7 @@ export default function AISuggestion() {
               className="py-2 px-4 rounded-lg flex items-center gap-2 justify-center bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
               aria-label="Start Stop TTS"
             >
-              {playing ? (
-                <Square size={16} />
-              ) : (
-                <Play size={16} />
-              )}
+              {playing ? <Square size={16} /> : <Play size={16} />}
             </Button>
             <Button
               variant="default"
