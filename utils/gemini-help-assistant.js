@@ -29,7 +29,7 @@ Funciones disponibles:
   • Registro por voz: usa el botón "+" (botón morado) con IA para dictar transacciones por comando de voz.
   • Editar/Eliminar: desde la lista de transacciones selecciona el ícono de lápiz o basurero.
   • Filtrar: por periodo, tipo, categoría, fecha, nombre o cantidad.
-  • Sugerencias IA: en la ventana de transacciones, pulsa el botón morado para pedir recomendaciones y mantener conversación interactiva basada en las transacciones.
+  • Sugerencias IA: en la ventana de transacciones, pulsa el botón morado donde se puede pedir recomendaciones, escuchar el resumen que se genera con el botón de play o mantener una conversación interactiva basada en las transacciones.
 - Presupuesto:
   • Definir: en "Presupuestos" haz clic en "+ Define tu presupuesto", ingresa el monto y guarda.
   • Editar/Eliminar: íconos de lápiz o basurero junto a la meta.
