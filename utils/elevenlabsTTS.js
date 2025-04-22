@@ -26,6 +26,17 @@ const decodeBase64Audio = (base64) => {
 };
 
 /**
+ * Truncates text to a maximum number of characters.
+ *
+ * @param {string} text - The original text.
+ * @param {number} maxLength - The maximum number of characters.
+ * @returns {string} The truncated text not exceeding maxLength.
+ */
+const limitTextLength = (text, maxLength = 200) => {
+  return text.length <= maxLength ? text : text.slice(0, maxLength);
+};
+
+/**
  * Generates an audio Blob from the given text using the ElevenLabs API.
  *
  * @param {string} text - The text to convert to audio (required).
@@ -82,7 +93,7 @@ export const downloadAudio = (url, filename = "tts-audio.mp3") => {
 };
 
 /**
- * Provides text-to-speech functionality using ElevenLabs API.
+ * Provides text-to-speech functionality using the ElevenLabs API.
  *
  * @property {function(string): Promise<void>} speak - Converts text to speech and plays the audio.
  * @property {function(): void} cancel - Stops the currently playing audio, if any.
@@ -108,17 +119,23 @@ export const elevenLabsTTS = {
    * });
    */
   speak: async (text, voiceId = DEFAULT_VOICE_ID, onEndCallback = () => {}) => {
+    // Retrieve selected voice or default
     voiceId = localStorage.getItem("selectedVoiceId") || DEFAULT_VOICE_ID;
+
+    // Truncate incoming text to first 200 characters automatically
+    const safeText = limitTextLength(text, 200);
+
+    // Stop any currently playing audio
     if (currentAudio) {
       currentAudio.pause();
       currentAudio = null;
     }
-    const blob = await generateAudioFromText(text, voiceId);
+
+    // Generate and play new audio
+    const blob = await generateAudioFromText(safeText, voiceId);
     const audio = new Audio(createAudioURL(blob));
     currentAudio = audio;
-    audio.onended = () => {
-      onEndCallback();
-    };
+    audio.onended = () => onEndCallback();
     await audio.play();
   },
 
