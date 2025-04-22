@@ -160,9 +160,7 @@ describe("AISuggestion Component", () => {
       screen.getByRole("button", { name: /generate ia suggestion/i }),
     );
     await waitFor(() => {
-      expect(
-        screen.getByText(/cancel test suggestion/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/cancel test suggestion/i)).toBeInTheDocument();
     });
     const ttsButton = screen.getByRole("button", { name: /start stop tts/i });
     // start playback
