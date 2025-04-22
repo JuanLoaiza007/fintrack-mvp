@@ -8,14 +8,12 @@ global.navigator.mediaDevices = {
   }),
 };
 
-// Mock de MediaRecorder actualizado
 global.MediaRecorder = class {
   constructor() {
     this.state = "inactive";
     this.ondataavailable = null;
     this.onstop = null;
 
-    // Definir `stop` como mock
     this.stop = jest.fn(() => {
       this.state = "inactive";
       if (this.onstop) this.onstop();
@@ -34,7 +32,7 @@ global.MediaRecorder = class {
           this.state = "inactive";
           this.onstop();
         }
-      }, 100); // Simula un pequeño delay
+      }, 100);
     });
   }
 };
@@ -45,7 +43,7 @@ global.AudioContext = class {
       fftSize: 2048,
       getByteTimeDomainData: jest.fn((data) => {
         for (let i = 0; i < data.length; i++) {
-          data[i] = 128; // Valor constante = silencio
+          data[i] = 128;
         }
       }),
     }));
@@ -71,7 +69,7 @@ jest.mock("elevenlabs", () => {
   };
 });
 
-jest.useFakeTimers(); // Para controlar setTimeout usado en el mock de MediaRecorder
+jest.useFakeTimers();
 
 describe("useElevenLabsSTT", () => {
   beforeEach(() => {
@@ -95,22 +93,14 @@ describe("useElevenLabsSTT", () => {
     await act(async () => {
       await result.current.start();
       jest.runAllTimers();
-
-      // Asegurarnos de que la promesa se resuelva correctamente
-      await Promise.resolve(); // Asegura que las microtareas se resuelvan
+      await Promise.resolve();
     });
-
-    console.log(
-      "Transcript después de ejecutar todo:",
-      result.current.transcript,
-    );
 
     expect(result.current.listening).toBe(false);
     expect(result.current.transcript).toBe("Texto de prueba");
   });
 
   it("debería manejar el error si la conversión de audio falla", async () => {
-    // Hacemos que `convert` lance un error
     jest.mock("elevenlabs", () => {
       return {
         ElevenLabsClient: jest.fn().mockImplementation(() => {
@@ -135,7 +125,6 @@ describe("useElevenLabsSTT", () => {
 
     expect(result.current.listening).toBe(false);
     expect(result.current.transcript).toBe("Texto de prueba");
-    // Aquí podrías verificar si el error se muestra en consola o hacer alguna comprobación adicional
   });
 
   it("debería restablecer el transcript correctamente", async () => {
@@ -147,10 +136,8 @@ describe("useElevenLabsSTT", () => {
       await Promise.resolve();
     });
 
-    // Cambiar el transcript
     expect(result.current.transcript).toBe("Texto de prueba");
 
-    // Restablecer el transcript
     act(() => {
       result.current.resetTranscript();
     });
@@ -162,5 +149,33 @@ describe("useElevenLabsSTT", () => {
     const { result } = renderHook(() => useElevenLabsSTT());
 
     expect(result.current.supportsSpeechRecognition).toBe(true);
+  });
+});
+
+describe("elevenLabsTTS", () => {
+  it("debería llamar onEndCallback cuando termina el audio", async () => {
+    const mockCallback = jest.fn();
+
+    const mockPlay = jest.fn().mockResolvedValue();
+    const mockPause = jest.fn();
+    const mockAudio = {
+      play: mockPlay,
+      pause: mockPause,
+      onended: null,
+    };
+
+    global.Audio = jest.fn(() => mockAudio);
+
+    const { elevenLabsTTS } = await import("../../utils/elevenlabsTTS");
+
+    jest.spyOn(elevenLabsTTS, "speak").mockImplementation(async (text, voiceId, onEndCallback) => {
+      mockAudio.onended = onEndCallback;
+      await mockAudio.play();
+      mockAudio.onended();
+    });
+
+    await elevenLabsTTS.speak("Test", undefined, mockCallback);
+
+    expect(mockCallback).toHaveBeenCalled();
   });
 });
