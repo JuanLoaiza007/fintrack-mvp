@@ -19,14 +19,16 @@
  * }
  */
 import { useState, useEffect } from "react";
-import { request_gemini } from "@/utils/gemini";
+import { generateFinancialSummary } from "@/utils/gemini";
 import { getGoals, getBudget } from "@/db/db";
 import { isDateInNowMonth } from "@/lib/utils";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { RefreshCcw, X, WandSparkles } from "lucide-react";
+import { RefreshCcw, X, WandSparkles, Mic, Play, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTransactionContext } from "@/context/TransactionContext";
+import AiChat from "./ai-chat";
+import { getSpeechServices } from "@/utils/speechServices";
 
 export default function AISuggestion() {
   const { iaTransactions } = useTransactionContext();
@@ -35,6 +37,9 @@ export default function AISuggestion() {
   const [showSuggestion, setShowSuggestion] = useState(false);
   const [metaAhorro, setMetaAhorro] = useState(null);
   const [presupuesto, setPresupuesto] = useState(null);
+  const [showChat, setShowChat] = useState(false);
+  const { tts } = getSpeechServices();
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     async function fetchGoals() {
@@ -65,6 +70,16 @@ export default function AISuggestion() {
     fetchBudget();
   }, []);
 
+  /**
+   * Generates and displays a financial summary suggestion based on available transactions.
+   *
+   * @throws {Error} Throws an error if required transaction data is missing.
+   * @returns {Promise<void>} Resolves when the suggestion has been generated and displayed.
+   *
+   * @example
+   * // Assuming iaTransactions, metaAhorro, and presupuesto are already defined:
+   * await getIASuggestion();
+   */
   async function getIASuggestion() {
     if (!iaTransactions || iaTransactions.length === 0) {
       alert("No hay transacciones para analizar.");
@@ -72,14 +87,49 @@ export default function AISuggestion() {
     }
     setLoading(true);
     setSuggestion("");
-    const response = await request_gemini(
+    const response = await generateFinancialSummary(
       iaTransactions,
       metaAhorro,
       presupuesto,
     );
     setSuggestion(response);
+    tts.speak(response, undefined, () => {
+      setPlaying(false);
+    });
+    setPlaying(true);
     setLoading(false);
     setShowSuggestion(true);
+  }
+
+  /**
+   * Handles the text-to-speech (TTS) playback of a suggestion or a default message if no suggestion is available.
+   *
+   * @returns {Promise<void>} Resolves when the TTS action has been triggered or canceled.
+   *
+   * @example
+   * // Toggles TTS playback depending on the current state:
+   * await handleTTS();
+   */
+  async function handleTTS() {
+    if (playing) {
+      tts.cancel();
+      setPlaying(false);
+    } else {
+      if (suggestion == "") {
+        tts.speak(
+          "Presiona generar para obtener una sugerencia",
+          undefined,
+          () => {
+            setPlaying(false);
+          },
+        );
+      } else {
+        tts.speak(suggestion, undefined, () => {
+          setPlaying(false);
+        });
+      }
+      setPlaying(true);
+    }
   }
 
   return (
@@ -123,16 +173,43 @@ export default function AISuggestion() {
               </p>
             )}
           </div>
-          <Button
-            variant="default"
-            onClick={getIASuggestion}
-            disabled={loading}
-            className="py-2 px-4 rounded-lg flex items-center gap-2 justify-center bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
-            aria-label="Generate IA Suggestion"
-          >
-            <RefreshCcw size={16} />
-            {loading ? "Generando..." : "Generar sugerencia"}
-          </Button>
+          <div className="flex justify-between items-center">
+            <Button
+              variant="default"
+              onClick={handleTTS}
+              className="py-2 px-4 rounded-lg flex items-center gap-2 justify-center bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
+              aria-label="Start Stop TTS"
+            >
+              {playing ? <Square size={16} /> : <Play size={16} />}
+            </Button>
+            <Button
+              variant="default"
+              onClick={getIASuggestion}
+              disabled={loading}
+              className="py-2 px-4 rounded-lg flex items-center gap-2 justify-center bg-purple-600 hover:bg-purple-700 text-white cursor-pointer w-[75%]"
+              aria-label="Generate IA Suggestion"
+            >
+              <RefreshCcw size={16} />
+              {loading ? "Generando..." : "Generar sugerencia"}
+            </Button>
+            <Button
+              variant="default"
+              onClick={() => setShowChat(true)}
+              className="py-2 px-4 rounded-lg flex items-center gap-2 justify-center bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
+              aria-label="Chat voice with IA"
+            >
+              <Mic size={16} />
+            </Button>
+          </div>
+          <AiChat
+            isOpen={showChat}
+            onClose={() => setShowChat(false)}
+            initialContext={{
+              transacciones: iaTransactions,
+              metaAhorro,
+              presupuesto,
+            }}
+          />
         </div>
       )}
     </div>

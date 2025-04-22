@@ -67,3 +67,67 @@ export const defaultTransaccion = {
   essential: false,
   date: new Date().toISOString().split("T")[0],
 };
+
+/**
+ * Validates a single transaction object against the schema.
+ *
+ * @param {Object} object - The transaction object to validate.
+ * @returns {Object} An object containing a `valid` boolean and an `errors` array if invalid.
+ *                   If valid, `errors` is null. If invalid, `errors` contains path and message details.
+ */
+export function isValidTransaction(object) {
+  const result = transaccionSchema.safeParse(object);
+  if (result.success) {
+    return { valid: true, errors: null };
+  } else {
+    const errors = result.error.errors.map((e, i) => ({
+      path: e.path.join("."),
+      message: e.message,
+      index: i + 1,
+    }));
+    return {
+      valid: false,
+      errors,
+    };
+  }
+}
+
+/**
+ * Validates an array of transaction objects.
+ *
+ * @param {Array<Object>} array - An array of transaction objects to validate.
+ * @returns {Object} An object with a `valid` boolean and `errors` array.
+ *                   If all transactions are valid, `errors` is null.
+ *                   If some are invalid, `errors` gives each issue with the specific transaction index and path.
+ */
+export function isValidTransactionArray(array) {
+  if (!Array.isArray(array)) {
+    return {
+      valid: false,
+      errors: [{ path: "array", message: "El valor no es un arreglo." }],
+    };
+  }
+
+  const allResults = array.map((item, index) => {
+    const result = isValidTransaction(item);
+    return {
+      index,
+      ...result,
+    };
+  });
+
+  const invalids = allResults.filter((r) => !r.valid);
+
+  if (invalids.length === 0) {
+    return { valid: true, errors: null };
+  }
+
+  const errors = invalids.flatMap(({ index, errors }) =>
+    errors.map((e) => ({
+      path: `transactions[${index}].${e.path}`,
+      message: e.message,
+    })),
+  );
+
+  return { valid: false, errors };
+}

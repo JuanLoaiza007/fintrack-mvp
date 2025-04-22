@@ -16,10 +16,15 @@ jest.mock("@/components/ui/features/transacciones/history", () => ({
 }));
 jest.mock("@/components/ui/features/transacciones/footer", () => ({
   __esModule: true,
-  default: ({ onOpenCreate }) => (
-    <button data-testid="open-create" onClick={onOpenCreate}>
-      Create Transaction
-    </button>
+  default: ({ onOpenCreate, onOpenCreateWithAI }) => (
+    <>
+      <button data-testid="open-create" onClick={onOpenCreate}>
+        Create Transaction
+      </button>
+      <button data-testid="open-create-ai" onClick={onOpenCreateWithAI}>
+        Crear con IA
+      </button>
+    </>
   ),
 }));
 jest.mock("@/components/ui/features/transacciones/form", () => ({
@@ -33,6 +38,27 @@ jest.mock("@/components/ui/features/transacciones/form", () => ({
     </div>
   ),
 }));
+jest.mock("@/utils/gemini-transaction-interpreter", () => ({
+  interpretTransactions: jest.fn().mockResolvedValue({
+    transactions: [
+      {
+        description: "Sueldo",
+        amount: 1000000,
+        type: "income",
+        category: "work",
+        essential: false,
+        date: "2025-04-17",
+      },
+    ],
+  }),
+}));
+jest.mock(
+  "@/components/ui/features/transacciones/ai-voice-transaction-creator",
+  () => ({
+    __esModule: true,
+    default: () => <div data-testid="mock-voice-creator" />,
+  }),
+);
 
 describe("TransactionModule", () => {
   beforeEach(() => {
@@ -73,5 +99,11 @@ describe("TransactionModule", () => {
 
     fireEvent.click(screen.getByTestId("close-form"));
     expect(screen.queryByTestId("transaction-form")).not.toBeInTheDocument();
+  });
+
+  it("opens AI transaction creator when AI button is clicked", () => {
+    render(<TransactionModule />);
+    fireEvent.click(screen.getByTestId("open-create-ai"));
+    expect(screen.getByTestId("mock-voice-creator")).toBeInTheDocument();
   });
 });

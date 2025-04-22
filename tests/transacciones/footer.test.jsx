@@ -8,7 +8,12 @@ jest.mock("react-markdown", () => ({
 }));
 
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import TransactionFooter from "@/components/ui/features/transacciones/footer";
 import { TransactionProvider } from "@/context/TransactionContext";
 
@@ -40,5 +45,37 @@ describe("TransactionFooter", () => {
     );
     fireEvent.click(screen.getByLabelText("Create Transaction"));
     expect(handleOpenCreate).toHaveBeenCalledWith(true);
+  });
+
+  it("shows the extra button when hovering over the main button", () => {
+    render(
+      <TransactionProvider>
+        <TransactionFooter onOpenCreate={jest.fn()} />
+      </TransactionProvider>,
+    );
+
+    expect(
+      screen.queryByLabelText("Extra Plus Action"),
+    ).not.toBeInTheDocument();
+
+    fireEvent.mouseEnter(screen.getByLabelText("Create Transaction"));
+    expect(screen.getByLabelText("Extra Plus Action")).toBeInTheDocument();
+  });
+
+  it("hides the extra button when mouse leaves the button area", async () => {
+    render(
+      <TransactionProvider>
+        <TransactionFooter onOpenCreate={jest.fn()} />
+      </TransactionProvider>,
+    );
+
+    fireEvent.mouseEnter(screen.getByLabelText("Create Transaction"));
+    expect(screen.getByLabelText("Extra Plus Action")).toBeInTheDocument();
+
+    fireEvent.mouseLeave(screen.getByLabelText("Create Transaction"));
+
+    await waitForElementToBeRemoved(() =>
+      screen.getByLabelText("Extra Plus Action"),
+    );
   });
 });

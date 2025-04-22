@@ -14,10 +14,16 @@ import {
 } from "@/components/ui/sidebar";
 
 import Link from "next/link";
-
-import { ChartArea, Award, ArrowLeftRight, HandCoins } from "lucide-react";
+import {
+  ChartArea,
+  Award,
+  ArrowLeftRight,
+  HandCoins,
+  HelpCircle,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { UserManual } from "@/components/ui/features/ai-user-manual";
 
 const items = [
   {
@@ -40,6 +46,11 @@ const items = [
     link: "/reportes",
     icon: ChartArea,
   },
+  {
+    title: "Configuración",
+    link: "/configuracion",
+    icon: ChartArea,
+  },
 ];
 
 /**
@@ -47,8 +58,8 @@ const items = [
  *
  * The sidebar includes a header with the application logo and title,
  * a content section with navigation links grouped under "Finanzas",
- * and a footer section. The active link is highlighted based on the
- * current path.
+ * a "How to use" section at the bottom that opens a modal, and a footer section.
+ * The active link is highlighted based on the current path.
  *
  * @component
  *
@@ -80,6 +91,24 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupLabel>Ayuda</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <UserManual
+                  trigger={
+                    <SidebarMenuButton>
+                      <HelpCircle className="w-6 h-6 mr-2" />
+                      Chatbot de ayuda
+                    </SidebarMenuButton>
+                  }
+                />
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

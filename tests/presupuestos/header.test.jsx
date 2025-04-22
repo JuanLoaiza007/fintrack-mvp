@@ -24,7 +24,12 @@ describe("BudgetHeader", () => {
     expect(screen.getByText("Tú presupuesto es de:")).toBeInTheDocument();
     expect(screen.getByText("$500")).toBeInTheDocument();
     expect(screen.getByText("Total gastado este mes:")).toBeInTheDocument();
-    expect(screen.getByText("$50")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (content, element) =>
+          element.tagName.toLowerCase() === "h3" && content.includes("50"),
+      ),
+    ).toBeInTheDocument();
   });
 
   it("disables 'Define tu presupuesto' button when budget exists", () => {
