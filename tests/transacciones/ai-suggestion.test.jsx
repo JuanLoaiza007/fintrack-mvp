@@ -28,6 +28,28 @@ jest.mock("@/context/TransactionContext", () => ({
   }),
 }));
 
+// Create a mock for tts.speak
+const mockSpeak = jest.fn();
+
+// Mock getSpeechServices
+jest.mock("@/utils/speechServices", () => ({
+  getSpeechServices: () => ({
+    tts: { speak: mockSpeak },
+  }),
+}));
+
+// Mock speechFlow (used in AiChat)
+jest.mock("@/utils/speechFlow", () => ({
+  __esModule: true,
+  default: () => ({
+    transcript: "",
+    listening: false,
+    supportsSpeechRecognition: false,
+    start: jest.fn(),
+    stop: jest.fn(),
+  }),
+}));
+
 // Mock window.alert
 window.alert = jest.fn();
 
@@ -35,9 +57,7 @@ describe("AISuggestion Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.navigator.mediaDevices = {
-      getUserMedia: jest.fn().mockResolvedValue({
-        // Puedes retornar un objeto MediaStream falso si lo necesitas
-      }),
+      getUserMedia: jest.fn().mockResolvedValue({}),
     };
 
     global.AudioContext = jest.fn().mockImplementation(() => ({
@@ -63,7 +83,6 @@ describe("AISuggestion Component", () => {
   });
 
   it("fetches goals on mount and updates metaAhorro", async () => {
-    // Provide fake goals data with one goal in current month
     const fakeGoals = [
       { id: 1, amount: 5000, targetDate: new Date().toISOString() },
       { id: 2, amount: 10000, targetDate: "2024-01-01" },
@@ -78,7 +97,6 @@ describe("AISuggestion Component", () => {
   it("allows closing the suggestion panel", async () => {
     generateFinancialSummary.mockResolvedValueOnce("Suggestion text");
     render(<AISuggestion />);
-    // Open the suggestion panel by clicking the open button and then generate
     fireEvent.click(
       screen.getByRole("button", { name: /open ia suggestion/i }),
     );
@@ -88,12 +106,26 @@ describe("AISuggestion Component", () => {
     await waitFor(() => {
       expect(screen.getByText(/suggestion text/i)).toBeInTheDocument();
     });
-    // Click the close button
     fireEvent.click(
       screen.getByRole("button", { name: /close ia suggestion/i }),
     );
     await waitFor(() => {
       expect(screen.queryByText(/suggestion text/i)).toBeNull();
     });
+  });
+
+  it("calls tts.speak with the suggestion", async () => {
+    generateFinancialSummary.mockResolvedValueOnce("Mock spoken suggestion");
+    render(<AISuggestion />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /open ia suggestion/i }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /generate ia suggestion/i }),
+    );
+    await waitFor(() => {
+      expect(screen.getByText(/mock spoken suggestion/i)).toBeInTheDocument();
+    });
+    expect(mockSpeak).toHaveBeenCalledWith("Mock spoken suggestion");
   });
 });

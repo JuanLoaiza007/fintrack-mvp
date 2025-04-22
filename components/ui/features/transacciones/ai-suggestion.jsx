@@ -28,6 +28,7 @@ import { RefreshCcw, X, WandSparkles, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTransactionContext } from "@/context/TransactionContext";
 import AiChat from "./ai-chat";
+import { getSpeechServices } from "@/utils/speechServices";
 
 export default function AISuggestion() {
   const { iaTransactions } = useTransactionContext();
@@ -37,6 +38,7 @@ export default function AISuggestion() {
   const [metaAhorro, setMetaAhorro] = useState(null);
   const [presupuesto, setPresupuesto] = useState(null);
   const [showChat, setShowChat] = useState(false);
+  const { tts } = getSpeechServices();
 
   useEffect(() => {
     async function fetchGoals() {
@@ -67,6 +69,16 @@ export default function AISuggestion() {
     fetchBudget();
   }, []);
 
+  /**
+   * Generates and displays a financial summary suggestion based on available transactions.
+   *
+   * @throws {Error} Throws an error if required transaction data is missing.
+   * @returns {Promise<void>} Resolves when the suggestion has been generated and displayed.
+   *
+   * @example
+   * // Assuming iaTransactions, metaAhorro, and presupuesto are already defined:
+   * await getIASuggestion();
+   */
   async function getIASuggestion() {
     if (!iaTransactions || iaTransactions.length === 0) {
       alert("No hay transacciones para analizar.");
@@ -80,6 +92,7 @@ export default function AISuggestion() {
       presupuesto,
     );
     setSuggestion(response);
+    tts.speak(response)
     setLoading(false);
     setShowSuggestion(true);
   }
