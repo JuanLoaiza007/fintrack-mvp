@@ -28,13 +28,14 @@ jest.mock("@/context/TransactionContext", () => ({
   }),
 }));
 
-// Create a mock for tts.speak
+// Create a mock for tts.speak and tts.cancel
 const mockSpeak = jest.fn();
+const mockCancel = jest.fn();
 
 // Mock getSpeechServices
 jest.mock("@/utils/speechServices", () => ({
   getSpeechServices: () => ({
-    tts: { speak: mockSpeak },
+    tts: { speak: mockSpeak, cancel: mockCancel },
   }),
 }));
 
@@ -126,6 +127,52 @@ describe("AISuggestion Component", () => {
     await waitFor(() => {
       expect(screen.getByText(/mock spoken suggestion/i)).toBeInTheDocument();
     });
-    expect(mockSpeak).toHaveBeenCalledWith("Mock spoken suggestion");
+    const ttsButton = screen.getByRole("button", { name: /start stop tts/i });
+    fireEvent.click(ttsButton);
+    expect(mockSpeak).toHaveBeenCalledWith(
+      "Mock spoken suggestion",
+      undefined,
+      expect.any(Function),
+    );
+  });
+
+  it("calls tts.speak with fallback message if no suggestion exists", async () => {
+    render(<AISuggestion />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /open ia suggestion/i }),
+    );
+    const ttsButton = screen.getByRole("button", { name: /start stop tts/i });
+    fireEvent.click(ttsButton);
+    expect(mockSpeak).toHaveBeenCalledWith(
+      "Presiona generar para obtener una sugerencia",
+      undefined,
+      expect.any(Function),
+    );
+  });
+
+  it("cancels tts if playing is true", async () => {
+    generateFinancialSummary.mockResolvedValueOnce("Cancel test suggestion");
+    render(<AISuggestion />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /open ia suggestion/i }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /generate ia suggestion/i }),
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByText(/cancel test suggestion/i),
+      ).toBeInTheDocument();
+    });
+    const ttsButton = screen.getByRole("button", { name: /start stop tts/i });
+    // start playback
+    fireEvent.click(ttsButton);
+    // simulate callback setting playing to false
+    await waitFor(() => {
+      expect(mockSpeak).toHaveBeenCalled();
+    });
+    // stop playback
+    fireEvent.click(ttsButton);
+    expect(mockCancel).toHaveBeenCalled();
   });
 });

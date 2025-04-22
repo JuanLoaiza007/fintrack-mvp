@@ -96,12 +96,18 @@ export const elevenLabsTTS = {
    *
    * @param {string} text - The text to be spoken (required).
    * @param {string} [voiceId=DEFAULT_VOICE_ID] - The voice ID to use for text-to-speech (optional).
+   * @param {Function} [onEndCallback=() => {}] - A callback function to be executed when the audio playback ends (optional).
    * @returns {Promise<void>} A promise that resolves when the audio playback starts.
    * @throws {Error} If the text-to-speech conversion fails.
    * @example
    * await elevenLabsTTS.speak('This is an example.');
+   *
+   * @example
+   * await elevenLabsTTS.speak('Playback finished callback.', undefined, () => {
+   *   console.log('Audio has finished playing.');
+   * });
    */
-  speak: async (text, voiceId = DEFAULT_VOICE_ID) => {
+  speak: async (text, voiceId = DEFAULT_VOICE_ID, onEndCallback = () => { }) => {
     voiceId = localStorage.getItem("selectedVoiceId") || DEFAULT_VOICE_ID;
     if (currentAudio) {
       currentAudio.pause();
@@ -110,6 +116,9 @@ export const elevenLabsTTS = {
     const blob = await generateAudioFromText(text, voiceId);
     const audio = new Audio(createAudioURL(blob));
     currentAudio = audio;
+    audio.onended = () => {
+      onEndCallback();
+    };
     await audio.play();
   },
 
